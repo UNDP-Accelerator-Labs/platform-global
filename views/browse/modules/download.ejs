@@ -1,0 +1,196 @@
+<% 
+	// CREATE ALIASES
+	const metafields = locals.metadata.site.metafields
+	const modules = locals.metadata.site.modules
+	const space = locals.metadata.page.space
+	const object = locals.metadata.page.object
+	const query = locals.metadata.page.query
+	const language = locals.metadata.page.language
+	const rights = locals.metadata.user.rights
+%>
+
+<script type='text/javascript'>
+	async function setDownloadOptions () {
+		const target_opts = [
+			{
+				label: '.csv',
+				value: 'csv',
+				type: 'radio',
+				required: true
+			},
+			{
+				label: '.xslx',
+				value: 'xlsx',
+				type: 'radio',
+				required: true
+			},
+			{
+				label: '.json',
+				value: 'json',
+				type: 'radio',
+				required: true
+			},
+			{
+				label: '.geojson',
+				value: 'geojson',
+				type: 'radio',
+				required: true
+			}
+		]
+
+	<% if (['pads', 'mobilizations'].includes(object)) { %>
+		target_opts.push({
+			label: '.docx',
+			value: 'docx',
+			type: 'radio',
+			required: true
+		})
+		// TO DO: IMPROVE THIS SINCE FOR NOW IT IS LIMITED TO THE 25 SHOWN ON THE CURRENT PAGE
+		const templates = <%- JSON.stringify(locals?.sections?.map(d => d?.data?.map(c => c.template))?.flat()) %>
+		const notemplates = templates?.every(d => [null, undefined].includes(d))
+
+		const years = (<%- JSON.stringify(locals?.sections?.map(d => d.data)?.flat()) %>).unique()
+		console.log(years)
+
+		const formdata = { action: '/apis/download/pads',  method: 'POST' }
+		const message = '<%- vocabulary["select download options"][language] %>'
+		const opts = []
+		opts.push({ node: 'select', name: 'output', label: '<%- vocabulary["select format"][language] %>', options: target_opts, classname: 'csv xlsx json geojson docx', fn: resetFeatures })
+		
+		opts.push({ node: 'input', type: 'checkbox', name: 'use_templates', value: true, placeholder: '<%- vocabulary["use templates"][language] %>', checked: true, default: true, classname: 'hide csv xlsx json geojson' })
+		opts.push({ node: 'input', type: 'checkbox', name: 'include_data', value: true, placeholder: '<%- vocabulary["include data"][language] %>', checked: true, default: true, classname: 'hide csv xlsx json geojson docx' })
+
+		opts.push({ node: 'input', type: 'checkbox', name: 'include_toc', value: true, placeholder: 'Include table of contents', checked: true, default: true, classname: 'hide docx' }) // TO DO: TRANSLATE
+		
+		if (notemplates) {
+			opts.push({ node: 'input', type: 'checkbox', name: 'standardize_structure', value: true, placeholder: 'Standardize structure', checked: false, default: true, classname: 'hide docx' }) // TO DO: TRANSLATE
+		}
+
+		opts.push({ node: 'input', type: 'checkbox', name: 'include_imgs', value: true, placeholder: '<%- vocabulary["include media"][language] %>', default: true, classname: 'hide csv xlsx json geojson' })
+		
+		<% if (metafields.some(d => ['index', 'tag'].includes(d.type))) { %>
+			opts.push({ node: 'input', type: 'checkbox', name: 'include_tags', value: true, placeholder: '<%- vocabulary["include tags"][language] %>', default: true, classname: 'hide csv xlsx json geojson' })
+		<% } %>
+		<% if (metafields.some(d => d.type === 'location')) { %>
+			opts.push({ node: 'input', type: 'checkbox', name: 'include_locations', value: true, placeholder: '<%- vocabulary["include locations"][language] %>', default: true, classname: 'hide csv xlsx json geojson' })
+		<% } %>
+		<% if (metafields.some(d => !['tag', 'index', 'location'].includes(d.type))) { %>
+			opts.push({ node: 'input', type: 'checkbox', name: 'include_metafields', value: true, placeholder: '<%- vocabulary["include metafields"][language] %>', default: true, classname: 'hide csv xlsx json geojson' })
+		<% } %>
+
+		opts.push({ node: 'input', type: 'checkbox', name: 'include_engagement', value: true, placeholder: '<%- vocabulary["include engagement"][language] %>', default: true, classname: 'hide csv xlsx json geojson' })
+		opts.push({ node: 'input', type: 'checkbox', name: 'include_comments', value: true, placeholder: '<%- vocabulary["include comments"][language] %>', default: true, classname: 'hide csv xlsx json geojson' })
+
+		// IN CASE THIS IS A SINGLE DOWNLOAD
+		if (this.name && this.value) opts.push({ node: 'input', type: 'hidden', name: this.name, value: this.value })
+		else { // ADD THE PAGE QUERY VARIABLES
+			<% Object.keys(query)?.forEach(d => {
+				if (Array.isArray(query[d])) { 
+					query[d].forEach(c => { %>
+						opts.push({ node: 'input', type: 'hidden', name: '<%- d %>', value: '<%- c %>' })
+					<% })
+				} else { %>
+					opts.push({ node: 'input', type: 'hidden', name: '<%- d %>', value: '<%- query[d] %>' })
+				<% } 
+			}) %>
+			opts.push({ node: 'input', type: 'hidden', name: 'space', value: '<%- space %>' })
+		}
+
+		// CHAPTERING OPTIONS FOR docx
+		const chapter_opts = [
+			{
+				label: 'None', // TO DO: TRANSLATE
+				value: 'none',
+				type: 'radio'
+			},
+			<% if (modules.some(d => d.type === 'templates')) { %>
+				{
+					label: '<%- vocabulary["template"][language]() %>',
+					value: 'template',
+					type: 'radio'
+				},
+			<% } %>
+			{
+				label: 'Country', // TO DO: TRANSLATE
+				value: 'country',
+				type: 'radio'
+			},
+			{
+				label: 'Contributor', // TO DO: TRANSLATE
+				value: 'ownername',
+				type: 'radio'
+			},
+			{
+				label: 'Year', // TO DO: TRANSLATE
+				value: 'year',
+				type: 'radio'
+			}
+		]
+
+		// opts.push({ node: 'select', name: 'chapters', label: 'Chapter by', options: chapter_opts, classname: 'hide docx', fn: limitSelection }) // TO DO: TRANSLATE
+		opts.push({ node: 'select', name: 'chapters', label: 'Chapter by', options: chapter_opts, classname: 'hide docx' }) // TO DO: TRANSLATE
+
+		opts.push({ node: 'button', type: 'submit', name: 'render', value: true, label: '<%- vocabulary["download"][language] %>', classname: 'submit' })
+
+		function resetFeatures (data) {
+			const { value } = data
+			const form = d3.select(this.form)
+			// UPDATE THIS TO li LEVEL
+			form.selectAll(`li.opt:not(.submit)`)
+			.each(function () {
+				const sel = d3.select(this)
+				const deactivate = !sel.classed(value)
+				sel.classed('hide', deactivate)
+				sel.selectAll('input:not([type=hidden])').each(function () { this.disabled = deactivate })
+			})
+
+			if (value === 'docx' && notemplates) {
+				// STANDARDIZE STRUCTURE OPTION
+				// TO DO: ADD GROUP BY OPTION (e.g. COUNTRY, YEAR, TEMPLATE)
+			}
+		}
+		function limitSelection (data) {
+			const { name, type, form: formnode } = this
+			const node = this
+			console.log(name, type)
+			// .dropdown menu li
+			const form = d3.select(formnode)
+			form.selectAll(`input[name=${name}]`)
+			.each(function () {
+				if (this !== node) {
+					this.checked = false
+					d3.select(this.parentNode).classed('active', false)
+				}
+			})
+		}
+	
+	<% } else if (object === 'contributors') { %>
+		
+		const formdata = { action: '/apis/download/contributors',  method: 'POST' }
+		const message = '<%- vocabulary["select download options"][language] %>'
+		const opts = []
+		opts.push({ node: 'select', name: 'output', label: '<%- vocabulary["select format"][language] %>', options: target_opts })
+
+		opts.push({ node: 'input', type: 'checkbox', name: 'include_data', value: true, placeholder: '<%- vocabulary["include data"][language] %>', checked: true, default: true })
+
+		opts.push({ node: 'input', type: 'checkbox', name: 'include_teams', value: true, placeholder: 'Include team information', checked: true, default: true }) // TO DO: TRANSLATE
+		opts.push({ node: 'input', type: 'checkbox', name: 'include_contributions', value: true, placeholder: 'Include contributions information', checked: true, default: true }) // TO DO: TRANSLATE
+
+		// ADD THE PAGE QUERY VARIABLES
+		<% Object.keys(query)?.forEach(d => {
+			if (Array.isArray(query[d])) { 
+				query[d].forEach(c => { %>
+					opts.push({ node: 'input', type: 'hidden', name: '<%- d %>', value: '<%- c %>' })
+				<% })
+			} else { %>
+				opts.push({ node: 'input', type: 'hidden', name: '<%- d %>', value: '<%- query[d] %>' })
+			<% } 
+		}) %>
+		opts.push({ node: 'input', type: 'hidden', name: 'space', value: '<%- space %>' })
+
+		opts.push({ node: 'button', type: 'submit', name: 'render', value: true, label: '<%- vocabulary["download"][language] %>', disabled: true })
+	<% } %>
+
+		const new_constraint = await renderFormModal({ message, formdata, opts })
+	}
+</script>

@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+
+<% 
+	// CREATE ALIASES
+	const modules = locals.metadata.site.modules
+	const rights = locals.metadata.user.rights
+	const language = locals.metadata.page.language
+	const editable = !locals.data || locals.data.editable
+%>
+
+<html lang='<%- language %>'>
+<head>
+
+<%- include ('partials/head.ejs') %> 
+
+<link rel='stylesheet' href='https://unpkg.com/leaflet@1.6.0/dist/leaflet.css'
+	integrity='sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=='
+	crossorigin=''/>
+<script src='https://unpkg.com/leaflet@1.6.0/dist/leaflet.js'
+	integrity='sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=='
+	crossorigin=''></script>
+
+</head>
+
+<body>
+
+<%- include ('partials/translations.ejs') %> 
+<%- include ('partials/menu-languages.ejs') %> 
+
+<header>
+	<div class='inner'>
+		<%- include ('partials/menu-logo.ejs') %> 
+	</div>
+</header>
+
+<%# include ('partials/modals.ejs') %> 
+
+<div class='fact-sheet'>
+	<main id='profile'>
+		<div class='inner'>
+			<div class='meta-status status-<%- locals.data?.uuid ? 2 : 0 %>'>
+				<div class='btn-group'>
+					<% if (editable) { %>
+						<button type='submit' class='save' form='profile-form' disabled='true'>Save</button>
+					<% } %>
+				</div>
+			</div>
+			<div class='head'>
+				<div class='title'><%- vocabulary['contributor profile'][language] %></div>
+			</div>
+			<div class='body'>
+				<form action='/save/contributor' method='POST' id='profile-form' autocomplete='off'>
+					<% if (locals.data?.uuid && editable) { %>
+						<input type='hidden' name='id' value='<%- locals.data?.uuid %>'>
+					<% } %>
+					<div class='main-info info'>
+						<ul>
+							<li>
+								<div class='required'>
+									<label class='active'>*</label>
+								</div>
+								<label class='instruction'><%- vocabulary['name'][language] %></label>
+								<div class='input-group'>
+									<input type='text' id='new-name' name='new_name' autocomplete='new-name' value='<%- locals.data?.name %>' required <% if (!editable) { %>disabled<% } %>>
+									<label for='new-name'><%- vocabulary['first and last name'][language] %></label>
+								</div>
+							</li>
+							<li>
+								<div class='required'>
+									<label class='active'>*</label>
+								</div>
+								<label class='instruction'><%- vocabulary['email'][language] %></label>
+								<div class='input-group'>
+									<input type='email' id='new-email' name='new_email' autocomplete='new-email' pattern='.+@.+\.\w+' value='<%- locals.data?.email %>' required <% if (!editable) { %>disabled<% } %>>
+									<label for='new-email'><%- vocabulary['email address'][language] %></label>
+								</div>
+							</li>
+							<li>
+								<div class='required'>
+									<label class='active'>*</label>
+								</div>
+								<label class='instruction'><%- vocabulary['job title'][language] %></label>
+								<div class='input-group'>
+									<input type='text' id='new-position' name='new_position' autocomplete='new-position' value='<%- locals.data?.position %>' required <% if (!editable) { %>disabled<% } %>>
+									<label for='new-position'><%- vocabulary['job title'][language] %></label>
+								</div>
+							</li>
+						</ul>
+					</div>
+					<% if (editable) { %>
+						<% if (locals.data?.uuid) { %>
+							<button type='button' class='expand-collapsed' id='reset-password'><%- vocabulary['reset password'][language] %></button>
+							<div class='old-password-info info collapsed'>
+								<ul>
+									<li>
+										<div class='required'>
+											<label class='active'>*</label>
+										</div>
+										<label class='instruction'><%- vocabulary['old password'][language] %></label>
+										<div class='input-group'>
+											<input type='password' id='old-password' name='old_password' autocomplete='old-password' <% if (!locals.data?.uuid) { %>required<% } %> <% if (!editable) { %>disabled<% } %>>
+											<label for='old-password'><%- vocabulary['password'][language] %></label>
+										</div>
+									</li>
+									<li>
+										<div class='required'>
+											<label class='active'>*</label>
+										</div>
+										<button type='button' class='expand-collapsed' id='check-old-password'><%- vocabulary['verify old password'][language] %></button>
+									</li>
+								</ul>
+							</div>
+						<% } %>
+						<div class='password-info info <% if (locals.data?.uuid) { %>collapsed<% } %>'>
+							<ul>
+								<li>
+									<div class='required'>
+										<label class='active'>*</label>
+									</div>
+									<% if (locals.data?.uuid) { %>
+										<label class='instruction'><%- vocabulary['new password'][language] %></label>
+									<% } else { %>
+										<label class='instruction'><%- vocabulary['password'][language] %></label>
+									<% } %>
+									<div class='input-group'>
+										<input type='password' id='new-password' name='new_password' autocomplete='new-password' <% if (!locals.data?.uuid) { %>required<% } %> <% if (!editable) { %>disabled<% } %>>
+										<label for='new-password'><%- vocabulary['password'][language] %></label>
+									</div>
+								</li>
+								<li>
+									<div class='required'>
+										<label class='active'>*</label>
+									</div>
+									<% if (locals.data?.uuid) { %>
+										<label class='instruction'><%- vocabulary['confirm new password'][language] %></label>
+									<% } else { %>
+										<label class='instruction'><%- vocabulary['confirm password'][language] %></label>
+									<% } %>
+									<div class='input-group'>
+										<input type='password' id='confirm-password' name='confirm_password' autocomplete='confirm-password' <% if (!locals.data?.uuid) { %>required<% } %> <% if (!editable) { %>disabled<% } %>>
+										<label for='confirm-password'><%- vocabulary['password'][language] %></label>
+									</div>
+								</li>
+							</ul>
+						</div>
+					<% } %>
+					<div class='secondary-info info'>
+						<ul>
+							<li>
+								<div class='required'>
+									<label class='active'>*</label>
+								</div>
+								<label for='user-country' class='instruction'><%- vocabulary['country'][language] %></label>
+								<div class='select'>
+									<input type='text' id='new-country' autocomplete='new-country' value='<%- locals.data?.country %>' <% if (!editable) { %>disabled<% } %>>
+									<label for='new-country'><%- vocabulary['select country'][language] %></label>
+									<% if (editable) { %>
+										<div class='dropdown'>
+											<menu>
+												<% locals.countries.forEach(d => { %>
+													<li>
+														<input type='radio' id='ctr-<%- d.iso3 %>' name='iso3' value='<%- d.iso3 %>' data-label='<%- d.name.capitalize() %>' required <% if (locals.data?.iso3 === d.iso3) { %>checked<% } %>>
+														<label for='ctr-<%- d.iso3 %>'><%- d.name.capitalize() %></label>
+													</li>
+												<% }) %>
+											</menu>
+										</div>
+									<% } %>
+								</div>
+							</li>
+							<li>
+								<div class='required'>
+									<label class='active'>*</label>
+								</div>
+								<label class='instruction'><%- vocabulary['preferred language'][language] %></label>
+								<div class='select'>
+									<input type='text' id='new-language' autocomplete='new-language' value='<%- locals.data?.languagename %>' <% if (!editable) { %>disabled<% } %>>
+									<label for='new-language'><%- vocabulary['select language'][language]() %></label>
+									<% if (editable) { %>
+										<div class='dropdown'>
+											<menu>
+												<% locals.languages.forEach(d => { %>
+													<li>
+														<input type='radio' id='language-<%- d.language %>' name='language' value='<%- d.language %>' data-label='<%- d.name.capitalize() %>' required <% if (locals.data?.language === d.language) { %>checked<% } %>>
+														<label for='language-<%- d.language %>'><%- d.name.capitalize() %></label>
+														<!-- TO DO: TRANSLATE LANGUAGE NAMES (e.g. FRENCH TO FRANÇAIS) -->
+													</li>
+												<% }) %>
+											</menu>
+										</div>
+									<% } %>
+								</div>
+							</li>
+							<% if (editable) { %>
+								<!-- ADD OTHER FLUENT LANGUAGES -->
+								<li>
+								<% if (locals.data?.secondary_languages?.length > 0) { %>
+									<label class='instruction'><%- vocabulary['other languages'][language] %></label>
+									<div class='select'>
+										<input type='text' id='secondary-languages' autocomplete='secondary-languages' value='<%- locals.languages.filter(d => locals.data?.secondary_languages?.includes(d.language)).map(d => d.name).join(", ") %>' <% if (!editable) { %>disabled<% } %>>
+										<label for='secondary-languages'><%- vocabulary['select language'][language](true) %></label>
+										<% if (editable) { %>
+											<div class='dropdown'>
+												<menu>
+													<% locals.languages.forEach(d => { %>
+														<li>
+															<input type='checkbox' id='secondary-language-<%- d.language %>' name='secondary_languages' value='<%- d.language %>' data-label='<%- d.name.capitalize() %>' <% if (locals.data?.secondary_languages.includes(d.language)) { %>checked<% } %> <% if (locals.data?.language === d.language) { %>disabled<% } %>>
+															<label for='secondary-language-<%- d.language %>'><%- d.name.capitalize() %></label>
+															<!-- TO DO: TRANSLATE LANGUAGE NAMES (e.g. FRENCH TO FRANÇAIS) -->
+														</li>
+													<% }) %>
+												</menu>
+											</div>
+										<% } %>
+									</div>
+								<% } else { %>
+									<button class='add-info' type='button' onclick='addLanguage(this.parentNode)'>
+										<span class='add-circle'>+</span><%- vocabulary['add other languages'][language] %>
+									</button>
+								<% } %>
+								</li>
+							<% } %>
+							<!-- IF THIS IS CREATED FOR SOMEONE, SET RIGHTS -->
+							<li>
+								<div class='required'>
+									<label class='active'>*</label>
+								</div>
+								<label class='instruction'><%- vocabulary['user rights'][language] %></label>
+								<div class='select'>
+									<% if (editable && (!locals.data || locals.data?.rights <= rights)) { %>
+										<input type='text' id='new-rights' value='<%- locals.data?.rights %>'>
+										<label for='new-rights'><%- vocabulary['grant rights'][language] %></label>
+										<div class='dropdown'>
+											<menu>
+												<% for (let i = 0; i <= rights; i ++) { %>
+													<li>
+														<input type='radio' id='rights-<%- i %>' name='rights' value='<%- i %>' data-label='<%- i %>' required <% if (locals.data?.rights === i) { %>checked<% } %>>
+														<label for='rights-<%- i %>'><%- i %></label>
+														<!-- TO DO: DESCRIBE RIGHTS
+															0 - no rights
+															1 - external
+															2 - internal
+															3 - admin
+														-->
+													</li>
+												<% } %>
+											</menu>
+										</div>
+									<% } else { %>
+										<input type='hidden' name='rights' value='<%- locals.data?.rights %>'>
+										<input type='text' id='new-rights' value='<%- locals.data?.rights %>' disabled>
+									<% } %>
+								</div>
+							</li>
+							<% if (!locals.data || locals.data?.host_editor) { %>
+								<li>
+									<label class='instruction'><%- vocabulary['teams'][language] %></label>
+									<div class='select'>
+										<input type='text' id='new-team' <% if (!editable) { %>disabled<% } %>>
+										<label for='new-team'><%- vocabulary['assign to teams'][language] %></label>
+										<% if (editable) { %>
+											<div class='dropdown'>
+												<menu>
+													<% locals.teams.forEach(d => { %>
+														<li>
+															<input type='checkbox' id='team-<%- d.id %>' name='teams' value='<%- d.id %>' data-label='<%- d.name %>' <% if (locals.data?.teams.some(c => c.id === d.id)) { %>checked<% } %>>
+															<label for='team-<%- d.id %>'><%- d.name %></label>
+														</li>
+													<% }) %>
+												</menu>
+											</div>
+										<% } %>
+									</div>
+									<div class='pinboard-group margin-left'>
+										<div class='pinboard'>
+											<div class='pins'>
+												<% locals.data?.teams.forEach(d => { %>
+													<div class='pin tag'>
+														<label class='name'><%- d.name %></label>
+														<label class='close' data-id='<%- d.id %>' data-name='teams' onclick='rmPin(this)'>x</label>
+													</div>
+												<% }) %>
+											</div>
+										</div>
+									</div>
+								</li>
+							<% } else { %>
+								<li>
+									<label class='instruction'><%- vocabulary['teams'][language] %></label>
+									<div class='pinboard-group'>
+										<div class='pinboard'>
+											<div class='pins'>
+												<% locals.data?.teams.forEach(d => { %>
+													<div class='pin tag'>
+														<label class='name'><%- d.name %></label>
+													</div>
+												<% }) %>
+											</div>
+										</div>
+									</div>
+								</li>
+							<% } %>
+						</ul>
+					</div>
+					<div class='secondary-info info'>
+						<ul>
+							<% if (modules.some(d => d.type === 'reviews' && rights >= d.rights.write)) { %>
+								<li>
+									<label class='instruction'><%- vocabulary['accept to review'][language] %></label>
+									<div class='input-group'>
+										<input type='checkbox' id='accept-reviews' name='reviewer' value='true' class='toggle' onchange='toggleOptions(this, [`<%- vocabulary["yes"][language].toUpperCase() %>`, `<%- vocabulary["no"][language].toUpperCase() %>`])' <% if (locals.data?.reviewer) { %>checked<% } %><% if (!editable) { %> disabled<% } %>>
+										<label for='accept-reviews' data-content='<% if (locals.data?.reviewer) { %><%- vocabulary["yes"][language].toUpperCase() %><% } else { %><%- vocabulary["no"][language].toUpperCase() %><% } %>'></label>
+									</div>
+								</li>
+							<% } %>
+							<li>
+								<label class='instruction'><%- vocabulary['email notifications'][language] %></label>
+								<div class='input-group'>
+									<input type='checkbox' id='email-notifications' name='email_notifications' value='true' class='toggle' onchange='toggleOptions(this, [`<%- vocabulary["yes"][language].toUpperCase() %>`, `<%- vocabulary["no"][language].toUpperCase() %>`])' <% if (locals.data?.notifications) { %>checked<% } %><% if (!editable) { %> disabled<% } %>>
+									<label for='email-notifications' data-content='<% if (locals.data?.notifications) { %><%- vocabulary["yes"][language].toUpperCase() %><% } else { %><%- vocabulary["no"][language].toUpperCase() %><% } %>'></label>
+								</div>
+							</li>
+						</ul>
+					</div>
+				</form>
+			</div>
+			<div class='foot'>
+				<% if (locals.data?.pads > 0) { %>
+					<a href='../browse/pads/public?contributors=<%- locals.data?.uuid %>' target='_blank'><%- vocabulary['browse publications'][language] %></a>
+				<% } %>
+			</div>
+		</div>
+	</main>
+</div>
+
+<script type='text/javascript'>
+	function toggleOptions (node, options) {
+		for (const label of node.labels) {
+			d3.select(label).attr('data-content', node.checked ? options[0] : options[1])
+		}
+		partialSave()
+	}
+
+	function addLanguage (node) {
+		// THEN SET UP MECHANISM IN BACKEND TO ALLOW MULTIPLE LANGUAGES
+		// THEN USE THAT MECHANISM WHEN LOOKING FOR REVIEWERS
+		const sel = d3.select(node)
+		const parent = sel.findAncestor('ul')
+		const li = parent.insertElem(function () { return node }, 'li')
+		li.addElem('label', 'instruction')
+			.html('<%- vocabulary["other languages"][language] %>')
+		const input = li.addElem('div', 'select')
+		input.addElem('input')
+			.attrs({ 
+				'type': 'text', 
+				'id': 'secondary-languages',
+				'autocomplete': 'secondary-languages'
+			})
+		input.addElem('label')
+			.attr('for', 'secondary-languages')
+			.html('<%- vocabulary["select language"][language](true) %>')
+		const dropdown = input.addElem('div', 'dropdown')
+			.addElem('menu')
+			.addElems('li', null, <%- JSON.stringify(locals.languages) %>)
+			.each(function () {
+				const sel = d3.select(this)
+				sel.addElems('input')
+					.attrs({
+						'type': 'checkbox',
+						'id': d => `secondary-language-${d.language}`,
+						'name': 'secondary_languages', // TO DO: PROBABLY CHANGE THIS SO NO CONFLICT WITH OTHER language INPUTS
+						'value': d => d.language,
+						'data-label': d => d.name.capitalize(),
+						'disabled': d => d.language === d3.select('input[name="language"]:checked').node()?.value ? true : null
+					})
+				sel.addElems('label')
+					.attr('for', d => `secondary-language-${d.language}`)
+					.html(d => d.name.capitalize())
+			})
+
+		initBlurs()
+		initDropdowns()
+		sel.remove()
+	}
+
+	<% if (locals.data?.uuid && editable) { %>
+		d3.select('button#reset-password')
+		.on('click', function () {
+			d3.select('.old-password-info')
+				.style('max-height', function () { return `${this.scrollHeight}px` })
+			.selectAll('input[type=password]')
+				.each(function () { this.required = true })
+
+			d3.select('.meta-status button').attr('disabled', true)
+
+			d3.select(this).remove()
+		})
+
+		d3.select('input#old-password')
+		.on('keyup', function () {
+			const evt = d3.event
+			if (evt.code === 'Enter' || evt.keyCode === 13) {
+				evt.preventDefault()
+				d3.select('button#check-old-password').node().click()
+			}
+		})
+
+		d3.select('button#check-old-password')
+		.on('click', async function () {
+			const pwsel = d3.select('input#old-password')
+			const pw = pwsel.node().value.trim()
+			pwsel.classed('error', pw.length === 0)
+
+			if (!pwsel.classed('error')) {
+				const cleared = await POST('/check/password', { id: '<%- locals.data?.uuid %>', password: pw })
+				if (cleared.status === 200) {
+					d3.select('.password-info')
+						.style('max-height', function () { return `${this.scrollHeight}px` })
+					.selectAll('input[type=password]')
+						.each(function () { this.required = true })
+
+					d3.select('.old-password-info').remove()
+				} else {
+					pwsel.classed('error', true)
+					alert(cleared.message)
+				}
+			}
+		})
+	<% } %>
+
+	function initBlurs () {
+		d3.selectAll('input[type=password]') // IT IS IMPORTANT THAT THIS COMES BEFORE THE NEXT GENERIC BLUR FUNCTION
+		.on('blur.confirm', function () {
+			const node = this
+			const confirm = d3.selectAll('input[type=password]').filter(function () { return this !== node })
+			d3.selectAll('input[type=password]').classed('error', this.value !== confirm.node().value)
+		})
+
+		// GENERIC BLUR FUNCTION
+		d3.selectAll('input[type=text], input[type=email], input[type=password]')
+		.on('blur.fixlabel', function () { 
+			fixLabel(this)
+			partialSave()
+		}).each(function () { fixLabel(this) })
+	}
+	
+	function initDropdowns () {
+		const selects = d3.selectAll('.select')
+		selects.selectAll('input[type=text]')
+		.on('keyup', function () {
+			const node = this
+
+			const dropdown = d3.select(node).findAncestor('select').select('.dropdown')
+			dropdown.selectAll('menu li')
+				.classed('hide', function () {
+					console.log(Array.from(dropdown.selectAll('menu li input:checked').nodes()))
+					return !this.textContent.trim().toLowerCase()
+						.includes(node.value.trim().toLowerCase())
+					
+					&& (!dropdown.selectAll('menu li input:checked').size() || !Array.from(dropdown.selectAll('menu li input:checked').nodes())
+						.every(sel => {
+							console.log(node)
+							console.log(node.value)
+							return node.value.trim().toLowerCase().split(',')
+							.map(d => d.trim())
+							.includes(sel.parentNode.textContent.trim().toLowerCase())
+						}))
+				})
+		}).on('focus', function () {
+			const dropdown = d3.select(this).findAncestor('select').select('.dropdown')
+			dropdown.node().style.maxHeight = `${Math.min(dropdown.node().scrollHeight, 300)}px`
+
+			dropdown.selectAll('label').on('mousedown', function () { 
+				d3.event.preventDefault()
+			})
+		}).on('blur', function () {
+			const dropdown = d3.select(this).findAncestor('select').select('.dropdown')
+			dropdown.node().style.maxHeight = null
+		})
+		
+		selects.selectAll('input[type=radio]')
+		.on('change', function () {
+			const node = this
+			const sel = d3.select(node)
+			sel.findAncestor('select')
+				.select('input[type=text]')
+				.node().value = node.dataset.label
+
+			d3.selectAll('input[name="secondary_languages"]')
+			.attr('disabled', function () { return this.value === node.value ? true : null })
+		})
+
+		selects.selectAll('input[type=checkbox]')
+		.on('change', function () {
+			const node = this
+			const sel = d3.select(node)
+
+			const values = []
+			sel.findAncestor('menu').selectAll('input[type=checkbox]:checked')
+				.each(function () { values.push(this.dataset.label) })
+
+			sel.findAncestor('select')
+				.select('input[type=text]')
+				.node().value = values.join(', ')
+		})
+
+		selects.selectAll('input[name=teams]')
+		.on('change', function () {
+			const sel = d3.select(this)
+			if (this.checked) {
+				const pin = d3.select('.pinboard-group .pinboard .pins')
+					.addElem('div', 'pin tag')
+				pin.addElem('label', 'name')
+					.html(this.dataset.label)
+				pin.addElem('div', 'close')
+					.attrs({ 'data-name': this.name, 'data-id': this.value })
+				.on('click', function () { rmPin(this) })
+					.html('x')
+			} else {
+				d3.select(`div.close[data-name='${this.name}'][data-id='${this.value}']`).node().click()
+			}
+		})
+	}
+
+	function rmPin (node) {
+		const sel = d3.select(node)
+		const id = node.dataset.id
+		const name = node.dataset.name
+		const input = d3.select(`input[name='${name}'][value='${id}']`)
+		input.attr('checked', null)
+		input.node().checked = false
+		sel.findAncestor('pin').remove()
+		partialSave()
+	}
+
+	function partialSave () {
+		// CHECK WHETHER GOOD TO SAVE
+		const metastatus = d3.select('.meta-status').classed('status-0 status-1', false)
+
+		if (d3.selectAll('input:required').filter(function () { 
+			return !(this.validity.valid && !this.classList.contains('error')) 
+		}).size() === 0) {
+			metastatus.classed('status-1', true)
+			.select('button').attr('disabled', null)
+		} else {
+			metastatus.classed('status-0', true)
+			.select('button').attr('disabled', true)
+		}
+	}
+
+	initBlurs()
+	initDropdowns()
+
+</script>
+
+</body>
+</html>

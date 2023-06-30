@@ -1,0 +1,42 @@
+@import 'vars';
+
+$t-xxsmall: 8pt;
+$t-xsmall: 8pt;
+$t-small: 9pt;
+$t-mid-small: 10pt;
+$t-main: 11pt;
+$t-mid: 14pt;
+$t-large: 18pt;
+$t-xlarge: 24pt;
+$t-xxlarge: 36pt;
+$t-xxxlarge: 48pt;
+
+html, body {
+	font-size: $t-main;
+	line-height: 1.5em;
+}
+.xs,
+.sm,
+.m {
+	display: none;
+}
+.no-bg {
+	background-color: transparent !important;
+}
+.add-circle {
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+	margin-right: 15px;
+	border-radius: 20px;
+	background-color: $c-light-grey;
+	color: #FFF;
+	font-size: $t-mid;
+	line-height: 19px;
+	text-align: center;
+	vertical-align: text-top;
+}
+
+/*.pagedjs_page {
+	margin: auto;
+}*/

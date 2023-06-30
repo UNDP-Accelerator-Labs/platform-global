@@ -1,0 +1,91 @@
+<% 
+	// CREATE ALIASES
+	const language = locals.metadata.page.language
+
+	if (locals.filters_menu?.length) locals.filters_menu = Object.assign.apply(Object, locals.filters_menu)
+	else locals.filters_menu = []
+	const query = locals.metadata.page.query
+%>
+
+<div id='filters'>
+	<div class='inner'>
+		<% if (query.search?.length) { %>
+			<p><%- vocabulary['search terms'][language] %></p>
+			<div class='filters-group search-filters'>
+				<div class='active-filters'>
+					<div class='tag' data-type='Contributor' data-value='<%- query.search %>'>
+						<label class='name'>
+							<% if (query.search.length > 25) { %>
+								<%- query.search.slice(0, 25) %>…
+							<% } else { %>
+								<%- query.search %>	
+							<% } %>
+						</label>
+						<label class='close'>x</label>
+					</div>
+				</div>
+			</div>
+		<% } %>
+
+		<% if (Object.keys(query)?.filter(key => key in locals.filters_menu)?.length) { %>
+			<p><%- vocabulary['filter'][language](false, true) %></p>
+			<div class='filters-group'>
+				<div class='active-filters'>
+					<% for (let key in query) { %>
+						<% if (key in locals.filters_menu) { %>
+							<% query[key].forEach(d => { %>
+								<% if (locals.filters_menu[key]?.some(c => c.id.toString() === d)) { %>
+									<div class='tag' data-type='<%- key %>' data-value='<%- d %>'>
+										<label class='type'><%- vocabulary[key.slice(0, -1).replace(/_/g, ' ')]?.[language](false).capitalize() || vocabulary[key.replace(/_/g, ' ')]?.[language].capitalize() || key.capitalize() %></label> 
+										<label class='name'>
+											<!-- TO DO: FIX PROBLEM HERE WITH SDGS -->
+											<% if (locals.filters_menu[key]?.find(c => c.id.toString() === d)?.name.length > 25) { %>
+												<%- locals.filters_menu[key]?.find(c => c.id.toString() === d)?.name.slice(0, 25) %>…
+											<% } else { %>
+												<%- locals.filters_menu[key]?.find(c => c.id.toString() === d)?.name %>	
+											<% } %>
+										</label>
+										<label class='close'></label>
+									</div>
+								<% } %>
+							<% }) %>
+						<% } %>
+					<% } %>
+				</div>
+			</div>
+		<% } %>
+	</div>
+</div>
+
+<script type='text/javascript'>
+	d3.selectAll('div#filters div.search-filters div.tag label.close')
+	.on('click', function () {
+		const sel = d3.select(this)
+		const tag = sel.findAncestor('tag')
+		const data_value = tag.attr('data-value')
+
+		const filter_form = d3.select('nav#search-and-filter')
+		filter_form.select('input#search-field').node().value = null
+
+		filter_form.select('button.submit-filters').node().click()
+	})
+	d3.selectAll('div#filters div.filters-group:not(.search-filters) div.tag label.close')
+	.on('click', function () {
+		const sel = d3.select(this)
+		const tag = sel.findAncestor('tag')
+		const data_type = tag.attr('data-type')
+		const data_value = tag.attr('data-value')
+
+		const filter_form = d3.select('nav#search-and-filter')
+		const filter = filter_form.selectAll('input[type=checkbox]').filter(function () {
+			return d3.select(this).attr('name') === data_type && this.value === data_value
+		}).node()
+		filter.checked = false
+		if (d3.select(filter.parentNode).selectAll('input[type=hidden]:not(:disabled)').size()) {
+			d3.select(filter.parentNode).selectAll('input[type=hidden]:not(:disabled)').attr('disabled', true)
+		}
+
+		filter_form.select('button.submit-filters').node().click()
+	})
+
+</script>

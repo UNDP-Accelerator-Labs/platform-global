@@ -1,0 +1,371 @@
+<% 
+	// CREATE ALIASES
+	const language = locals.metadata.page.language
+%>
+
+<div class='screen hide'>
+</div>
+
+<script type='text/javascript'>
+	function renderModal (data) {
+		const { headline, opts, theme, node } = data
+
+		d3.selectAll('.temp-active').classed('temp-active', false)
+		d3.select(node).classed('temp-active', function () { return !d3.select(this).classed('active') })
+
+		d3.select('nav.filter').classed('open', false)
+		d3.selectAll('div.screen').classed('hide', true)
+		let screen
+		screen = d3.select('div.screen').classed('hide', false)
+
+		const modal = screen.addElems('div', `modal ${theme}`)
+		modal.addElems('button', 'close')
+		.on('click', function () {
+			modal.remove()
+			d3.selectAll('.temp-active').classed('temp-active', false)
+			screen.classed('hide', true)
+		}).html('Close')
+
+		const inner = modal.addElems('div', 'inner')
+		inner.addElems('h1', 'headline', data.headline ? [data.headline] : [])
+			.html(d => d)
+		
+		inner.addElems('ul', 'opts', data.opts ? [data.opts] : [])
+			.addElems('li', 'opt link', d => d)
+		.addElems('a')
+			.attr('href', d => d.href)
+		.addElems('button')
+			.each(function (d) { if (d.class) { d3.select(this).classed(d.class, true) } })
+			.html(d => d.label)
+	}
+
+	function renderPromiseModal (data) {
+		const { headline, message, opts } = data
+
+		return new Promise (resolve => {
+			d3.select('nav.filter').classed('open', false)
+			d3.selectAll('div.screen').classed('hide', true)
+			const screen = d3.select('div.screen').classed('hide', false)
+			
+			const modal = screen.addElems('div', 'modal')
+			modal.addElems('button', 'close')
+			.on('click', function () {
+				modal.remove()
+				screen.classed('hide', true)
+				resolve(null)
+			}).html('Close')
+
+			const inner = modal.addElems('div', 'inner')
+			inner.addElems('h1', 'headline', headline ? [headline] : [])
+				.html(d => d)
+
+			inner.addElems('div', 'message', message ? [message] : [])
+				.html(d => d)
+			.each(function () {
+				const input = d3.select(this).select('input[type=text]')
+				if (input.node()) input.node().focus()
+			})
+
+			inner.addElems('ul', 'opts', opts ? [opts] : [])
+				.addElems('li', 'opt link', d => d)
+			.each(function (d) {
+				d3.select(this).call(addInputNode, { d, resolve })
+			})
+		})
+	}
+
+	function renderFormModal (data) {
+		const { headline, message, formdata, opts, foot } = data
+		d3.select('nav.filter').classed('open', false)
+		d3.selectAll('div.screen').classed('hide', true)
+		const screen = d3.select('div.screen').classed('hide', false)
+
+		const modal = screen.addElems('div', 'modal')
+		modal.addElems('button', 'close')
+		.on('click', function () {
+			modal.remove()
+			screen.classed('hide', true)
+		}).html('Close')
+
+		const inner = modal.addElems('div', 'inner')
+		inner.addElems('h1', 'headline', headline ? [headline] : [])
+			.html(d => d)
+		
+		inner.addElems('div', 'message', message ? [message] : [])
+			.html(d => d)
+		.each(function () {
+			const input = d3.select(this).select('input[type=text]')
+			if (input.node()) input.node().focus()
+		})
+
+		const form = inner.addElems('form', 'modal-form', formdata ? [formdata] : [])
+			.attrs({ 
+				'action': d => d.action, 
+				'method': d => d.method || 'GET' 
+			})
+
+		form.addElems('ul', 'opts', opts ? [opts] : [])
+			.addElems('li', 'opt link', d => d)
+			.classed('default', d => d.default || false)
+		.each(function (d) {
+			const sel = d3.select(this)
+			if (d.classname) d3.select(this).classed(d.classname, true)
+			sel.call(addInputNode, { d })
+		})
+		
+		form.addElems('div', 'foot', foot ? [foot] : [])
+		.each(function (d) {
+			const sel = d3.select(this)
+			sel.addElems(d.node)
+				.attrs({ 
+					'type': d.type, 
+					'name': d.name, 
+					'value': d.value,
+					'required': d.required || null
+				})
+			.on('blur', function () { if (d.placeholder) fixLabel(this) })
+				.html(d => d.label)
+		})
+	}
+
+	function renderLonglistFormModal (data) {
+		const { headline, message, formdata, opts, foot } = data
+		d3.select('nav.filter').classed('open', false)
+		d3.selectAll('div.screen').classed('hide', true)
+		const screen = d3.select('div.screen').classed('hide', false)
+
+		const modal = screen.addElems('div', 'modal longlist')
+		modal.addElems('button', 'close')
+		.on('click', function () {
+			modal.remove()
+			screen.classed('hide', true)
+		}).html('Close')
+
+		const inner = modal.addElems('div', 'inner')
+		inner.addElems('h1', 'headline', headline ? [headline] : [])
+			.html(d => d)
+		
+		inner.addElems('div', 'message', message ? [message] : [])
+			.html(d => d)
+		.each(function () {
+			const input = d3.select(this).select('input[type=text]')
+			if (input.node()) input.node().focus()
+		})
+
+		const form = inner.addElems('form', 'modal-form dropdown', formdata ? [formdata] : [])
+			.attrs({ 
+				'action': d => d.action, 
+				'method': d => d.method || 'GET' 
+			})
+
+		const ul = form.addElems('ul', 'opts', opts ? [opts] : [])
+		
+		const filter = ul.addElems('li', 'filter')
+		filter.addElems('input')
+			.attrs({ 
+				'type': 'text',
+				'id': 'filter-longlist-modal',
+			}).on('blur', function () { fixLabel(this) })
+			.on('keyup', function () { filterDropdown(this) })
+		filter.addElems('label')
+			.attr('for', 'filter-longlist-modal')
+			.html('<%- vocabulary["filter"][language](true) %>')
+
+		ul.addElems('li', 'padding')
+
+		ul.addElems('li', 'opt link', d => d)
+			.classed('default', d => d.default || false)
+		.each(function (d) {
+			d3.select(this).call(addInputNode, { d })
+		})
+		
+		form.addElems('div', 'foot', foot ? [foot] : [])
+		.each(function (d) {
+			const sel = d3.select(this)
+			sel.addElems(d.node)
+				.attrs({ 
+					'type': d.type, 
+					'name': d.name, 
+					'value': d.value,
+					'required': d.required || null
+				})
+			.on('blur', function () { if (d.placeholder) fixLabel(this) })
+				.html(d => d.label)
+		})
+	}
+
+	function addInputNode (_sel, _data) {
+		const { d, resolve } = _data
+		const screen = _sel.findAncestor('screen')
+		const modal = screen.select('.modal')
+		const nodeid = uuidv4()
+		
+		if (d.node === 'select') {
+			// CREATE DROPDOWN
+			const filter = _sel.addElems('div', 'filter')
+			// .each(function () {
+			// 	if (d.classname) d3.select(this).classed(d.classname, true)
+			// })
+			filter.addElems('input', 'dropbtn')
+				.attrs({
+					'id': nodeid,
+					'type': 'text'
+				})
+			// .each(function () {
+			// 	if (d.classname) d3.select(this).classed(d.classname, true)
+			// })
+			.on('keyup', async function (d) {
+				const evt = d3.event
+				const node = this
+				const dropdown = d3.select(node).findAncestor('filter').select('.dropdown')
+				dropdown.selectAll('menu li')
+					.classed('hide', function () {
+						return !this.textContent.trim().toLowerCase().removeAccents()
+						.includes(node.value.trim().toLowerCase().removeAccents())
+					})
+			}).on('focus', function (d) {
+				const dropdown = d3.select(this).findAncestor('filter').select('.dropdown')
+				dropdown.node().style.maxHeight = `${Math.min(dropdown.node().scrollHeight, 300)}px`
+
+				dropdown.selectAll('li').on('mousedown', function () { 
+					d3.event.preventDefault()
+				})
+			}).on('blur', function () {
+				const dropdown = d3.select(this).findAncestor('filter').select('.dropdown')
+				dropdown.node().style.maxHeight = null
+				fixLabel(this)
+			})
+			
+			filter.addElems('label') //, d.classname || null)
+				.attr('for', nodeid)
+			.html(c => c.label)
+			
+			const dropdown = filter.addElems('div', 'dropdown')
+				.addElems('menu')
+				.addElems('li', null, c => c.options)
+			.each(function (c) {
+				const sel = d3.select(this)
+				// if (c.classname) sel.classed(c.classname, true)
+
+				sel.addElems('input')
+					.attrs({
+						'id': c.value.toString().simplify(),
+						'type': c.type,
+						'name': d.name,
+						'value': c.value,
+						'required': c.required || null,
+						'disabled': c.disabled?.value || null
+					})
+				.on('change', function (b) {
+					// TO DO: MAKE THIS ONLY POSSIBLE IF THIS input TYPE IS CHECKBOX
+					const sel = d3.select(this)
+					const input = sel.findAncestor('filter').select('input[type=text]').node()
+					if (c.type === 'radio') {
+						if (this.checked) input.value = b.label
+						else input.value = ''
+						input.blur()
+						sel.findAncestor('dropdown').selectAll('li').classed('hide active', false)
+					// } else if (c.type === 'checkbox') {
+					// 	if (this.checked) input.value = `${input.value}, ${b.label}`
+					// 	else input.value = input.value.replace(b.label, '').replace(/,\s*,\s*/g, ', ')
+					} else {
+						input.value = ''
+						sel.findAncestor('dropdown').selectAll('li').classed('hide', false)
+					}
+					sel.findAncestor('li').classed('active', this.checked)
+
+					// IF THERE IS A FUNCTION ATTACHED TO THE DROPDOWN, EXECUTE IT
+					if (d.fn && typeof d.fn === 'function') d.fn.call(this, b)
+				})
+
+				sel.addElems('label', 'primary')
+					.attr('for', c => c.value.toString().simplify())
+					.html(c => c.label)
+
+				if (c.disabled?.value) {
+					sel.addElems('label', 'secondary')
+						.attr('for', c => c.value.toString().simplify())
+						.html(c => c.disabled.label)
+				}
+			})
+			// THIS IS ALT TO USE STANDARD DROPDOWN
+			// _sel.addElems(d.node)
+			// 	.attr('name', d.name)
+			// .addElems('option', 'target-option', d => d.options)
+			// 	.attr('value', d => d.value)
+			// 	.html(d => d.label)
+		} else {
+			_sel.addElems(d.node) //, d.classname || null)
+				.each(function (c) {
+					if (c.class) d3.select(this).classed(c.class, true) // THIS MIGHT NEED TO BE UPDATED TO classname
+				}).attrs({ 
+					'id': nodeid,
+					'type': d.type,
+					'name': d.name,
+					'value': d.value,
+					'required': d.required || null,
+					'checked': d.checked || null,
+					'disabled': d.disabled || null
+				}).html(d.label)
+			.on('click', async d => { // PROBABLY d DOES NOT NEED TO BE PASSED HERE (LIKE IN THE keyup BELOW)
+				if (['button', 'submit'].includes(d.type)) {
+					if (resolve) {
+						if (typeof d.resolve === 'function') {
+							const resolved = await d.resolve()
+							resolve(resolved)
+						}
+						else resolve(d.resolve)
+						modal.remove()
+						screen.classed('hide', true)
+					}
+				}
+			}).on('keyup', async _ => {
+				const evt = d3.event
+				if (evt.code === 'Enter' || evt.keyCode === 13) {
+					if (resolve) {
+						if (typeof d.resolve === 'function') {
+							const resolved = await d.resolve()
+							resolve(resolved)
+						}
+						else resolve(d.resolve)
+						modal.remove()
+						screen.classed('hide', true)
+					}
+				}
+			}).on('change', function () {
+				if (d.node === 'input') fixLabel(this)
+			})
+		}
+
+		if (d.node === 'input' && d.type !== 'hidden') {
+			_sel.addElems('label') //, d.classname || null)
+				.attr('for', nodeid)
+				.html(d.placeholder)
+
+			if (!['checkbox', 'radio', 'date', 'email'].includes(d.type)) {
+				_sel.addElems('button', 'input-submit')
+					.attr('type', 'button')
+				.on('click', d => {
+					if (resolve) {
+						if (typeof d.resolve === 'function') {
+							const resolved = d.resolve()
+							resolve(resolved)
+						}
+						else resolve(d.resolve)
+						modal.remove()
+						screen.classed('hide', true)
+					}
+				}).html('<%- vocabulary["save"][locals.metadata.page.language] %>')
+			}
+		}
+	}
+
+	window.addEventListener('keyup', function (e) {
+		e = e || event
+		if (e.key === 'Escape' || e.keyCode === 27) {
+			if (d3.select('div.screen div.modal button.close').node()) {
+				d3.select('div.screen div.modal button.close').node().click()
+			}
+		}
+	})
+</script>

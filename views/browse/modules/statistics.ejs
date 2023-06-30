@@ -1,0 +1,37 @@
+<%
+	// CREATE ALIASES
+	const page = locals.metadata.page.id
+	const object = locals.metadata.page.object
+	const language = locals.metadata.page.language
+%>
+
+<div id='statistics'>
+	<div class='statistic'>
+		<h1><%- locals.stats?.filtered %><small> / <%- locals.global_info.filtered %></small></h1>
+		<p><%- vocabulary[object.slice(0, -1)]?.[language](locals.stats?.filtered !== 1)?.capitalize() || object.capitalize() %></p>
+		
+		<% if (locals.metadata.page.count > 1) { %>
+			<small><%- vocabulary['showing range'][language](locals.stats?.displayed * (page - 1) + 1, Math.min(locals.stats?.displayed * page, locals.stats?.filtered)) %></small>
+		<% } else if (typeof page === 'string') { %>
+			<small><%- vocabulary['showing letter'][language](locals.stats?.displayed, page) %></small>
+		<% } %>
+	</div>
+	<% if (locals.stats?.contributors) { %>
+		<div class='statistic'>
+			<h1><%- locals.stats?.contributors %></h1>
+			<p><%- vocabulary['contributor']?.[language](true).capitalize() %></p>
+		</div>
+	<% } %>
+	<% if (locals.metadata.page.map && locals.stats?.filtered > 0) { %>
+		<div class='statistic'>
+			<h1><%- locals.clusters[locals.clusters.length - 1]?.length %></h1>
+			<p><%- vocabulary['distinct locations'][language](locals.clusters[locals.clusters.length - 1]?.length !== 1) %></p>
+		</div>
+	<% } %>
+	<% locals.stats?.tags?.forEach(d => { %>
+		<div class='statistic'>
+			<h1><%- d.count %></h1>
+			<p><%- vocabulary[d.type.slice(0, -1).replace(/_/g, ' ')]?.[language](true).capitalize() || d.type.capitalize() %></p>
+		</div>
+	<% }) %>
+</div>

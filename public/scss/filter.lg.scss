@@ -1,0 +1,404 @@
+@import 'vars.lg';
+
+.veil {
+	position: fixed;
+	/*display: flex;*/
+	/*justify-content: center;*/
+	/*align-items: center;*/
+	top: 0;
+	left: 0;
+	width: 100vw;
+	min-height: 100vh;
+	z-index: 10000;
+	background-color: rgba(255,255,255,.9);
+
+	button.close {
+
+	}
+	nav.browse-filters {
+		position: relative;
+		/*width: 475px;*/
+		width: 400px;
+		/*width: calc(150px * 3 + 15px * 2 + 60px);*/
+		margin: 60px auto 125px auto;
+		background-color: #FFF;
+		border: 1px solid $c-dark-blue;
+		border-top-width: 5px;
+		transition: transform .5s;
+
+		.handle {
+			position: absolute;
+			bottom: 100%;
+			right: -1px;
+			padding-bottom: 5px;
+			font-size: $t-small;
+			text-align: center;
+			cursor: e-resize;
+
+			button.close {
+				height: 30px;
+				border: none;
+				outline: none;
+				padding: 0 15px;
+				background-color: $c-dark-blue;
+				color: #FFF;
+
+				label {
+					cursor: pointer;
+					span {
+						margin-left: 15px;
+					}
+				}
+			}
+		}
+		form {
+			.query {
+				position: relative;
+				width: 100%;
+				height: 65px;
+				border-bottom: 1px solid $c-light-blue;
+
+				input[type=text] {
+					float: left;
+					position: relative;
+					width: calc(100% - 30px - 65px);
+					height: 50px;
+					margin: 15px 0 0 30px;
+					border: none;
+					/*border-bottom: 1px solid #FFF;*/
+					outline: none;
+					background-color: transparent;
+					font-size: $t-large;
+					color: $c-dark-blue;
+				}
+				label[for=search-field] {
+					position: absolute;
+					top: 5px;
+					left: 30px;
+					font-size: $t-main;
+					color: $c-light-blue;
+					transform: translateY(calc(#{$t-main}));
+					transition: transform .25s, font-size .25s;
+				}
+				input[type=text]:focus + label,
+				input[type=text].has-value + label {
+					font-size: $t-small;
+					transform: translateY(5px);
+				}
+				input:-webkit-autofill,
+				input:-webkit-autofill:hover,
+				input:-webkit-autofill:focus,
+				input:-webkit-autofill:active  {
+					-webkit-box-shadow: 0 0 0 40px #FFF inset !important;
+					-webkit-text-fill-color: $c-dark-blue !important;
+				}
+				button {
+					float: left;
+					width: 65px;
+					height: 60px;
+					margin-top: 5px;
+					background-color: transparent;
+					border: none;
+					outline: none;
+					color: $c-dark-blue;
+					cursor: pointer;
+				}
+			}
+			.filters {
+				p {
+					margin: 15px 30px 0px 30px;
+					font-size: $t-main;
+					font-style: italic;
+				}
+				.meta-filters,
+				.content-filters {
+					position: relative;
+					display: flex;
+					flex-wrap: wrap;
+					padding: 5px 15px;
+
+					.active-filters {
+						display: flex;
+						justify-content: center;
+						flex-wrap: wrap;
+						width: calc(100% - 20px);
+						padding: 0 10px;
+						/*margin-bottom: 5px;*/
+
+						.tag {
+							display: flex;
+							justify-content: space-between;
+							align-items: center;
+							border: 1px solid $c-light-grey;
+							padding: 0 0 0 5px;
+							margin: 5px;
+							background-color: #FFF;
+							font-size: $t-xsmall;
+							color: $c-light-grey;
+
+							label {
+								cursor: pointer;
+							}
+							.type {
+								flex-shrink: 0;
+								/*font-size: $t-xsmall;*/
+							}
+							.name {
+								flex-grow: 1;
+								margin: 0 10px 0 5px;
+								white-space: nowrap;
+								font-weight: bold;
+							}
+							.close {
+								flex-shrink: 0;
+								width: 30px;
+								padding: 5px 0;
+								background-color: $c-light-grey;
+								text-align: center;
+								font-size: $t-small;
+								color: #FFF;
+							}
+						}
+					}
+					.filter{
+						position: relative;
+						/*flex-grow: 1;*/
+						width: 100%;
+						/*width: 200px;*/
+						margin: 5px 15px;
+
+						button {
+							height: 30px;
+							width: 100%;
+							padding: 0 30px;
+							border: 1px solid $c-mid-blue;
+							outline: none;
+							background-color: transparent;
+							font-size: $t-mid-small;
+							line-height: $t-main;
+							color: $c-mid-blue;
+							cursor: pointer;
+
+							label.count {
+								position: absolute;
+								top: 5px;
+								right: 15px;
+								width: 20px;
+								height: 20px;
+								border-radius: 20px;
+								background-color: $c-mid-blue;
+								line-height: 20px;
+								font-size: $t-xsmall;
+								color: #FFF;
+							}
+						}
+						.dropdown {
+							display: none;
+							position: absolute;
+							/*top: calc(100% - 1px);*/
+							top: 100%;
+							left: 0;
+							/*width: calc(415px - 2px);*/
+							width: calc(340px - 2px);
+							max-height: 300px;
+							background-color: #FFF;
+							border: 1px solid $c-light-blue;
+							border-top: none;
+							/*border-top-width: 5px;*/
+							z-index: 1000;
+							overflow: scroll;
+
+							ul {
+								width: 100%;
+								/*padding-bottom: 5px;*/
+
+								li {
+									position: relative;
+									display: flex;
+									justify-content: space-between;
+									align-items: center;
+									padding: 5px 15px;
+									cursor: pointer;
+
+									input[type=checkbox] {
+										display: none;
+									}
+									label {
+										cursor: pointer;
+										font-size: $t-mid-small;
+										text-transform: capitalize;
+										color: $c-dark-grey;
+										width: 90%;
+									}
+									label.count {
+										font-size: $t-small;
+										color: $c-mid-blue;
+										width: 10%;
+										text-align: right;
+									}
+								}
+								li:hover {
+									background-color: $c-light-2;
+								}
+								li.active {
+									background-color: $c-light-blue;
+
+									label {
+										color: #FFF;
+									}
+								}
+								/*li.not-hovered > button {
+									background-color: $c-light-grey !important;
+								}
+								li.not-hovered > a {
+									button {
+										background-color: $c-light-grey !important;
+									}
+								}*/
+							}
+						}
+					}
+					/*.filter:nth-child(2n) {
+						margin-left: 0;
+						.dropdown {
+							left: -215px;
+						}
+					}*/
+					.filter:not(.expand):hover {
+						button {
+							background-color: $c-light-blue;
+							border: 1px solid $c-light-blue;
+							color: #FFF;
+						}
+					}
+					.filter.expand {
+						button {
+							background-color: $c-mid-blue;
+							color: #FFF;
+
+							label.count {
+								background-color: #FFF;
+								font-weight: bold;
+								color: $c-mid-blue;
+							}
+						}
+						.dropdown {
+							display: block;
+						}
+					}
+
+
+
+
+
+
+
+
+
+
+
+					.title {
+						h1 {
+							font-size: $t-main;
+							font-style: italic;
+							color: $c-light-green;
+							/*text-decoration: underline;*/
+						}
+						.active {
+							margin-bottom: 10px;
+
+							.tag {
+								display: inline-block;
+								margin: 5px 5px 0 0;
+								text-decoration: none;
+								padding: 3px 5px;
+								background-color: transparent;
+								border: 1px solid $c-dark-1;
+								border-radius: 5px;
+								font-size: $t-small;
+								color: $c-dark-1;
+								transition: background-color .25s;
+								cursor: pointer;
+
+								label {
+									cursor: pointer;
+								}
+								i {
+									vertical-align: middle;
+									font-size: $t-main;
+									margin-left: 5px;
+								}
+								a {
+									color: $c-dark-1;
+								}
+							}
+							.tag:hover {
+								background-color: $c-dark-1;
+								color: #FFF;
+
+								a {
+									color: #FFF;
+								}
+							}
+						}
+					}
+				}
+				.separator {
+					position: relative;
+					width: 100%;
+					text-align: center;
+
+					span {
+						position: relative;
+						padding: 0 5px;
+						background-color: #FFF;
+						font-size: $t-small;
+						color: $c-light-blue;
+						z-index: 100;
+					}
+				}
+				.separator:before {
+					content: '';
+					position: absolute;
+					left: 0;
+					top: 50%;
+					width: 100%;
+					height: 1px;
+					background-color: $c-light-blue;
+				}
+			}
+			.submission {
+				width: calc(100% - 55px);
+				padding: 5px 25px 30px 30px;
+				text-align: right;
+
+				button {
+					height: 30px;
+					padding: 0 10px;
+					border: 1px solid $c-dark-blue;
+					margin-right: 5px;
+					outline: none;
+					background-color: transparent;
+					font-size: $t-mid-small;
+					cursor: pointer;
+				}
+				button.search {
+					background-color: $c-light-blue;
+					border-color: $c-light-blue;
+					color: #FFF;
+				}
+			}
+		}
+	}
+	nav#filter.open {
+		transform: translateX(0);
+
+		.handle {
+			cursor: w-resize;
+
+			div {
+				cursor: w-resize;
+			}
+		}
+	}
+}

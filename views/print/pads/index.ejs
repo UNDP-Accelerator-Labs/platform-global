@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<!-- THIS IS A SUPER SIMPLIFIED VERSION OF contribute/pad.ejs -->
+<%
+	// CREATE ALIASES
+	const publicpage = locals.metadata.page.public
+	const modules = locals.metadata.site.modules
+	const metafields = locals.metadata.site.metafields
+	const activity = locals.metadata.page.activity
+	const object = locals.metadata.page.object
+	const languages = locals.metadata.site.languages
+	const language = locals.metadata.page.language
+	const rights = locals.metadata.user.rights
+	const pagedisplay = locals.metadata.page.display
+	const anonymized = locals.metadata.page.query?.anonymize?.includes('true')
+	const editing = ['contribute', 'edit'].includes(activity) && pagedisplay !== 'print'
+	const templated = locals.templated || locals.display_template !== null
+
+	const print = true
+%>
+<html lang='<%- language %>'>
+<head>
+
+<% if (locals.data?.status >= 2 && !locals.data?.is_review) { %>
+	<!-- TO DO: FINISH THIS -->
+	<!-- <meta property='og:title' content='<%- locals.data.title %>' /> -->
+	<!-- <meta property='og:type' content='article' /> -->
+	<!-- <meta property='og:url' content='https://www.imdb.com/title/tt0117500/' /> -->
+	<!-- <meta property='og:image' content='https://ia.media-imdb.com/images/rock.jpg' /> -->
+<% } %>
+
+<%- include ('../../partials/head.ejs') %> 
+
+<!-- FOR PRINT/ PDF GENERATION -->
+<script type='text/javascript'>
+	// THE TRICK TO MAKE paagedjs WAIT: https://doc.doppio.sh/guide/cookbook/using-pagedjs.html
+	window.PagedConfig = {
+		auto: false // disable automatic script execution on document load
+	}
+</script>
+<script type='text/javascript' src='/scripts/pagedjs/dist/paged.polyfill.js'></script>
+<link rel='stylesheet' type='text/css' href='/css/pagedjs.interface.css'>
+
+<%- include('./render.ejs') %>
+
+
+</head>
+
+<body>
+
+<%- include ('../../partials/translations.ejs') %> 
+<%# include ('../../partials/menu-languages.ejs') %> 
+<%- include ('../../partials/modals.ejs') %> 
+
+<div class='document'>
+</div>
+
+
+<script type='text/javascript'>
+	const metafields = <%- JSON.stringify(metafields || {}) %>
+
+	const centerpoint = <%- JSON.stringify(locals.metadata.user.country.lnglat || {}) %>
+
+	const templated = <%- JSON.stringify(templated) %>;
+	let activity = '<%- activity %>';
+
+
+	// POPULATE THE PAGE
+	const data = <%- JSON.stringify(locals.data || {}) %>;
+
+	if (!Array.isArray(data)) { // THIS IS A SINGLE PAD WITH display === 'print'
+		Promise.all(renderBooklet([data]))
+		.then(_ => window.PagedPolyfill.preview())
+	} else { // THIS IS AN ACTUAL BOOKLET (OR COMPILATION OF PADS)
+		// TO DO: ADD MODAL TO GROUP INTO CHAPTERS
+		// > DROPDOWN FOR PAGE SIZE
+		// > BY COUNTRY, BY TEMPLATE
+		// > INCLUDE AND/OR STANDARDIZE METAINFO
+		// > STANDARDIZE FONT SIZE AND STYLE
+		// > IF PINNED, THEN RENDER THE PINBOARD INFO ON THE TITLE PAGE
+		// > INCLUDE ALL CHECKBOX OPTIONS OR ONLY CHECKED
+
+		Promise.all(renderBooklet(data))
+		.then(_ => {
+			console.log('done rendering')
+			window.PagedPolyfill.preview()
+		})
+	}
+
+
+
+	function renderBooklet (booklet) {
+		console.log(booklet)
+		return booklet.map(data => {
+			const { title, sections } = data
+
+			return new Promise(resolve => {
+				// ADD THE TITLE
+				const article = d3.select('div.document')
+				.addElem('article')
+				
+				article.addElem('h1', 'title')
+				.html(data.title)
+
+				Promise.all(data.sections.map(async d => {
+					await addPrintSection({ data: d, lang: '<%- language %>', article })
+				})).then(_ => resolve())
+			})
+		})
+	}	
+	
+	class MyHandler extends Paged.Handler { 
+		// CHECK DOC HERE: https://pagedjs.org/documentation/10-handlers-hooks-and-custom-javascript/
+		constructor(chunker, polisher, caller) {
+			super(chunker, polisher, caller);
+		}
+		afterPreview () {
+			console.log('after preview')
+		}
+		beforeParsed(content) {
+		}
+		afterParsed(parsed) {
+		}
+		renderNode(node, sourceNode) {
+		}
+		layoutNode(node) {
+		}
+		onOverflow(overflow, rendered, bounds) {
+		}
+	}
+	Paged.registerHandlers(MyHandler);
+
+
+	
+
+	// IF PSEUDONIMIZED
+	// <div class='contributor'><%- vocabulary['credit'][language](locals.data?.iso3, locals.data?.country, 'countries') %></div>
+	// <div class='contributor'><%- vocabulary['credit'][language](locals.data?.owner, locals.data?.ownername, 'contributors') %></div>
+
+	// IF INCLUDE TEMPLATE INFORMATION
+	// <% if (!publicpage) { %>
+	// 	<div class='meta-container template-container'>
+	// 		<div class='meta meta-template'>
+	// 			<i><%- vocabulary['pad based on'][language] %> </i>
+	// 			<a href='/<%# language %>/view/template?id=<%# locals.display_template.id %>'>
+	// 			<%# locals.display_template.title %></a>
+	// 		</div>
+	// 	</div>
+	// <% } %>
+	// <div class='media-container txt-container'>
+	// 	<div class='media media-txt'>
+	// 		<%# locals.display_template.description %>
+	// 	</div>
+	// </div>
+	
+
+
+
+	// d3.select('body').append('button')
+	// 		.on('click', clicker)
+	// 		.html('download')
+
+	// // TO DO: POPULATE THE PAGE IN A MUCH SIMPLER LAYOUT
+	
+
+	// function clicker () {
+	// 	// window.print()
+	// 	// window.PagedPolyfill.preview();
+	// }
+
+</script>
+
+</body>
+</html>

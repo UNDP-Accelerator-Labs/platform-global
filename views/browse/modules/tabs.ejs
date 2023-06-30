@@ -1,0 +1,197 @@
+<%
+	// CREATE ALIASES
+	const modules = locals.metadata.site.modules
+	const space = locals.metadata.page.space
+	const object = locals.metadata.page.object
+	const query = locals.metadata.page.query
+	const language = locals.metadata.page.language
+	const rights = locals.metadata.user.rights
+
+%>
+
+<menu>
+	<% if (object === 'reviews') { %>
+		<li class='<% if (space === "pending") { %>active<% } %>'>
+			<a href='./pending'>
+				<button><%- vocabulary['space'][language](object, 'pending') %><div class='count'><%- locals.stats?.pending %></div></button>
+			</a>
+		</li>
+		<li class='<% if (space === "ongoing") { %>active<% } %>'>
+			<a href='./ongoing'>
+				<button><%- vocabulary['space'][language](object, 'ongoing') %><div class='count'><%- locals.stats?.ongoing %></div></button>
+			</a>
+		</li>
+		<li class='<% if (space === "past") { %>active<% } %>'>
+			<a href='./past'>
+				<button><%- vocabulary['space'][language](object, 'past') %><div class='count'><%- locals.stats?.past %></div></button>
+			</a>	
+		</li>
+	<% } else if (object === 'mobilizations') { %>
+		<li class='<% if (space === "scheduled") { %>active<% } %>'>
+			<a href='./scheduled'>
+				<button><%- vocabulary['space'][language](object, 'scheduled') %><div class='count'><%- locals.stats?.scheduled %></div></button>
+			</a>
+		</li>
+		<li class='<% if (space === "ongoing") { %>active<% } %>'>
+			<a href='./ongoing'>
+				<button><%- vocabulary['space'][language](object, 'ongoing') %><div class='count'><%- locals.stats?.ongoing %></div></button>
+			</a>
+		</li>
+		<li class='<% if (space === "past") { %>active<% } %>'>
+			<a href='./past'>
+				<button><%- vocabulary['space'][language](object, 'past') %><div class='count'><%- locals.stats?.past %></div></button>
+			</a>	
+		</li>
+	<% } else if (object === 'contributors') { %>
+		<li class='<% if (space === "invited") { %>active<% } %>'>
+			<a href='./invited'>
+				<button><%- vocabulary['space'][language](object, 'invited') %>
+					<div class='count'><%- locals.stats?.invited %></div>
+				</button>
+			</a>
+		</li>
+		<% if (modules.some(d => d.type === 'teams' && rights >= d.rights.read) 
+			&& locals.pinboards_list?.length) 
+		{ %>
+			<li class='filter <% if (space === "pinned") { %>active<% } %>'>
+				<div class='inner'>
+					<input type='text' id='pinboards' onblur='fixLabel(this)'>
+					<label for='pindboards'><%- vocabulary['space'][language](object, 'pinned') %></label>
+				</div>
+
+				<div id='pinboards-list' class='dropdown'>
+					<menu>
+						<% locals.pinboards_list.filter(d => d.id !== locals.pinboard?.id)
+						.forEach(d => { %>
+							<li>
+								<a href='./pinned?pinboard=<%- d.id %>'><%- d.title %></a>
+							</li>
+						<% }) %>
+					</menu>
+				</div>
+			</li>
+		<% } %>
+		<li class='<% if (space === "all") { %>active<% } %>'>
+			<a href='./all'>
+				<button><%- vocabulary['space'][language](object, 'all') %>
+					<div class='count'><%- locals.stats?.all %></div>
+				</button>
+			</a>
+		</li>
+	<% } else { %>
+		<!-- <li class='<% if (space === "private") { %>active<% } %>'>
+			<a href='./private'>
+				<button><%- vocabulary['space'][language](object, 'private') %>
+					<div class='count'><%- locals.stats?.private %></div>
+				</button>
+			</a>
+		</li> -->
+		<!-- <% if (['pads', 'templates'].includes(object)
+			&& modules.some(d => d.type === 'mobilizations' && rights >= d.rights.write) 
+			&& locals.stats?.curated > 0
+		) { %>
+			<li class='<% if (space === "curated") { %>active<% } %>'>
+				<a href='./curated'>
+					<button><%- vocabulary['space'][language](object, 'curated') %>
+						<div class='count'><%- locals.stats?.curated %></div>
+					</button>
+				</a>
+			</li>
+		<% } %>	 -->
+		<% if (modules.some(d => d.type === 'pinboards' && rights >= d.rights.read) 
+			&& locals.pinboards_list?.length) 
+		{ %>
+			<li class='filter <% if (space === "pinned") { %>active<% } %>'>
+				<div class='inner'>
+					<input type='text' id='pinboards' onblur='fixLabel(this)'>
+					<label for='pindboards'><%- vocabulary['space'][language](object, 'pinned') %><span class='count'><%- locals.pinboards_list?.length ?? 0 %></span></label>
+				</div>
+
+				<div id='pinboards-list' class='dropdown'>
+					<menu>
+						<% locals.pinboards_list.filter(d => d.id !== locals.pinboard?.id)
+						.forEach(d => { %>
+							<li>
+								<a href='./pinned?pinboard=<%- d.id %>'><%- d.title %></a>
+							</li>
+						<% }) %>
+					</menu>
+				</div>
+			</li>
+		<% } %>
+		<li class='<% if (space === "shared") { %>active<% } %>'>
+			<a onclick='redirect("./shared")'>
+				<button><%- vocabulary['space'][language](object, 'shared') %>
+					<div class='count'><%- locals.global_info?.shared %></div>
+				</button>
+			</a>
+		</li>
+		<% if (object === 'pads' && modules.some(d => d.type === 'reviews' && rights >= d.rights.read) 
+			&& locals.stats?.reviewing > 0) 
+		{ %>
+			<li class='<% if (space === "reviewing") { %>active<% } %>'>
+				<a href='./reviewing'>
+					<button><%- vocabulary['space'][language](object, 'reviewing') %>
+						<div class='count'><%- locals.stats?.reviewing %></div>
+					</button>
+				</a>
+			</li>
+		<% } %>
+		<% if (!['reviews', 'templates'].includes(object)) { %>
+			<li class='<% if (space === "public") { %>active<% } %>'>
+				<a onclick='redirect("./public")'>
+					<button><%- vocabulary['space'][language](object, 'public') %>
+						<div class='count'><%- locals.global_info?.public %></div>
+					</button>
+				</a>
+			</li>
+		<% } %>
+		<% if (object === 'templates' && modules.some(d => d.type === 'reviews' && rights >= d.rights.read) 
+			&& locals.metadata.menu.review_templates?.length > 0) 
+		{ %>
+			<li class='<% if (space === "reviews") { %>active<% } %>'>
+				<a href='./reviews'>
+					<button><%- vocabulary['space'][language](object, 'reviews') %>
+						<div class='count'><%- locals.metadata.menu.review_templates.filter(function (d, i, self) { return self.findIndex(c => c.template === d.template) === i }).length %></div>
+						<!-- ABOVE IS A METHOD FOR EXTRACTING UNIQUE VALUES INSPIRED BY https://stackoverflow.com/questions/1960473/get-all-unique-values-in-a-javascript-array-remove-duplicates -->
+					</button>
+				</a>
+			</li>
+		<% } %>
+	<% } %>
+</menu>
+
+<% if (space === 'pinned' && locals.pinboard) { %>
+<script type='text/javascript'>
+	function updateTab (value) {
+		if (!mediaSize) var mediaSize = getMediaSize()
+		const input = d3.select(`.${mediaSize} input[type=text]#pinboards`).node()
+		if (input) {
+			if (value.length > 25) value = `${value.slice(0, 25)}…`
+			input.value = value
+			fixLabel(input)
+		}
+	}
+	updateTab('<%- locals.pinboard.title %>')
+</script>
+<% } %>
+<script type='text/javascript'>
+	function redirect (location) {
+		const url = new URL(window.location)
+		const queryparams = new URLSearchParams(url.search)
+		const filter_keys = <%- JSON.stringify(Object.keys(query)?.filter(key => !['status', 'mapscale', 'display'].includes(key))) %>
+
+		// <% if (locals.global_info.filters_menu?.length) { %>
+		// 	const filter_keys = Object.keys((<%- JSON.stringify(locals.global_info.filters_menu) %>).flatObj())
+		// <% } else { %>
+		// 	const filter_keys = []
+		// <% } %>
+		
+		filter_keys.push('search')
+		filter_keys.push('source') // THIS IS SPECIFIC TO THE GLOBAL PLATFORM (OR TO A MULTI-SOURCE PLATFORM)
+		for (const key of queryparams.keys()) {
+			if (!filter_keys.includes(key)) queryparams.delete(key)
+		}		
+		return window.location = `${location}?${queryparams.toString()}`
+	}
+</script>

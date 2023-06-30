@@ -1,0 +1,51 @@
+<%
+	// CREATE ALIASES
+	const publicpage = locals.metadata.page.public
+	const languages = locals.metadata.site.languages
+	const language = locals.metadata.page.language
+	const username = locals.metadata.user.name
+	const uuid = locals.metadata.user.uuid
+
+%>
+
+<nav id='languages'>
+	<menu>
+		<!-- TO DO: PASS THIS FROM CONFIG FILE (THERE MIGHT NOT ALWAYS BE A SUITE) -->
+		<li class='home-btn lg'>
+			<a href='https://acclabs-global.azurewebsites.net/'>Accelerator Labs Suite</a>
+		</li>
+		<li class='options'>
+			<ul>
+				<% languages.forEach(d => { %>
+					<li id='lang-<%- d.language %>'>
+						<a class='<% if (language === d.language) { %>active<% } %>'><%- d.language.toUpperCase() %></a>
+					</li>
+				<% }) %>
+			</ul>
+		</li>
+		<li class='user-id'>
+			<% if (!publicpage) { %>
+				<span><%- vocabulary['logged in'][language](username, uuid) %>. | </span><a href='/logout' class='logout'><%- vocabulary['log out'][language] %></a>
+			<% } else { %>
+				<a href='/login' class='login'><%- vocabulary['log in'][language] %></a> 
+			<% } %>
+		</li>
+	</menu>
+</nav>
+<button id='expand-nav' class='expand-filters xs' onclick='expandmenu(this)'>
+	<div class='line l1'></div><div class='line l2'></div><div class='line l3'></div>
+</button>
+
+<script type='text/javascript'>
+	// SET PATHS
+	const url = new URL(window.location)
+	const pathname = `${url.pathname.split('/').slice(2).join('/')}${url.search}`
+	<% languages.forEach(d => { %>
+		d3.select('#lang-<%- d.language %> a').attr('href', `/<%- d.language %>/${pathname}`)
+	<% }) %>
+
+	function expandmenu (node) {
+		d3.select(node).toggleClass('close')
+		d3.select('header').toggleClass('open')
+	}
+</script>

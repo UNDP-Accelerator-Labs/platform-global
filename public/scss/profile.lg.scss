@@ -1,0 +1,410 @@
+@import 'vars.lg';
+
+.fact-sheet {
+	position: relative;
+	display: block;
+	float: left;
+	width: calc(300px * 3 + 15px * 2 - 90px);
+	padding: 30px 60px 0 60px;
+	background-color: #FFF;
+	min-height: calc(100vh - 30px);
+	border-left: 1px solid $c-light-2;
+	border-right: 1px solid $c-light-2;
+
+	main#profile {
+		.inner {
+			.meta-status {
+				position: sticky;
+				top: 30px;
+				width: calc(100% + 120px);
+				margin: 0 0 30px -60px;
+				z-index: 100;
+
+				.btn-group {
+					height: 30px;
+					padding: 15px 10px 15px 0;
+					margin: 0 0 0 auto;
+					text-align: right;
+					z-index: 100;
+
+					button {
+						height: 30px;
+						padding: 0 10px;
+						margin: 0 5px;
+						border: 1px solid $c-dark-blue;
+						outline: none;
+						background-color: transparent;
+						font-size: $t-mid-small;
+						line-height: 1.5em;
+						cursor: pointer;
+					}
+					button.save {
+						background-color: $c-light-blue;
+						border-color: $c-light-blue;
+						color: #FFF;
+					}
+
+					button:disabled {
+						background-color: transparent;
+						border: 1px solid $c-light-2;
+						color: $c-light-2;
+						pointer-events: none;
+						cursor: default;
+					}
+				}
+			}
+			.meta-status.status-0 {
+				background: repeating-linear-gradient(
+					-45deg,
+					transparent,
+					transparent 3px,
+					rgba(255, 193, 14, .1) 3px,
+					rgba(255, 193, 14, .1) 6px
+				);
+			}
+			.meta-status.status-1 {
+				background: repeating-linear-gradient(
+					-45deg,
+					transparent,
+					transparent 3px,
+					rgba(50, 190, 225, .1) 3px,
+					rgba(50, 190, 225, .1) 6px
+				);
+			}
+			.meta-status.status-2 {
+				background: repeating-linear-gradient(
+					-45deg,
+					transparent,
+					transparent 3px,
+					rgba(150, 150, 150, .1) 3px,
+					rgba(150, 150, 150, .1) 6px
+				);
+			}
+			.head {
+				position: relative;
+				width: 100%;
+				margin-bottom: 30px;
+
+				.return {
+					display: block;
+					margin-bottom: 15px;
+				}
+				i {
+					position: absolute;
+					right: 100%;
+				}
+				.title {
+					width: 100%;
+					outline: none;
+					border-bottom: 1px solid transparent;
+					font-size: $t-xlarge;
+					line-height: 1.3em;
+					font-weight: 700;
+				}
+			}
+			.body {
+				form {
+					button.expand-collapsed {
+						position: relative;
+						width: 100%;
+						min-height: 65px;
+						padding: 10px;
+
+						background: repeating-linear-gradient(
+							45deg,
+							transparent,
+							transparent 3px,
+							rgba(150, 150, 150, .1) 3px,
+							rgba(150, 150, 150, .1) 6px
+						);
+
+						border: none;
+						outline: none;
+						color: $c-dark-blue;
+						font-size: $t-main;
+						line-height: 1.5em;
+						cursor: pointer;
+
+						/*
+						&::after {
+							content: '';
+							position: absolute;
+							top: 0;
+							width: 0;
+							height: 0;
+							border-left: 6px solid transparent;
+							border-right: 6px solid transparent;
+							border-bottom: 8px solid $c-light-grey;
+							transform: translate(-4px, -8px);
+						}
+						*/
+					}
+					div.info {
+						margin: 30px 0;
+						ul {
+							li {
+								position: relative;
+								min-height: 45px;
+								margin: 5px 0;
+								/*border-bottom: 1px dotted $c-light-grey;*/
+
+								.required {
+									position: absolute;
+									display: flex;
+									justify-content: center;
+									align-items: center;
+									left: -45px;
+									width: 30px;
+									top: -5px;
+									height: 100%;
+									margin: 5px 0;
+									text-align: center;
+
+									input {
+										display: none;
+									}
+									label {
+										font-size: $t-mid;
+										line-height: 1.5em;
+										color: $c-light-grey;
+										cursor: pointer;
+										margin-top: 10px;
+									}
+									input:checked + label,
+									label.active {
+										color:	$c-dark-red;
+									}
+								}
+
+								label.instruction {
+									display: inline-block;
+									width: 30%;
+									color: $c-light-grey;
+									padding: 5px 0 5px 10px;
+									/*margin-bottom: 5px;*/
+									border-left: 1px dotted $c-light-grey;
+									font-size: $t-mid-small;
+									line-height: 1.5em;
+									vertical-align: middle;
+								}
+								.input-group {
+									display: inline-block;
+									position: relative;
+									width: 50%;
+
+									input.toggle + label {
+										margin: 0;
+									}
+								}
+								.pinboard-group {
+									display: inline-block;
+									position: relative;
+									width: 50%;
+
+									.pinboard {
+										/*display: flex;
+										justify-content: flex-start;
+										align-items: top;*/
+										width: 100%;
+										min-height: 45px;
+										margin-top: 10px;
+
+										.pins {
+											display: flex;
+											margin: auto 0;
+											flex-wrap: wrap;
+
+											.pin {
+												display: inline-block;
+												height: 30px;
+												padding: 0 0 0 5px;
+												margin: 0 5px 5px 0;
+												font-size: $t-small;
+												line-height: 30px;
+												border: 1px solid $c-light-grey;
+												color: $c-light-grey;
+												white-space: nowrap;
+
+												label {
+													vertical-align: top;
+												}
+												.name {
+													flex-grow: 1;
+													margin: 0 10px 0 5px;
+													white-space: nowrap;
+													font-weight: normal;
+												}
+												.close {
+													display: inline-block;
+													width: 30px;
+													background-color: $c-light-grey;
+													text-align: center;
+													font-size: $t-mid-small;
+													line-height: 30px;
+													color: #FFF;
+													cursor: pointer;
+												}
+											}
+										}
+									}
+								}
+								.pinboard-group.margin-left {
+									margin-left: calc(30% + 15px);
+								}
+
+								input[type=text],
+								input[type=email],
+								input[type=password] {
+									position: relative;
+									width: 100%;
+									height: 30px;
+									border: none;
+									outline: none;
+									padding: 15px 15px 0 15px;
+									background-color: transparent;
+									font-size: $t-mid-small;
+									color: $c-dark-blue;
+									border-bottom: 1px solid $c-light-grey;
+								}
+								input[type=text] + label,
+								input[type=email] + label,
+								input[type=password] + label {
+									position: absolute;
+									left: 15px;
+									top: 5px;
+									font-size: $t-mid-small;
+									line-height: 1.5em;
+									color: $c-light-grey;
+									transform: translateY(13.5px);
+									transition: transform .25s, font-size .25s;
+									pointer-events: none;
+								}
+								input[type=text]:focus + label,
+								input[type=text].has-value + label,
+								input[type=email]:focus + label,
+								input[type=email].has-value + label,
+								input[type=password]:focus + label,
+								input[type=password].has-value + label {
+									font-size: $t-small;
+									line-height: 1.5em;
+									transform: translateY(-2px);
+								}
+								input[type=email]:invalid,
+								input[type=password].error {
+									background: repeating-linear-gradient(
+										45deg,
+										#FFF,
+										#FFF 3px,
+										rgba(165, 30, 65, .1) 3px,
+										rgba(165, 30, 65, .1) 6px
+									);
+								}
+								div.select {
+									position: relative;
+									display: inline-block;
+									vertical-align: middle;
+									width: 33%;
+
+									input[type=text] + label {
+										width: 100%;
+
+										&::after {
+											content: '';
+											position: absolute;
+											top: 4px;
+											right: 0;
+											width: 15px;
+											height: 15px;
+											margin: auto;
+											background: url('../imgs/icons/i-search-sm.svg');
+										}
+									}
+
+									.dropdown {
+										position: absolute;
+										width: calc(100% + 30px);
+										max-height: 0;
+										left: 0;
+										top: 100%;
+										background-color: #FFF;
+										box-shadow: 0px 10px 10px rgba(0,0,0,.1);
+										overflow: scroll;
+										z-index: 100;
+										transition: max-height 0.25s ease-out;
+
+										menu {
+											width: 100%;
+
+											li {
+												width: 100%;
+												min-height: 0;
+												margin: 0;
+												padding: 0;
+												border: none;
+
+												input {
+													display: none;
+												}
+												label {
+													display: block;
+													position: static;
+													width: calc(100% - 35px);
+													padding: 5px 20px 5px 15px;
+													color: $c-dark-grey;
+													font-size: $t-mid-small;
+													line-height: 1.5em;
+													transform: none;
+
+													.count {
+														float: right;
+														color: $c-light-grey;
+													}
+												}
+												input:checked + label {
+													background-color: $c-light-blue;
+												}
+												input:disabled + label {
+													color: $c-light-grey;
+												}
+											}
+											li:hover {
+												background-color: $c-light-3;
+											}
+										}
+
+									}
+								}
+								button.add-info {
+									min-height: 45px;
+									/*width: 100%;*/
+									border: none;
+									outline: none;
+									background-color: transparent;
+									color: $c-light-grey;
+									cursor: pointer;
+									/*background: repeating-linear-gradient(
+										45deg,
+										transparent,
+										transparent 3px,
+										rgba(150, 150, 150, .1) 3px,
+										rgba(150, 150, 150, .1) 6px
+									);*/
+								}
+							}
+						}
+					}
+					div.info.collapsed {
+						max-height: 0;
+						margin: 0;
+						overflow: hidden;
+						transition: max-height 0.25s ease-out;
+
+						button.expand-collapsed {
+							margin-top: 15px;
+						}
+					}
+				}
+			}
+		}
+	}
+}

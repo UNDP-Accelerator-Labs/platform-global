@@ -1,0 +1,39 @@
+<%
+	// CREATE ALIASES
+	const page = locals.metadata.page.id
+	const object = locals.metadata.page.object
+	const language = locals.metadata.page.language
+	const query = locals.metadata.page.query?.['search']
+
+	const stats = locals.data?.[0]?.['stats']
+	const resultLength = locals.data?.[1]?.['totalRecords']
+%>
+
+<div id='statistics'>
+	<div class='statistic'>
+		<h1><% if(query?.length){ %> 
+			<%- stats?.[1]?.['total_records'] || 0 %> <small> / </small>
+			<% } %>
+			<small> <%- stats?.[0]?.['totalblogs'] %></small>
+		</h1>
+		<p><%- 'Articles'.capitalize() %></p>
+
+	</div>
+	
+	<div class='statistic'>
+		<h1><%- stats?.[1]?.['distinct_country_count'] %></h1>
+		<p><%- 'Countries'.capitalize() %></p>
+	</div>
+
+	<div class='statistic'>
+		<h1><%- stats?.[1]?.['distinct_article_type_count'] %></h1>
+		<p><%- 'article types'.capitalize() %></p>
+	</div>
+
+	<!-- <div class='statistic'>
+		<h1><%- stats?.[1]?.['null_country_count'] %></h1>
+		<p><%- 'Articles with unknown countries'.capitalize() %></p>
+	</div> -->
+	
+
+</div>

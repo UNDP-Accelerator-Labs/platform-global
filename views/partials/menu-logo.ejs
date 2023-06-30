@@ -1,0 +1,152 @@
+<%
+	// CREATE ALIASES
+	const publicpage = locals.metadata.page.public
+	const modules = locals.metadata.site.modules
+	const activity = locals.metadata.page.activity
+	const space = locals.metadata.page.space
+	const object = locals.metadata.page.object
+	const query = locals.metadata.page.query
+	const languages = locals.metadata.site.languages
+	const language = locals.metadata.page.language
+	const rights = locals.metadata.user.rights
+	const uuid = locals.metadata.user.uuid
+
+	let mapscale = locals.metadata.page.mscale
+	// THIS IS FOR PUBLIC PINBOARDS: TO ENSURE THAT THE DEFINED MAP SCALE IS PRESERVED
+	if (space === 'pinned' && !locals.pinboard?.editable && locals.pinboard?.display_map) {
+		if (locals.pinboard?.display_fullscreen) mapscale = 'full-screen'
+		else mapscale = 'contain'
+	}
+
+	const display_content = Object.keys(query)?.filter(key => !['status', 'source', 'mapscale'].includes(key)).length > 0
+%>
+<nav id='site-title'>
+	<div class='inner'>
+		<img class='logo' src='/imgs/branding/UNDP_accelerator_labs_logo_vertical_color_RGB.png'>
+		<h1><%- (locals.metadata.site.title).replace(/\s+/g, '<br>') %></h1>
+		<% if (!publicpage) { %>
+			<h2>
+				<% if (locals.metadata.user.country.iso3 === 'NUL') { %>Global
+				<% } else { %><%- locals.metadata.user.country.name %><% } %>
+			</h2>
+		<% } %>
+		
+		<% if (['contribute', 'edit'].includes(activity)) { %>
+			<div class='save lg hide'>
+				<button><%- vocabulary['save'][language] %></button>
+			</div>
+		<% } %>
+	</div>
+</nav>
+<!-- <nav id='modules'>
+	<menu>
+	<% modules.filter(d => {
+		if (rights < d.rights.write) return false
+		else return !['pinboards', 'teams'].includes(d.type)
+	}).forEach(d => { %>		
+		<% if (['browse', 'view', 'contribute', 'edit', 'import'].includes(activity) 
+			&& [d.type, d.type.slice(0, -1)].includes(object)) 
+		{ %>
+			<li class='active'>
+		<% } else { %>
+			<li>
+		<% } %>
+			<% if (d.type === 'mobilizations') { %>
+				<a href='/<%- language %>/browse/<%- d.type %>/ongoing'><%- vocabulary[d.type.slice(0, -1)]?.[language](true)?.capitalize() || d.type.capitalize() %></a>
+			<% } else if (d.type === 'contributors') { %>
+				<a href='/<%- language %>/browse/<%- d.type %>/invited'><%- vocabulary[d.type.slice(0, -1)]?.[language](true)?.capitalize() || d.type.capitalize() %></a>
+			<% } else if (d.type === 'reviews') { %>
+				<a href='/<%- language %>/browse/<%- d.type %>/pending'><%- vocabulary[d.type.slice(0, -1)]?.[language](false, true)?.capitalize() || d.type.capitalize() %></a>
+			<% } else { %>
+				<a href='/<%- language %>/browse/<%- d.type %>/private'><%- vocabulary[d.type.slice(0, -1)]?.[language](true)?.capitalize() || d.type.capitalize() %></a>
+			<% } %>
+		</li>
+	<% }) %>
+	</menu> 
+</nav> -->
+<% if (display_content) { %>
+<nav class='pagination lg'>
+	<% if ((activity === 'browse' || locals.instance_vars?.activity === 'browse') && mapscale !== 'full-screen') { %>
+		<%- include('../browse/modules/pagination') %>
+	<% } %>
+</nav>
+<% } %>
+
+<script type='text/javascript'>
+	if (!mediaSize) var mediaSize = getMediaSize()
+	// THIS IS FOR MOBILE DISPLAY
+	if (mediaSize === 'xs') {
+		d3.select('.create').selectAll('button')
+		.on('touchend', function () { 
+			// d3.event.preventDefault()
+			this.focus()
+		}).on('focus', function () {
+			const dropdown = d3.select(this.nextElementSibling)
+			if (dropdown.node() && dropdown.classed('dropdown')) {
+				if (dropdown.node().style.maxHeight) {
+					dropdown.node().style.maxHeight = null
+					dropdown.node().style.overflow = null
+				} else {
+					dropdown.node().style.maxHeight = `${Math.min(dropdown.node().scrollHeight, 300)}px`
+					setTimeout(_ => {
+						if (dropdown.select('.dropdown').size() > 0) dropdown.node().style.overflow = 'visible'
+						else dropdown.node().style.overflow = 'scroll'
+					}, 250)
+				}
+				// dropdown.selectAll('button').on('mousedown', _ => d3.event.preventDefault())
+			}
+		}).on('blur', function () {
+			const target = d3.event.relatedTarget
+			if (!target) {
+				d3.select('.create').selectAll('.dropdown')
+				.each(function () {
+					this.style.maxHeight = null
+					this.style.overflow = null
+				})
+			} else if (!d3.select(target).hasAncestor(this.nextElementSibling)) {
+				if (d3.select(target).findAncestor('dropdown')?.node() === d3.select(this).findAncestor('dropdown')?.node()) { // IF THE target IS PART OF THE SAME PARENT DROPDOWN
+					const dropdown = d3.select(this.nextElementSibling)
+					dropdown.node().style.maxHeight = null
+					dropdown.node().style.overflow = null
+				} else { // COLLAPSE ALL DROPDOWNS BETWEEN .main AND target
+					let dropdown = d3.select(this.nextElementSibling)
+					let i = 0
+					while (dropdown.node() && !dropdown.classed('main')) {					
+						if (i === 5) break // THIS IS TO PREVENT A WILD while STATEMENT
+						// THERE SHOULD NOT BE MORE THAN 5 DROPDOWN LEVELS
+						dropdown.node().style.maxHeight = null
+						dropdown.node().style.overflow = null
+						dropdown = d3.select(dropdown.node().parentNode).findAncestor('dropdown')
+						i++
+					}
+				}
+			} 
+		})
+	} else if (mediaSize === 'lg') {
+		d3.selectAll('#site-title .inner .create button')
+		.on('click', function () {
+			if (this.nextElementSibling?.classList.contains('dropdown')) {
+				if (d3.select(this).hasAncestor('dropdown')) {
+					const dropdown = d3.select(this).findAncestor('dropdown')
+					dropdown.selectAll('li').classed('open', false)
+					if (dropdown.hasAncestor('li')) {
+						dropdown.findAncestor('li').classed('open', true)
+					}
+				}
+				d3.select('#site-title .inner .create').classed('open', true)
+				d3.select(this.parentNode).classed('open', true)
+			}
+		})
+		window.addEventListener('mouseup', function (e) {
+			if (e.target.nodeName !== 'HTML' && !d3.select(e.target).hasAncestor('create')) d3.selectAll('#site-title .inner .open').classed('open', false)
+		})
+
+		function filterDropdown (node) {
+			const dropdown = d3.select(node).findAncestor('dropdown')
+			dropdown.selectAll('ul li:not(.filter):not(.padding)')
+				.classed('hide', function () {
+					return !this.textContent.trim().toLowerCase().includes(node.value.trim().toLowerCase())
+				})
+		}
+	}
+</script>

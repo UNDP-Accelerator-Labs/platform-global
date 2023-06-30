@@ -1,0 +1,72 @@
+<div class='inner'>
+	<!-- IF PAGE IS BELOW 5, SHOW FIRST 10 -->
+	<!-- IF IT IS ABOVE 5, CENTER WINDOW OF 10 AROUND PAGE -->
+	<% if (!locals.metadata.page.lazyload) { %>
+		<% if (![null, undefined].includes(locals.metadata.page.count)) { %>
+		<ul>
+			<% if (locals.metadata.page.count <= 3) { %>
+				<% for (let i = 1; i < locals.metadata.page.count + 1; i++) { %>
+					<li>
+						<a class='page-link <% if (i === locals.metadata.page.id) { %>active<% } %>' data-page='<%- i %>'><%- i %></a>
+					</li>
+				<% } %>
+			<% } else { %>
+				<% if (locals.metadata.page.id <= 2) { %>
+					<% for (let i = 1; i < Math.min(4, locals.metadata.page.count + 1); i++) { %>
+						<li>
+							<a class='page-link <% if (i === locals.metadata.page.id) { %>active<% } %>' data-page='<%- i %>'><%- i %></a>
+						</li>
+					<% } %>
+					<% if (locals.metadata.page.count > 3) { %>
+						<li>…</li>
+						<li>
+							<a class='page-link' data-page='<%- locals.metadata.page.count %>'><%- locals.metadata.page.count %></a>
+						</li>
+					<% } %>
+				<% } else if (locals.metadata.page.id > 2 && locals.metadata.page.id <= (locals.metadata.page.count + 1) - 3) { %>
+					<li>
+						<a class='page-link' data-page='<%- 1 %>'>1</a>
+					</li>
+					<li>…</li>
+					<% for (let i = locals.metadata.page.id - 1; i < locals.metadata.page.id + 2; i++) { %>
+						<li>
+							<a class='page-link <% if (i === locals.metadata.page.id) { %>active<% } %>' data-page='<%- i %>'><%- i %></a>
+						</li>
+					<% } %>
+					<li>…</li>
+					<li>
+						<a class='page-link' data-page='<%- locals.metadata.page.count %>'><%- locals.metadata.page.count %></a>
+					</li>
+				<% } else { %>
+					<li>
+						<a class='page-link' data-page='<%- 1 %>'>1</a>
+					</li>
+					<li>…</li>
+					<% for (let i = locals.metadata.page.count - 2; i < locals.metadata.page.count + 1; i++) { %>
+						<li>
+							<a class='page-link <% if (i === locals.metadata.page.id) { %>active<% } %>' data-page='<%- i %>'><%- i %></a>
+						</li>
+					<% } %>
+				<% } %>
+			<% } %>
+		</ul>
+		<% } else { %><!-- THIS IS FOR NAVIGATING CONTRIBUTORS ALPHABETICALLY -->
+		<ul class='padded'>
+			<!-- INSPIRED BY https://stackoverflow.com/questions/44573859/a-loop-to-create-the-alphabet-using-javascript -->
+			<% for (let i = 0; i < 26; i++) { 
+				const char = (i + 10).toString(36).toUpperCase()
+				const count = locals.stats.toc.find(d => d.initial === char)?.count || 0
+				const disabled = count > 0 ? false : true
+			%>
+				<% if (!disabled) { %>
+					<li title='<%- count %>'>
+						<a class='page-link static <% if (char === locals.metadata.page.id) { %>active<% } %>' href='?page=<%- char %>'><%- char %></a>
+					</li>
+				<% } else { %>
+					<li class='disabled'><%- char %></li>
+				<% } %>
+			<% } %>
+		</ul>
+		<% } %>
+	<% } %>
+</div>

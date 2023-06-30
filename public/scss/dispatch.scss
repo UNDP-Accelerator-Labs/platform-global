@@ -1,0 +1,233 @@
+/* https://www.freecodecamp.org/news/css-media-queries-breakpoints-media-types-standard-resolutions-and-more/ */
+
+@import 'vars';
+
+/* Small devices (landscape phones, 480px and up) */
+@media (max-width: 480px) {
+/*@media (max-width: 480px) and (orientation: portrait) {*/
+	@import 'vars.xs';
+	@import 'navigate.xs';
+	@import 'filter.lg';
+	@import 'map.lg';
+
+	@import 'pad.xs';
+	@import 'profile.xs';
+	@import 'browse.xs';
+	@import 'mobilize.lg';
+}
+
+/* Medium devices (laptops) */
+@media only screen and (min-width: 768px) and (max-width: 991.98px) {
+	@import 'vars.xs';
+	@import 'navigate.xs';
+	@import 'filter.lg';
+	@import 'map.lg';
+
+	@import 'pad.xs';
+	@import 'profile.xs';
+	@import 'browse.xs';
+	@import 'mobilize.lg';
+}
+
+/* Large devices (desktops, 1024px and up) */
+// @media (max-width: 1024px) {
+// 	@import 'vars.m';
+// 	@import 'navigate.m';
+// 	@import 'filter.lg';
+// 	@import 'map.lg';
+
+// 	@import 'pad.xs';
+// 	@import 'profile.xs';
+// 	@import 'browse.m';
+// 	@import 'mobilize.lg';
+// }
+
+
+
+/* Large devices (desktops) */
+@media only screen and (min-width: 992px) and (max-width: 1199.98px) {
+	div.browse {
+		width: calc(280px * 3 + 15px * 2);
+	}
+}
+
+/* Extra large devices (large desktops, 1200px and up) */
+@media only screen and (min-width: 1200px) {
+	@import 'vars.lg';
+	@import 'navigate.lg';
+	@import 'filter.lg';
+	@import 'map.lg';
+
+	@import 'pad.lg';
+	@import 'profile.lg';
+	@import 'import.lg';
+	@import 'browse.lg';
+	@import 'mobilize.lg';
+}
+
+
+
+@media print {
+	@import 'vars.print';
+/*	@import 'pad.lg';*/
+	@page {
+		size: A4 portrait;
+		margin: 20mm 30mm;
+
+		@bottom-center {
+			content: counter(page);
+			text-align: center;
+			font-size: $t-small;
+			color: $c-mid-grey;
+		}
+		@top-center {
+			content: string(title);
+			text-align: center;
+			font-size: $t-small;
+			color: $c-mid-grey;
+		}
+	}
+	a::after {
+		content: " (" attr(href) ")";
+	}
+	nav#languages {
+		display: none;
+	}
+	button#expand-nav {
+		display: none;
+	}
+	header {
+		display: none;
+	}
+	div.document {
+		border: none !important;
+		width: 100% !important;
+		min-height: unset !important;
+		padding: 0;
+
+		*:not(img):empty,
+		*:empty:before {
+			display: none;
+		}
+
+		article {
+			break-before: page;
+
+			.title {
+				string-set: title content(text);
+				line-height: 1.2em;
+			}
+
+			section {
+				margin: 24pt 0;
+
+				p {
+					margin: 6pt 0 12pt 0;
+					color: $c-dark-grey;
+				}
+				p.instruction {
+					margin-bottom: 6pt;
+					color: $c-light-grey;
+					font-size: $t-mid-small;
+					line-height: 1.5em;
+				}
+				ol, ul {
+					margin: 6pt 0 12pt 15mm;
+
+					li.checked {
+						font-weight: bold;
+					}
+				}
+				ol.indexes {
+					margin: 12pt 0;
+					text-align: center;
+
+					li {
+						display: inline;
+						list-style: none;
+
+						img {
+							width: 30mm;
+						}
+					}
+				}
+				ul.tags {
+					margin: 6pt 0 12pt 0;
+					text-align: left;
+					/*display: grid;
+					grid-gap: 6pt;
+					grid-template-columns: repeat(6,1fr);
+					align-items: top;
+					justify-content: center;*/
+
+					li.tag {
+						display: inline-block;
+						background-image: url("../imgs/icons/i-generic-tag-btn.svg");
+						background-repeat: no-repeat;
+						background-position: left center;
+						background-size: 13pt;
+						padding: 0 6pt 0 18pt;
+						margin: 0 1mm;
+						font-size: $t-mid-small;
+						line-height: 1.5em;
+						color: $c-mid-grey;
+					}
+				}
+				ul.locations {
+					margin-left: 0;
+					margin-bottom: 0;
+
+					li {
+						background-image: url("../imgs/icons/i-locations-btn.svg");
+						background-repeat: no-repeat;
+						background-position: left center;
+						background-size: 14pt;
+						padding-left: 18pt;
+						font-size: $t-mid-small;
+						color: $c-mid-grey;
+					}
+				}
+				p.caption {
+					font-size: $t-small;
+					line-height: 1.5em;
+					color: $c-light-grey;
+				}
+				img {
+					margin: 6pt auto 12pt auto;
+					max-width: 100%;
+					max-height: 100%;
+				}
+				div.mosaic {
+					display: grid;
+					grid-gap: 6pt;
+					grid-template-columns: repeat(3, 1fr);
+					align-items: center;
+				}
+				div.mosaic.x2 {
+					grid-template-columns: repeat(2, 1fr);
+				}
+			}
+		}
+	}
+
+	.meta-info.mobilization-info,
+	.scroll-nav {
+		display: none !important;
+	}
+	.head {
+		a.return {
+			display: none;
+		}
+	}
+
+	.input-toolbox {
+		display: none;
+	}
+
+	.opts {
+		display: none !important;
+	}
+	footer {
+		display: none;
+	}
+}

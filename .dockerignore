@@ -1,0 +1,10 @@
+.*
+node_modules/
+tmp/
+routes/scripts/
+public/generated/
+*.uploads.zip
+feedback/
+*.ai
+*.diff
+*.sql

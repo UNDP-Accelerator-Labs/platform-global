@@ -1,0 +1,2663 @@
+@charset "UTF-8";
+/*@import url('https://fonts.googleapis.com/css2?family=Overpass:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap');*/
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Noto+Serif:ital@1&display=swap");
+/*$c-dark-blue: #0A4C73;*/
+/*$c-dark-1: $c-dark-blue;
+$c-mid-1: $c-dark-red;
+$c-mid-2: $c-light-green;
+$c-mid-2-light: rgba(87,100,140,.25);
+$c-mid-3: #F4ED6E;
+$c-light-1: $c-light-red;
+$c-light-2: #E5E5E5;
+$c-light-3: #F0F0F0;*/
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes anim-up {
+  from {
+    transform: translateY(100px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes slide-down {
+  from {
+    transform: translateY(-60px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  /*background-color: #F3F3F3;*/
+}
+
+body, text, textarea, input[type=text], button, *:empty:not(:focus):before {
+  font-family: "Noto Sans", Helvetica, Arial, sans-serif;
+  color: #005687;
+}
+
+ul {
+  list-style: none;
+}
+
+a {
+  /*color: $c-light-red;*/
+  color: #32BEE1;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.hide {
+  display: none !important;
+}
+
+/* https://stackoverflow.com/questions/2781549/removing-input-background-colour-for-chrome-autocomplete */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 60px white inset !important;
+}
+
+.screen {
+  position: fixed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  top: 30px;
+  left: 0;
+  width: 100vw;
+  height: calc(100vh - 30px);
+  overflow: scroll;
+  /*background-color: rgba(255,255,255,.75);*/
+  background: repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.75) 3px, rgba(229, 229, 229, 0.75) 3px, rgba(229, 229, 229, 0.75) 6px);
+  animation: fade-in 0.25s;
+  z-index: 99999;
+}
+.screen .modal .close {
+  float: right;
+  border: none;
+  outline: none;
+  background-color: #005687;
+  color: #FFF;
+  cursor: pointer;
+}
+.screen .modal .inner {
+  border-top: 2px solid #005687;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+}
+
+.screen.bis {
+  /*background-color: $c-mid-1;*/
+}
+.screen.bis .modal .close {
+  /*background-color: $c-mid-2;*/
+}
+.screen.bis .modal .inner {
+  /*border-top: 3px solid $c-mid-2;*/
+}
+
+.screen.ter {
+  background-color: #F3F3F3;
+  /*background: linear-gradient(135deg, $c-light-2 0%, $c-light-3 100%);*/
+}
+.screen.ter .modal .close {
+  background-color: #333D51;
+}
+.screen.ter .modal .inner {
+  border-top: 3px solid #333D51;
+}
+
+*:empty:not(:focus):before {
+  content: attr(data-placeholder);
+  font-weight: 400;
+  /*color: $c-light-1;*/
+  color: #969696;
+  pointer-events: none;
+}
+
+input.toggle {
+  display: none;
+}
+
+input.toggle + label {
+  display: block;
+  position: relative;
+  width: 40px;
+  height: 20px;
+  border-radius: 20px;
+  border: 1px solid #969696;
+  margin: 15px auto 0px auto;
+  background-color: #969696;
+  cursor: pointer;
+  transition: background-color 0.25s, border-color 0.25s;
+}
+
+input.toggle:checked + label {
+  /*border-color: $c-dark-blue;*/
+  background-color: transparent;
+}
+
+input.toggle:checked + label[for=status--1] {
+  /*border-color: $c-mid-yellow;*/
+  background: repeating-linear-gradient(-45deg, transparent, transparent 3px, rgba(150, 150, 150, 0.1) 3px, rgba(150, 150, 150, 0.1) 6px);
+}
+
+input.toggle:checked + label[for=status-0] {
+  /*border-color: $c-mid-yellow;*/
+  background: repeating-linear-gradient(-45deg, transparent, transparent 3px, rgba(255, 193, 14, 0.25) 3px, rgba(255, 193, 14, 0.25) 6px);
+}
+
+input.toggle:checked + label[for=status-1] {
+  /*border-color: $c-light-blue;*/
+  background: repeating-linear-gradient(-45deg, transparent, transparent 3px, rgba(50, 190, 225, 0.25) 3px, rgba(50, 190, 225, 0.25) 6px);
+}
+
+input.toggle + label::after {
+  content: attr(data-content);
+  position: absolute;
+  display: block;
+  width: 20px;
+  height: 20px;
+  margin: -1px 0 0 -1px;
+  background-color: #FFF;
+  border: 1px solid #969696;
+  border-radius: 20px;
+  font-size: 8px;
+  line-height: 1.5em;
+  font-weight: bold;
+  text-align: center;
+  line-height: 20px;
+  color: #969696;
+  transition: transform 0.25s;
+}
+
+input.toggle:checked + label[for=status-0]::after {
+  /*background-color: $c-mid-yellow;*/
+  /*border-color: $c-mid-yellow;*/
+}
+
+input.toggle:checked + label[for=status-1]::after {
+  /*background-color: $c-light-blue;*/
+  /*border-color: $c-light-blue;*/
+}
+
+input.toggle:checked + label::after {
+  transform: translate(20px, 0);
+  background-color: #005687;
+  border-color: #005687;
+  color: #FFF;
+}
+
+input.toggle:disabled + label {
+  background-color: #E5E5E5;
+  border-color: #E5E5E5;
+}
+
+input.toggle:disabled + label::after {
+  color: #E5E5E5;
+  background-color: #FFF;
+  border-color: #E5E5E5;
+}
+
+/* https://loading.io/css/ */
+.lds-ellipsis {
+  display: block;
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin: auto;
+  text-align: center;
+}
+
+.lds-ellipsis div {
+  position: absolute;
+  top: 33px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  /*background: $c-mid-2;*/
+  background: #969696;
+  animation-timing-function: cubic-bezier(0, 1, 1, 0);
+}
+
+.lds-ellipsis div:nth-child(1) {
+  left: 8px;
+  animation: lds-ellipsis1 0.6s infinite;
+}
+
+.lds-ellipsis div:nth-child(2) {
+  left: 8px;
+  animation: lds-ellipsis2 0.6s infinite;
+}
+
+.lds-ellipsis div:nth-child(3) {
+  left: 32px;
+  animation: lds-ellipsis2 0.6s infinite;
+}
+
+.lds-ellipsis div:nth-child(4) {
+  left: 56px;
+  animation: lds-ellipsis3 0.6s infinite;
+}
+
+@keyframes lds-ellipsis1 {
+  0% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes lds-ellipsis3 {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0);
+  }
+}
+@keyframes lds-ellipsis2 {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(24px, 0);
+  }
+}
+html, body {
+  font-size: 16px;
+  line-height: 1.5em;
+}
+
+.lg {
+  display: none !important;
+}
+
+.modal {
+  width: 300px;
+  margin-bottom: 75px;
+}
+.modal .close {
+  padding: 5px 10px;
+  font-size: 12px;
+}
+.modal .inner {
+  clear: both;
+  padding: 15px 15px 5px 15px;
+  background-color: #FFF;
+}
+.modal .inner .headline {
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #C2B4D6;
+  font-size: 16px;
+  text-align: center;
+}
+.modal .inner .message {
+  margin-bottom: 15px;
+  font-size: 16px;
+}
+.modal .inner .message input[type=text],
+.modal .inner .message input[type=number] {
+  width: 65px;
+  border: none;
+  border-bottom: 1px solid #FFC10E;
+  outline: none;
+  text-align: center;
+  font-weight: 700;
+  color: #FFC10E;
+}
+.modal .inner .message small {
+  font-size: 12px;
+  color: #C2B4D6;
+}
+.modal .inner ul li {
+  position: relative;
+  margin-bottom: 10px;
+  text-align: center;
+  font-size: 16px;
+}
+.modal .inner ul li button {
+  width: 100%;
+  min-height: 45px;
+  border: 1px solid #005687;
+  outline: none;
+  background-color: transparent;
+  padding: 0 30px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.25s;
+}
+.modal .inner ul li button .sub {
+  font-size: 12px;
+  color: #969696;
+}
+.modal .inner ul li button.padded {
+  padding: 10px 30px;
+}
+.modal .inner ul li textarea {
+  width: 100%;
+  min-height: 300px;
+  border: none;
+  border-bottom: 1px solid #969696;
+  outline: none;
+  background-color: transparent;
+  font-size: 24px;
+  resize: none;
+  box-sizing: border-box;
+}
+.modal .inner ul li label {
+  position: absolute;
+  top: -15px;
+  left: 0;
+  font-size: 16px;
+  color: #FFC10E;
+  transform: translateY(calc(16px));
+  transition: transform 0.25s, font-size 0.25s;
+  cursor: pointer;
+}
+.modal .inner ul li textarea:focus + label,
+.modal .inner ul li textarea.has-value + label {
+  font-size: 12px;
+  transform: translateY(0px);
+}
+.modal .inner ul li input[type=date] {
+  padding-bottom: 5px;
+  border: none;
+  border-bottom: 1px solid #969696;
+  outline: none;
+  font-size: 16px;
+  font-family: "Noto Sans", Helvetica, Arial, sans-serif;
+  color: #005687;
+}
+.modal .inner ul li input[type=date]::before {
+  content: none;
+}
+.modal .inner ul li:hover button {
+  background-color: #005687;
+  color: #FFF;
+}
+.modal .inner .foot {
+  margin: 10px 0;
+  text-align: center;
+}
+.modal .inner .foot button {
+  border: none;
+  outline: none;
+  height: 45px;
+  width: 100%;
+  border-radius: 5px;
+  padding: 0 30px;
+  font-size: 16px;
+  background-color: #E5E5E5;
+  color: #333D51;
+  cursor: pointer;
+  transition: background-color 0.25s;
+}
+.modal .inner .foot button:hover {
+  background-color: #333D51;
+  color: #FFF;
+}
+
+.add-circle {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin-right: 15px;
+  border-radius: 20px;
+  background-color: #969696;
+  color: #FFF;
+  font-size: 20px;
+  line-height: 19px;
+  text-align: center;
+  vertical-align: text-top;
+}
+
+div.fixed-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+}
+
+div.hashed {
+  background: repeating-linear-gradient(45deg, transparent, transparent 3px, rgba(150, 150, 150, 0.1) 3px, rgba(150, 150, 150, 0.1) 6px);
+}
+
+div.document {
+  position: relative;
+  display: block;
+  float: left;
+  width: calc(100vw - 60px);
+  padding: 45px 30px 0 30px;
+  background-color: #FFF;
+  min-height: calc(100vh - 45px);
+}
+div.document main .engagement-input-group {
+  position: fixed;
+  width: 225px;
+  margin: 0 0 0 -225px;
+}
+div.document main .engagement-input-group .bookmark {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  width: 66px;
+  height: 90px;
+  top: -60px;
+  right: 20px;
+  transform-origin: top center;
+  transition: transform 0.25s ease-out;
+  background-color: #C2B4D6;
+  font-size: 12px;
+  line-height: 1.5em;
+  text-align: center;
+  color: #FFF;
+  text-align: center;
+  z-index: 100;
+  cursor: pointer;
+  transition: background-color 0.25s;
+}
+div.document main .engagement-input-group .bookmark div {
+  transform: rotate(-90deg);
+}
+div.document main .engagement-input-group .bookmark::before {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 0;
+  transform: translateY(90px);
+  width: 0;
+  height: 0;
+  border-top: 7px solid #C2B4D6;
+  border-left: 33px solid transparent;
+  transition: border-top-color 0.25s;
+}
+div.document main .engagement-input-group .bookmark::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translateY(90px);
+  width: 0;
+  height: 0;
+  border-top: 7px solid #C2B4D6;
+  border-right: 33px solid transparent;
+  transition: border-top-color 0.25s;
+}
+div.document main .engagement-input-group .bookmark:hover,
+div.document main .engagement-input-group .bookmark.active {
+  background-color: #57648C;
+}
+div.document main .engagement-input-group .bookmark:hover::before,
+div.document main .engagement-input-group .bookmark:hover::after,
+div.document main .engagement-input-group .bookmark.active::before,
+div.document main .engagement-input-group .bookmark.active::after {
+  border-top-color: #57648C;
+}
+div.document main .engagement-input-group ul {
+  padding: 5px 10px;
+  margin: 65px 20px 0 0;
+  border-right: 1px solid #E5E5E5;
+}
+div.document main .engagement-input-group ul li {
+  width: 100%;
+  height: 45px;
+  margin-bottom: 5px;
+}
+div.document main .engagement-input-group ul li button {
+  position: relative;
+  float: right;
+  display: flex;
+  align-items: center;
+  max-width: 45px;
+  height: 45px;
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-radius: 45px;
+  outline: none;
+  margin: 0 0 0 10px;
+  background-color: transparent;
+  color: #C2B4D6;
+  font-size: 24px;
+  line-height: 1.5em;
+  cursor: pointer;
+  transition: border-color 0.25s, max-width 0.5s;
+}
+div.document main .engagement-input-group ul li button small {
+  display: inline-block;
+  margin-right: 15px;
+  font-size: 12px;
+  line-height: 1.5em;
+  text-align: left;
+  white-space: nowrap;
+}
+div.document main .engagement-input-group ul li button i {
+  flex-shrink: 0;
+  width: 45px;
+  display: inline-block;
+  font-size: 24px;
+  line-height: 1.5em;
+  /*line-height: 45px;*/
+  font-style: normal;
+  cursor: pointer;
+}
+div.document main .engagement-input-group ul li button::after {
+  content: attr(data-count);
+  position: absolute;
+  left: 0;
+  top: calc(100% - 10px);
+  width: 45px;
+  text-align: center;
+  font-size: 10px;
+  line-height: 1.5em;
+  font-weight: 700;
+  pointer-events: none;
+  transition: opacity 0.25s, transform 0.5s;
+}
+div.document main .engagement-input-group ul li button:hover {
+  max-width: 100%;
+  border-color: #C2B4D6;
+}
+div.document main .engagement-input-group ul li button.active {
+  color: #934A5F;
+}
+div.document main .engagement-input-group ul li button.active:hover {
+  border-color: #934A5F;
+}
+div.document main .engagement-input-group ul li button:hover::after {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+div.document main .inner .meta-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  min-height: calc(100vh - 215px);
+  margin-bottom: 90px;
+  padding-bottom: 60px;
+  border-bottom: 1px dotted #969696;
+}
+div.document main .inner .meta-info h1 {
+  font-size: 20px;
+  line-height: 1.5em;
+}
+div.document main .inner .meta-info p {
+  font-size: 16px;
+  line-height: 1.5em;
+}
+div.document main .inner button.scroll-nav {
+  position: fixed;
+  bottom: 0px;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  background: repeating-linear-gradient(-45deg, transparent, transparent 3px, rgba(150, 150, 150, 0.1) 3px, rgba(150, 150, 150, 0.1) 6px);
+  border: none;
+  outline: none;
+  color: #969696;
+  font-size: 60px;
+  line-height: 1.5em;
+  cursor: pointer;
+  transition: background 0.25s;
+  z-index: 1001;
+}
+div.document main .inner button.scroll-nav label.rotate {
+  display: block;
+  transform: rotate(90deg);
+  width: 60px;
+  height: 60px;
+  line-height: 60px;
+  margin: auto;
+  cursor: pointer;
+}
+div.document main .inner button.scroll-nav:hover {
+  background: repeating-linear-gradient(-45deg, transparent, transparent 3px, rgba(50, 190, 225, 0.1) 3px, rgba(50, 190, 225, 0.1) 6px);
+}
+div.document main .inner .meta-status {
+  position: sticky;
+  top: 45px;
+  width: calc(100% + 60px);
+  margin: 0 0 45px -30px;
+  z-index: 100;
+}
+div.document main .inner .meta-status .btn-group {
+  height: 45px;
+  padding: 10px 0;
+  margin: 0 0 0 auto;
+  text-align: center;
+  z-index: 100;
+}
+div.document main .inner .meta-status .btn-group .save {
+  display: inline-block;
+  margin: 0 5px 0 5px;
+}
+div.document main .inner .meta-status .btn-group .save button {
+  background-color: #32BEE1;
+  padding: 0 15px;
+  border-color: #32BEE1;
+  color: #FFF;
+}
+div.document main .inner .meta-status .btn-group .save.saved button {
+  background-color: #0468B1;
+  border-color: #0468B1;
+  color: #FFF;
+}
+div.document main .inner .meta-status .btn-group form {
+  position: relative;
+  display: inline-block;
+  margin: 0 5px 0 5px;
+}
+div.document main .inner .meta-status .btn-group form button {
+  min-height: 45px;
+  padding: 0 15px;
+  border: 1px solid #005687;
+  outline: none;
+  background-color: transparent;
+  font-size: 14px;
+  line-height: 1.5em;
+  cursor: pointer;
+}
+div.document main .inner .meta-status .btn-group form button.publish {
+  background-color: #32BEE1;
+  border-color: #32BEE1;
+  color: #FFF;
+}
+div.document main .inner .meta-status .btn-group form button:disabled {
+  background-color: transparent;
+  border: 1px solid #E5E5E5;
+  color: #E5E5E5;
+  pointer-events: none;
+  cursor: default;
+}
+div.document main .inner .meta-status .btn-group form .dropdown {
+  position: absolute;
+  min-width: 100%;
+  max-height: 0;
+  left: 50%;
+  top: calc(100% - 1px);
+  background-color: #FFF;
+  box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transform: translateX(-50%);
+  z-index: 100;
+  transition: max-height 0.15s ease-out;
+}
+div.document main .inner .meta-status .btn-group form .dropdown menu {
+  width: 100%;
+  border-top: 1px solid #969696;
+}
+div.document main .inner .meta-status .btn-group form .dropdown menu li {
+  width: 100%;
+  margin: 0;
+  list-style: none;
+}
+div.document main .inner .meta-status .btn-group form .dropdown menu li button {
+  padding: 5px 10px;
+  border: none;
+  color: #969696;
+  white-space: nowrap;
+}
+div.document main .inner .meta-status .btn-group form .dropdown menu li:hover {
+  background-color: #F3F3F3;
+}
+div.document main .inner .meta-status .btn-group form .dropdown menu li:not(:last-child) {
+  border-bottom: 1px dotted #969696;
+}
+div.document main .inner .meta-status.status-0 {
+  background: repeating-linear-gradient(-45deg, transparent, transparent 3px, rgba(255, 193, 14, 0.1) 3px, rgba(255, 193, 14, 0.1) 6px);
+}
+div.document main .inner .meta-status.status-1 {
+  background: repeating-linear-gradient(-45deg, transparent, transparent 3px, rgba(50, 190, 225, 0.1) 3px, rgba(50, 190, 225, 0.1) 6px);
+}
+div.document main .inner .meta-status.status-2,
+div.document main .inner .meta-status.status-3 {
+  background: repeating-linear-gradient(-45deg, transparent, transparent 3px, rgba(150, 150, 150, 0.1) 3px, rgba(150, 150, 150, 0.1) 6px);
+}
+div.document main .inner .head {
+  position: relative;
+  width: 100%;
+  margin-bottom: 15px;
+}
+div.document main .inner .head .return {
+  display: block;
+  font-size: 14px;
+  line-height: 1.5em;
+  margin-bottom: 15px;
+}
+div.document main .inner .head i {
+  position: absolute;
+  right: 100%;
+}
+div.document main .inner .head .title {
+  width: 100%;
+  outline: none;
+  border-bottom: 1px solid transparent;
+  font-size: 24px;
+  line-height: 1.3em;
+  font-weight: 700;
+}
+div.document main .inner .head .title:focus {
+  /*border-bottom-color: $c-light-yellow;*/
+  border-bottom-color: #E5E5E5;
+}
+div.document main .inner .head .contributor {
+  margin-top: 10px;
+  font-size: 14px;
+  line-height: 1.5em;
+  color: #969696;
+}
+div.document main .inner .head .dropdown {
+  display: none;
+}
+div.document main .inner .body {
+  width: 100%;
+  padding-bottom: 60px;
+}
+div.document main .inner .body .layout {
+  display: inline-block;
+  clear: both;
+  position: relative;
+  width: 100%;
+  margin: 0 0 30px 0;
+  transition: background-color 0.25s;
+  /*.media-container.slide {
+  	position: absolute;
+  	min-height: 100vh;
+  	transform: translateX(0);
+  	opacity: 1;
+  	transition: transform 1s, opacity 1s;
+  }
+  .media-container.slide-next {
+  	transform: translateX(100%);
+  	opacity: 0;
+  }
+  .media-container.slide-prev {
+  	transform: translateX(-100%);
+  	opacity: 0;
+  }*/
+}
+div.document main .inner .body .layout .section-header {
+  display: block;
+}
+div.document main .inner .body .layout .section-header h1 {
+  padding: 5px 0;
+  outline: none;
+  font-size: 20px;
+  line-height: 1.5em;
+  color: #0468B1;
+  font-weight: normal;
+  border-bottom: 1px solid transparent;
+}
+div.document main .inner .body .layout .section-header h1:focus {
+  /*border-bottom-color: $c-mid-yellow;*/
+  border-bottom-color: #E5E5E5;
+}
+div.document main .inner .body .layout .placement-opts {
+  position: absolute;
+  display: none;
+  top: calc(-24px);
+  right: 100%;
+  height: 100%;
+  /*color: $c-mid-yellow;*/
+  color: #646464;
+}
+div.document main .inner .body .layout .placement-opts .opt {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  cursor: pointer;
+}
+div.document main .inner .body .layout .placement-opts .opt i {
+  font-size: 24px;
+  line-height: 1.5em;
+  /*line-height: 30px;*/
+}
+div.document main .inner .body .layout .required {
+  position: absolute;
+  left: -30px;
+  top: 55px;
+  width: 30px;
+  text-align: center;
+  /*pointer-events: none;*/
+}
+div.document main .inner .body .layout .required input {
+  display: none;
+}
+div.document main .inner .body .layout .required label {
+  font-size: 20px;
+  line-height: 1.5em;
+  color: #969696;
+  cursor: pointer;
+}
+div.document main .inner .body .layout .required input:checked + label,
+div.document main .inner .body .layout .required label.active {
+  color: #A51E41;
+}
+div.document main .inner .body .layout .media-container,
+div.document main .inner .body .layout .meta-container {
+  clear: both;
+  position: relative;
+  width: 100%;
+  /*margin-bottom: 10px;*/
+}
+div.document main .inner .body .layout .media-container .opts,
+div.document main .inner .body .layout .meta-container .opts {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  height: 45px;
+  border-bottom: 1px solid transparent;
+}
+div.document main .inner .body .layout .media-container .opts .opt-group,
+div.document main .inner .body .layout .meta-container .opts .opt-group {
+  display: none;
+}
+div.document main .inner .body .layout .media-container .opts .opt-group .opt,
+div.document main .inner .body .layout .meta-container .opts .opt-group .opt {
+  position: relative;
+  width: 45px;
+  height: 45px;
+  border: none;
+  outline: none;
+  background-color: transparent;
+  cursor: pointer;
+}
+div.document main .inner .body .layout .media-container .opts .opt-group .opt i,
+div.document main .inner .body .layout .meta-container .opts .opt-group .opt i {
+  font-size: 16px;
+  line-height: 1.5em;
+}
+div.document main .inner .body .layout .media-container .opts .opt-group .opt .constraint,
+div.document main .inner .body .layout .media-container .opts .opt-group .opt .repeat,
+div.document main .inner .body .layout .meta-container .opts .opt-group .opt .constraint,
+div.document main .inner .body .layout .meta-container .opts .opt-group .opt .repeat {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  font-size: 10px;
+  line-height: 1.5em;
+  /*color: $c-mid-1;*/
+  color: #A51E41;
+}
+div.document main .inner .body .layout .media-container .opts .opt-group .opt.brush-size,
+div.document main .inner .body .layout .meta-container .opts .opt-group .opt.brush-size {
+  display: inline-block;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 0px;
+  /*border-top: 1px solid $c-light-yellow;*/
+  border-top: 1px solid #E5E5E5;
+  outline: none;
+  /*transform: translateY(5px);*/
+}
+div.document main .inner .body .layout .media-container .opts .opt-group .opt.brush-size::-webkit-slider-thumb,
+div.document main .inner .body .layout .meta-container .opts .opt-group .opt.brush-size::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 15px;
+  height: 15px;
+  border-radius: 30px;
+  background: #005687;
+  cursor: pointer;
+}
+div.document main .inner .body .layout .media-container .opts .opt-group .opt.brush-size::-moz-range-thumb,
+div.document main .inner .body .layout .meta-container .opts .opt-group .opt.brush-size::-moz-range-thumb {
+  width: 15px;
+  height: 15px;
+  background: #005687;
+  cursor: pointer;
+}
+div.document main .inner .body .layout .media-container .opts .opt-group .opt.brush-size + label,
+div.document main .inner .body .layout .meta-container .opts .opt-group .opt.brush-size + label {
+  display: none;
+  top: 40px;
+  z-index: 1000;
+}
+div.document main .inner .body .layout .media-container .opts .opt-group .opt.brush-size + label span,
+div.document main .inner .body .layout .meta-container .opts .opt-group .opt.brush-size + label span {
+  font-weight: bold;
+}
+div.document main .inner .body .layout .media-container .opts .opt-group .opt.brush-size:hover + label,
+div.document main .inner .body .layout .meta-container .opts .opt-group .opt.brush-size:hover + label {
+  display: inline-block;
+}
+div.document main .inner .body .layout .media-container .opts .opt-group .opt.color,
+div.document main .inner .body .layout .meta-container .opts .opt-group .opt.color {
+  width: 15px;
+  height: 15px;
+  margin: 0 5px;
+  border-radius: 15px;
+  transform: translateY(-3px);
+}
+div.document main .inner .body .layout .media-container .opts .opt-group .opt:last-child,
+div.document main .inner .body .layout .meta-container .opts .opt-group .opt:last-child {
+  margin-right: 0;
+}
+div.document main .inner .body .layout .media-container .opts .opt-group .opt.active,
+div.document main .inner .body .layout .meta-container .opts .opt-group .opt.active {
+  /*background-color: $c-light-yellow;*/
+  background-color: #E5E5E5;
+}
+div.document main .inner .body .layout .media-container .opts .opt-group .opt.color.active::after,
+div.document main .inner .body .layout .meta-container .opts .opt-group .opt.color.active::after {
+  content: "";
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  width: 21px;
+  height: 21px;
+  border-radius: 21px;
+  outline: 1px solid #969696;
+}
+div.document main .inner .body .layout .media-container .opts .opt-group label,
+div.document main .inner .body .layout .meta-container .opts .opt-group label {
+  position: absolute;
+  left: 0;
+  /*top: 15px;*/
+  height: 45px;
+  padding: 0 10px;
+  /*background-color: $c-light-yellow;*/
+  background-color: #E5E5E5;
+  font-size: 12px;
+  line-height: 45px;
+  white-space: nowrap;
+}
+div.document main .inner .body .layout .media-container .placement-opts,
+div.document main .inner .body .layout .meta-container .placement-opts {
+  top: 0;
+  /*color: $c-mid-yellow;*/
+  color: #646464;
+}
+div.document main .inner .body .layout .media-container .placement-opts .opt i,
+div.document main .inner .body .layout .meta-container .placement-opts .opt i {
+  font-size: 16px;
+  line-height: 1.5em;
+}
+div.document main .inner .body .layout .media-container .align-opts .opt i,
+div.document main .inner .body .layout .meta-container .align-opts .opt i {
+  transform: rotate(90deg);
+}
+div.document main .inner .body .layout .media-container .add-opt,
+div.document main .inner .body .layout .meta-container .add-opt {
+  height: 30px;
+  padding: 0 5px;
+  color: #969696;
+}
+div.document main .inner .body .layout .media-container .add-opt i,
+div.document main .inner .body .layout .meta-container .add-opt i {
+  display: none;
+  line-height: 30px;
+  cursor: pointer;
+}
+div.document main .inner .body .layout .media-container div.instruction,
+div.document main .inner .body .layout .meta-container div.instruction {
+  padding: 5px 0 5px 10px;
+  margin-bottom: 5px;
+  border-left: 1px dotted #969696;
+  color: #969696;
+  font-size: 14px;
+  line-height: 1.5em;
+}
+div.document main .inner .body .layout .media-container .media,
+div.document main .inner .body .layout .media-container .meta,
+div.document main .inner .body .layout .meta-container .media,
+div.document main .inner .body .layout .meta-container .meta {
+  clear: both;
+  position: relative;
+  padding: 10px 0;
+  outline: none;
+  color: #000000;
+}
+div.document main .inner .body .layout .media-container .media-title,
+div.document main .inner .body .layout .meta-container .media-title {
+  font-size: 24px;
+  line-height: 1.5em;
+}
+div.document main .inner .body .layout .media-container .media-lead,
+div.document main .inner .body .layout .media-container .media-lead.focus,
+div.document main .inner .body .layout .meta-container .media-lead,
+div.document main .inner .body .layout .meta-container .media-lead.focus {
+  margin-top: 10px;
+  padding-bottom: 5px;
+  font-size: 20px;
+  line-height: 1.5em;
+  border-top: none;
+  color: #005687;
+  border-bottom: 1px solid transparent;
+}
+div.document main .inner .body .layout .media-container .media-lead:focus,
+div.document main .inner .body .layout .meta-container .media-lead:focus {
+  /*border-bottom-color: $c-mid-yellow;*/
+  border-bottom-color: #E5E5E5;
+}
+div.document main .inner .body .layout .media-container .media-txt,
+div.document main .inner .body .layout .meta-container .media-txt {
+  white-space: pre-line;
+}
+div.document main .inner .body .layout .media-container .media-img,
+div.document main .inner .body .layout .meta-container .media-img {
+  min-height: 125px;
+}
+div.document main .inner .body .layout .media-container .media-img img,
+div.document main .inner .body .layout .meta-container .media-img img {
+  vertical-align: bottom;
+  max-width: 100%;
+}
+div.document main .inner .body .layout .media-container .media-img img.cover,
+div.document main .inner .body .layout .meta-container .media-img img.cover {
+  width: 100%;
+  width: auto\9 ;
+  height: auto;
+  text-align: center;
+}
+div.document main .inner .body .layout .media-container .media-img.template,
+div.document main .inner .body .layout .meta-container .media-img.template {
+  min-height: initial;
+}
+div.document main .inner .body .layout .media-container .media-mosaic,
+div.document main .inner .body .layout .meta-container .media-mosaic {
+  display: grid;
+  grid-gap: 15px;
+  grid-template-columns: repeat(3, 1fr);
+  align-items: center;
+  min-height: 125px;
+}
+div.document main .inner .body .layout .media-container .media-mosaic .mosaic-item,
+div.document main .inner .body .layout .meta-container .media-mosaic .mosaic-item {
+  position: relative;
+  line-height: 0;
+}
+div.document main .inner .body .layout .media-container .media-mosaic .mosaic-item img,
+div.document main .inner .body .layout .meta-container .media-mosaic .mosaic-item img {
+  position: relative;
+  width: 100%;
+  width: auto\9 ;
+  height: auto;
+}
+div.document main .inner .body .layout .media-container .media-mosaic .mosaic-item .index-opts,
+div.document main .inner .body .layout .meta-container .media-mosaic .mosaic-item .index-opts {
+  position: absolute;
+  display: none;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  top: calc(50% - 15px);
+  left: 0;
+}
+div.document main .inner .body .layout .media-container .media-mosaic .mosaic-item .index-opts .opt,
+div.document main .inner .body .layout .meta-container .media-mosaic .mosaic-item .index-opts .opt {
+  width: 30px;
+  height: 30px;
+  border-radius: 30px;
+  margin: 0 10px;
+  background-color: transparent;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.25s;
+}
+div.document main .inner .body .layout .media-container .media-mosaic .mosaic-item .index-opts .opt i,
+div.document main .inner .body .layout .meta-container .media-mosaic .mosaic-item .index-opts .opt i {
+  font-size: 16px;
+  line-height: 1.5em;
+  /*line-height: 30px;*/
+  color: #005687;
+}
+div.document main .inner .body .layout .media-container .media-mosaic .mosaic-item:hover .index-opts,
+div.document main .inner .body .layout .meta-container .media-mosaic .mosaic-item:hover .index-opts {
+  display: flex;
+}
+div.document main .inner .body .layout .media-container .media-mosaic .mosaic-item:hover .index-opts .opt,
+div.document main .inner .body .layout .meta-container .media-mosaic .mosaic-item:hover .index-opts .opt {
+  /*background-color: $c-light-yellow;*/
+  background-color: #E5E5E5;
+}
+div.document main .inner .body .layout .media-container .media-mosaic.x2,
+div.document main .inner .body .layout .meta-container .media-mosaic.x2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+div.document main .inner .body .layout .media-container .media-drawing,
+div.document main .inner .body .layout .meta-container .media-drawing {
+  text-align: center;
+}
+div.document main .inner .body .layout .media-container .media-drawing canvas,
+div.document main .inner .body .layout .meta-container .media-drawing canvas {
+  margin: 10px auto;
+  background-color: #FFF;
+  border: 1px solid transparent;
+  cursor: crosshair;
+}
+div.document main .inner .body .layout .media-container .media-embed,
+div.document main .inner .body .layout .media-container .media-embed:empty:not(:focus):before,
+div.document main .inner .body .layout .meta-container .media-embed,
+div.document main .inner .body .layout .meta-container .media-embed:empty:not(:focus):before {
+  font-family: Lucida Console, monospace;
+}
+div.document main .inner .body .layout .media-container .media-embed img,
+div.document main .inner .body .layout .media-container .media-embed:empty:not(:focus):before img,
+div.document main .inner .body .layout .meta-container .media-embed img,
+div.document main .inner .body .layout .meta-container .media-embed:empty:not(:focus):before img {
+  max-width: 100%;
+}
+div.document main .inner .body .layout .media-container .media-embed.padded,
+div.document main .inner .body .layout .meta-container .media-embed.padded {
+  padding: 5px 10px;
+}
+div.document main .inner .body .layout .media-container .media-embed.padded img,
+div.document main .inner .body .layout .meta-container .media-embed.padded img {
+  max-width: 100%;
+}
+div.document main .inner .body .layout .media-container .media-checklist,
+div.document main .inner .body .layout .media-container .media-radiolist,
+div.document main .inner .body .layout .media-container .meta-checklist,
+div.document main .inner .body .layout .media-container .meta-radiolist,
+div.document main .inner .body .layout .meta-container .media-checklist,
+div.document main .inner .body .layout .meta-container .media-radiolist,
+div.document main .inner .body .layout .meta-container .meta-checklist,
+div.document main .inner .body .layout .meta-container .meta-radiolist {
+  width: 100%;
+  outline: none;
+  white-space: pre-wrap;
+}
+div.document main .inner .body .layout .media-container .media-checklist .instruction,
+div.document main .inner .body .layout .media-container .media-radiolist .instruction,
+div.document main .inner .body .layout .media-container .meta-checklist .instruction,
+div.document main .inner .body .layout .media-container .meta-radiolist .instruction,
+div.document main .inner .body .layout .meta-container .media-checklist .instruction,
+div.document main .inner .body .layout .meta-container .media-radiolist .instruction,
+div.document main .inner .body .layout .meta-container .meta-checklist .instruction,
+div.document main .inner .body .layout .meta-container .meta-radiolist .instruction {
+  outline: none;
+}
+div.document main .inner .body .layout .media-container .media-checklist ol,
+div.document main .inner .body .layout .media-container .media-radiolist ol,
+div.document main .inner .body .layout .media-container .meta-checklist ol,
+div.document main .inner .body .layout .media-container .meta-radiolist ol,
+div.document main .inner .body .layout .meta-container .media-checklist ol,
+div.document main .inner .body .layout .meta-container .media-radiolist ol,
+div.document main .inner .body .layout .meta-container .meta-checklist ol,
+div.document main .inner .body .layout .meta-container .meta-radiolist ol {
+  display: block;
+}
+div.document main .inner .body .layout .media-container .media-checklist ol .opt,
+div.document main .inner .body .layout .media-container .media-radiolist ol .opt,
+div.document main .inner .body .layout .media-container .meta-checklist ol .opt,
+div.document main .inner .body .layout .media-container .meta-radiolist ol .opt,
+div.document main .inner .body .layout .meta-container .media-checklist ol .opt,
+div.document main .inner .body .layout .meta-container .media-radiolist ol .opt,
+div.document main .inner .body .layout .meta-container .meta-checklist ol .opt,
+div.document main .inner .body .layout .meta-container .meta-radiolist ol .opt { /* CHANGE THE .option CLASS IN TEMPLATE TO STANDARDIZE TO .opt (ALREADY DONE IN pad.js) */
+  display: flex;
+  align-items: center;
+  margin: 0;
+  /*margin: 10px 0;*/
+}
+div.document main .inner .body .layout .media-container .media-checklist ol .opt div,
+div.document main .inner .body .layout .media-container .media-radiolist ol .opt div,
+div.document main .inner .body .layout .media-container .meta-checklist ol .opt div,
+div.document main .inner .body .layout .media-container .meta-radiolist ol .opt div,
+div.document main .inner .body .layout .meta-container .media-checklist ol .opt div,
+div.document main .inner .body .layout .meta-container .media-radiolist ol .opt div,
+div.document main .inner .body .layout .meta-container .meta-checklist ol .opt div,
+div.document main .inner .body .layout .meta-container .meta-radiolist ol .opt div {
+  padding: 0 5px;
+  cursor: pointer;
+}
+div.document main .inner .body .layout .media-container .media-checklist ol .opt div label,
+div.document main .inner .body .layout .media-container .media-radiolist ol .opt div label,
+div.document main .inner .body .layout .media-container .meta-checklist ol .opt div label,
+div.document main .inner .body .layout .media-container .meta-radiolist ol .opt div label,
+div.document main .inner .body .layout .meta-container .media-checklist ol .opt div label,
+div.document main .inner .body .layout .meta-container .media-radiolist ol .opt div label,
+div.document main .inner .body .layout .meta-container .meta-checklist ol .opt div label,
+div.document main .inner .body .layout .meta-container .meta-radiolist ol .opt div label {
+  cursor: pointer;
+}
+div.document main .inner .body .layout .media-container .media-checklist ol .opt div:last-child,
+div.document main .inner .body .layout .media-container .media-radiolist ol .opt div:last-child,
+div.document main .inner .body .layout .media-container .meta-checklist ol .opt div:last-child,
+div.document main .inner .body .layout .media-container .meta-radiolist ol .opt div:last-child,
+div.document main .inner .body .layout .meta-container .media-checklist ol .opt div:last-child,
+div.document main .inner .body .layout .meta-container .media-radiolist ol .opt div:last-child,
+div.document main .inner .body .layout .meta-container .meta-checklist ol .opt div:last-child,
+div.document main .inner .body .layout .meta-container .meta-radiolist ol .opt div:last-child {
+  margin-right: 5px;
+}
+div.document main .inner .body .layout .media-container .media-checklist ol .opt .checkbox,
+div.document main .inner .body .layout .media-container .media-checklist ol .opt .radio,
+div.document main .inner .body .layout .media-container .media-checklist ol .opt .rm,
+div.document main .inner .body .layout .media-container .media-radiolist ol .opt .checkbox,
+div.document main .inner .body .layout .media-container .media-radiolist ol .opt .radio,
+div.document main .inner .body .layout .media-container .media-radiolist ol .opt .rm,
+div.document main .inner .body .layout .media-container .meta-checklist ol .opt .checkbox,
+div.document main .inner .body .layout .media-container .meta-checklist ol .opt .radio,
+div.document main .inner .body .layout .media-container .meta-checklist ol .opt .rm,
+div.document main .inner .body .layout .media-container .meta-radiolist ol .opt .checkbox,
+div.document main .inner .body .layout .media-container .meta-radiolist ol .opt .radio,
+div.document main .inner .body .layout .media-container .meta-radiolist ol .opt .rm,
+div.document main .inner .body .layout .meta-container .media-checklist ol .opt .checkbox,
+div.document main .inner .body .layout .meta-container .media-checklist ol .opt .radio,
+div.document main .inner .body .layout .meta-container .media-checklist ol .opt .rm,
+div.document main .inner .body .layout .meta-container .media-radiolist ol .opt .checkbox,
+div.document main .inner .body .layout .meta-container .media-radiolist ol .opt .radio,
+div.document main .inner .body .layout .meta-container .media-radiolist ol .opt .rm,
+div.document main .inner .body .layout .meta-container .meta-checklist ol .opt .checkbox,
+div.document main .inner .body .layout .meta-container .meta-checklist ol .opt .radio,
+div.document main .inner .body .layout .meta-container .meta-checklist ol .opt .rm,
+div.document main .inner .body .layout .meta-container .meta-radiolist ol .opt .checkbox,
+div.document main .inner .body .layout .meta-container .meta-radiolist ol .opt .radio,
+div.document main .inner .body .layout .meta-container .meta-radiolist ol .opt .rm {
+  /*color: $c-light-1;*/
+  color: #969696;
+  pointer-events: none;
+}
+div.document main .inner .body .layout .media-container .media-checklist ol .opt .checkbox i,
+div.document main .inner .body .layout .media-container .media-checklist ol .opt .radio i,
+div.document main .inner .body .layout .media-container .media-checklist ol .opt .rm i,
+div.document main .inner .body .layout .media-container .media-radiolist ol .opt .checkbox i,
+div.document main .inner .body .layout .media-container .media-radiolist ol .opt .radio i,
+div.document main .inner .body .layout .media-container .media-radiolist ol .opt .rm i,
+div.document main .inner .body .layout .media-container .meta-checklist ol .opt .checkbox i,
+div.document main .inner .body .layout .media-container .meta-checklist ol .opt .radio i,
+div.document main .inner .body .layout .media-container .meta-checklist ol .opt .rm i,
+div.document main .inner .body .layout .media-container .meta-radiolist ol .opt .checkbox i,
+div.document main .inner .body .layout .media-container .meta-radiolist ol .opt .radio i,
+div.document main .inner .body .layout .media-container .meta-radiolist ol .opt .rm i,
+div.document main .inner .body .layout .meta-container .media-checklist ol .opt .checkbox i,
+div.document main .inner .body .layout .meta-container .media-checklist ol .opt .radio i,
+div.document main .inner .body .layout .meta-container .media-checklist ol .opt .rm i,
+div.document main .inner .body .layout .meta-container .media-radiolist ol .opt .checkbox i,
+div.document main .inner .body .layout .meta-container .media-radiolist ol .opt .radio i,
+div.document main .inner .body .layout .meta-container .media-radiolist ol .opt .rm i,
+div.document main .inner .body .layout .meta-container .meta-checklist ol .opt .checkbox i,
+div.document main .inner .body .layout .meta-container .meta-checklist ol .opt .radio i,
+div.document main .inner .body .layout .meta-container .meta-checklist ol .opt .rm i,
+div.document main .inner .body .layout .meta-container .meta-radiolist ol .opt .checkbox i,
+div.document main .inner .body .layout .meta-container .meta-radiolist ol .opt .radio i,
+div.document main .inner .body .layout .meta-container .meta-radiolist ol .opt .rm i {
+  font-size: 24px;
+  line-height: 1.5em;
+}
+div.document main .inner .body .layout .media-container .media-checklist ol .opt .grow,
+div.document main .inner .body .layout .media-container .media-radiolist ol .opt .grow,
+div.document main .inner .body .layout .media-container .meta-checklist ol .opt .grow,
+div.document main .inner .body .layout .media-container .meta-radiolist ol .opt .grow,
+div.document main .inner .body .layout .meta-container .media-checklist ol .opt .grow,
+div.document main .inner .body .layout .meta-container .media-radiolist ol .opt .grow,
+div.document main .inner .body .layout .meta-container .meta-checklist ol .opt .grow,
+div.document main .inner .body .layout .meta-container .meta-radiolist ol .opt .grow {
+  flex-grow: 1;
+  align-self: center;
+}
+div.document main .inner .body .layout .media-container .media-checklist ol .opt .grow .list-item,
+div.document main .inner .body .layout .media-container .media-radiolist ol .opt .grow .list-item,
+div.document main .inner .body .layout .media-container .meta-checklist ol .opt .grow .list-item,
+div.document main .inner .body .layout .media-container .meta-radiolist ol .opt .grow .list-item,
+div.document main .inner .body .layout .meta-container .media-checklist ol .opt .grow .list-item,
+div.document main .inner .body .layout .meta-container .media-radiolist ol .opt .grow .list-item,
+div.document main .inner .body .layout .meta-container .meta-checklist ol .opt .grow .list-item,
+div.document main .inner .body .layout .meta-container .meta-radiolist ol .opt .grow .list-item {
+  display: block;
+  width: 100%;
+  outline: none;
+}
+div.document main .inner .body .layout .media-container .media-checklist ol .opt:last-child,
+div.document main .inner .body .layout .media-container .media-radiolist ol .opt:last-child,
+div.document main .inner .body .layout .media-container .meta-checklist ol .opt:last-child,
+div.document main .inner .body .layout .media-container .meta-radiolist ol .opt:last-child,
+div.document main .inner .body .layout .meta-container .media-checklist ol .opt:last-child,
+div.document main .inner .body .layout .meta-container .media-radiolist ol .opt:last-child,
+div.document main .inner .body .layout .meta-container .meta-checklist ol .opt:last-child,
+div.document main .inner .body .layout .meta-container .meta-radiolist ol .opt:last-child {
+  margin-bottom: 0;
+}
+div.document main .inner .body .layout .media-container .media-checklist ol .opt.valid .checkbox,
+div.document main .inner .body .layout .media-container .media-checklist ol .opt.valid .radio,
+div.document main .inner .body .layout .media-container .media-checklist ol .opt.valid .rm,
+div.document main .inner .body .layout .media-container .media-radiolist ol .opt.valid .checkbox,
+div.document main .inner .body .layout .media-container .media-radiolist ol .opt.valid .radio,
+div.document main .inner .body .layout .media-container .media-radiolist ol .opt.valid .rm,
+div.document main .inner .body .layout .media-container .meta-checklist ol .opt.valid .checkbox,
+div.document main .inner .body .layout .media-container .meta-checklist ol .opt.valid .radio,
+div.document main .inner .body .layout .media-container .meta-checklist ol .opt.valid .rm,
+div.document main .inner .body .layout .media-container .meta-radiolist ol .opt.valid .checkbox,
+div.document main .inner .body .layout .media-container .meta-radiolist ol .opt.valid .radio,
+div.document main .inner .body .layout .media-container .meta-radiolist ol .opt.valid .rm,
+div.document main .inner .body .layout .meta-container .media-checklist ol .opt.valid .checkbox,
+div.document main .inner .body .layout .meta-container .media-checklist ol .opt.valid .radio,
+div.document main .inner .body .layout .meta-container .media-checklist ol .opt.valid .rm,
+div.document main .inner .body .layout .meta-container .media-radiolist ol .opt.valid .checkbox,
+div.document main .inner .body .layout .meta-container .media-radiolist ol .opt.valid .radio,
+div.document main .inner .body .layout .meta-container .media-radiolist ol .opt.valid .rm,
+div.document main .inner .body .layout .meta-container .meta-checklist ol .opt.valid .checkbox,
+div.document main .inner .body .layout .meta-container .meta-checklist ol .opt.valid .radio,
+div.document main .inner .body .layout .meta-container .meta-checklist ol .opt.valid .rm,
+div.document main .inner .body .layout .meta-container .meta-radiolist ol .opt.valid .checkbox,
+div.document main .inner .body .layout .meta-container .meta-radiolist ol .opt.valid .radio,
+div.document main .inner .body .layout .meta-container .meta-radiolist ol .opt.valid .rm {
+  color: #005687;
+  pointer-events: all;
+}
+div.document main .inner .body .layout .media-container .meta-location,
+div.document main .inner .body .layout .meta-container .meta-location {
+  width: 100%;
+}
+div.document main .inner .body .layout .media-container .meta-location #map,
+div.document main .inner .body .layout .meta-container .meta-location #map {
+  min-height: 300px;
+}
+div.document main .inner .body .layout .media-container .meta-index,
+div.document main .inner .body .layout .media-container .meta-sdgs,
+div.document main .inner .body .layout .meta-container .meta-index,
+div.document main .inner .body .layout .meta-container .meta-sdgs {
+  width: 100%;
+  min-height: 120px;
+  line-height: 120px;
+  text-align: center;
+}
+div.document main .inner .body .layout .media-container .meta-index img,
+div.document main .inner .body .layout .media-container .meta-sdgs img,
+div.document main .inner .body .layout .meta-container .meta-index img,
+div.document main .inner .body .layout .meta-container .meta-sdgs img {
+  width: 120px;
+  height: 120px;
+  margin: 0 10px;
+  vertical-align: top;
+}
+div.document main .inner .body .layout .media-container .meta-index.template,
+div.document main .inner .body .layout .media-container .meta-sdgs.template,
+div.document main .inner .body .layout .meta-container .meta-index.template,
+div.document main .inner .body .layout .meta-container .meta-sdgs.template {
+  min-height: initial;
+  line-height: inherit;
+  text-align: left;
+}
+div.document main .inner .body .layout .media-container .meta-tag,
+div.document main .inner .body .layout .media-container .meta-skills,
+div.document main .inner .body .layout .media-container .meta-methods,
+div.document main .inner .body .layout .media-container .meta-datasources,
+div.document main .inner .body .layout .meta-container .meta-tag,
+div.document main .inner .body .layout .meta-container .meta-skills,
+div.document main .inner .body .layout .meta-container .meta-methods,
+div.document main .inner .body .layout .meta-container .meta-datasources {
+  width: 100%;
+  min-height: 31px;
+  padding: 5px 0 10px 0;
+  text-align: center;
+  /*.tag {
+  	display: inline-block;
+  	color: $c-mid-blue;
+  	font-size: $t-mid-small;
+  	border: 1px solid $c-mid-blue;
+  	padding: 5px 10px;
+  	margin: 5px;
+
+  	input {
+  		display: none;
+  	}
+  	label {
+  		cursor: pointer;
+  	}
+  }*/
+  /*.tag:hover,*/
+}
+div.document main .inner .body .layout .media-container .meta-tag .tag,
+div.document main .inner .body .layout .media-container .meta-skills .tag,
+div.document main .inner .body .layout .media-container .meta-methods .tag,
+div.document main .inner .body .layout .media-container .meta-datasources .tag,
+div.document main .inner .body .layout .meta-container .meta-tag .tag,
+div.document main .inner .body .layout .meta-container .meta-skills .tag,
+div.document main .inner .body .layout .meta-container .meta-methods .tag,
+div.document main .inner .body .layout .meta-container .meta-datasources .tag {
+  display: inline-block;
+  border: none;
+  padding: 5px 15px;
+  margin: 0 5px 5px 0;
+  background-color: #E5E5E5;
+  border-radius: calc(14px * 2);
+  font-size: 14px;
+  line-height: 2em;
+  color: #646464;
+}
+div.document main .inner .body .layout .media-container .meta-tag .tag label,
+div.document main .inner .body .layout .media-container .meta-skills .tag label,
+div.document main .inner .body .layout .media-container .meta-methods .tag label,
+div.document main .inner .body .layout .media-container .meta-datasources .tag label,
+div.document main .inner .body .layout .meta-container .meta-tag .tag label,
+div.document main .inner .body .layout .meta-container .meta-skills .tag label,
+div.document main .inner .body .layout .meta-container .meta-methods .tag label,
+div.document main .inner .body .layout .meta-container .meta-datasources .tag label {
+  cursor: pointer;
+}
+div.document main .inner .body .layout .media-container .meta-tag .tag.selected,
+div.document main .inner .body .layout .media-container .meta-skills .tag.selected,
+div.document main .inner .body .layout .media-container .meta-methods .tag.selected,
+div.document main .inner .body .layout .media-container .meta-datasources .tag.selected,
+div.document main .inner .body .layout .meta-container .meta-tag .tag.selected,
+div.document main .inner .body .layout .meta-container .meta-skills .tag.selected,
+div.document main .inner .body .layout .meta-container .meta-methods .tag.selected,
+div.document main .inner .body .layout .meta-container .meta-datasources .tag.selected {
+  background-color: #005687;
+  color: #FFF;
+}
+div.document main .inner .body .layout .media-container .meta-tag:empty:not(:focus):before,
+div.document main .inner .body .layout .media-container .meta-skills:empty:not(:focus):before,
+div.document main .inner .body .layout .media-container .meta-methods:empty:not(:focus):before,
+div.document main .inner .body .layout .media-container .meta-datasources:empty:not(:focus):before,
+div.document main .inner .body .layout .meta-container .meta-tag:empty:not(:focus):before,
+div.document main .inner .body .layout .meta-container .meta-skills:empty:not(:focus):before,
+div.document main .inner .body .layout .meta-container .meta-methods:empty:not(:focus):before,
+div.document main .inner .body .layout .meta-container .meta-datasources:empty:not(:focus):before {
+  line-height: 31px;
+}
+div.document main .inner .body .layout .media-container .meta-tag.template,
+div.document main .inner .body .layout .media-container .meta-skills.template,
+div.document main .inner .body .layout .media-container .meta-methods.template,
+div.document main .inner .body .layout .media-container .meta-datasources.template,
+div.document main .inner .body .layout .meta-container .meta-tag.template,
+div.document main .inner .body .layout .meta-container .meta-skills.template,
+div.document main .inner .body .layout .meta-container .meta-methods.template,
+div.document main .inner .body .layout .meta-container .meta-datasources.template {
+  min-height: initial;
+  padding: 0;
+  line-height: inherit;
+  text-align: left;
+}
+div.document main .inner .body .layout .media-container .meta-tag.template:empty:not(:focus):before,
+div.document main .inner .body .layout .media-container .meta-skills.template:empty:not(:focus):before,
+div.document main .inner .body .layout .media-container .meta-methods.template:empty:not(:focus):before,
+div.document main .inner .body .layout .media-container .meta-datasources.template:empty:not(:focus):before,
+div.document main .inner .body .layout .meta-container .meta-tag.template:empty:not(:focus):before,
+div.document main .inner .body .layout .meta-container .meta-skills.template:empty:not(:focus):before,
+div.document main .inner .body .layout .meta-container .meta-methods.template:empty:not(:focus):before,
+div.document main .inner .body .layout .meta-container .meta-datasources.template:empty:not(:focus):before {
+  line-height: initial;
+}
+div.document main .inner .body .layout .media-container .meta-attachment,
+div.document main .inner .body .layout .meta-container .meta-attachment {
+  text-align: center;
+}
+div.document main .inner .body .layout .media-container .meta-attachment a img,
+div.document main .inner .body .layout .meta-container .meta-attachment a img {
+  width: 120px;
+  height: 120px;
+}
+div.document main .inner .body .layout .media-container .meta-attachment.template,
+div.document main .inner .body .layout .meta-container .meta-attachment.template {
+  text-align: left;
+}
+div.document main .inner .body .layout .media-container .media-repeat button,
+div.document main .inner .body .layout .meta-container .media-repeat button {
+  position: relative;
+  width: 100%;
+  min-height: 65px;
+  padding: 10px;
+  margin-top: 30px;
+  background: repeating-linear-gradient(45deg, transparent, transparent 3px, rgba(150, 150, 150, 0.1) 3px, rgba(150, 150, 150, 0.1) 6px);
+  border: none;
+  border-top: 1px solid #969696;
+  outline: none;
+  color: #005687;
+  font-size: 16px;
+  line-height: 1.5em;
+  cursor: pointer;
+}
+div.document main .inner .body .layout .media-container .media-repeat button div,
+div.document main .inner .body .layout .meta-container .media-repeat button div {
+  outline: none;
+}
+div.document main .inner .body .layout .media-container .media-repeat button::after,
+div.document main .inner .body .layout .meta-container .media-repeat button::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 8px solid #969696;
+  transform: translate(-4px, -8px);
+}
+div.document main .inner .body .layout .media-container .media-repeat.template button,
+div.document main .inner .body .layout .meta-container .media-repeat.template button {
+  cursor: text;
+}
+div.document main .inner .body .layout .media-container .inset,
+div.document main .inner .body .layout .meta-container .inset {
+  width: 100%;
+  max-height: 0;
+  box-shadow: inset 0 5px 5px rgba(100, 100, 100, 0.1);
+  overflow: hidden;
+  transition: max-height 0.25s;
+}
+div.document main .inner .body .layout .media-container .inset .filter-or-add,
+div.document main .inner .body .layout .media-container .inset .search,
+div.document main .inner .body .layout .meta-container .inset .filter-or-add,
+div.document main .inner .body .layout .meta-container .inset .search {
+  position: relative;
+  width: 100%;
+  height: 75px;
+}
+div.document main .inner .body .layout .media-container .inset .filter-or-add input[type=text],
+div.document main .inner .body .layout .media-container .inset .search input[type=text],
+div.document main .inner .body .layout .meta-container .inset .filter-or-add input[type=text],
+div.document main .inner .body .layout .meta-container .inset .search input[type=text] {
+  width: calc(100% - 65px - 10px);
+  height: 50px;
+  margin: 15px 0 0 10px;
+  border: none;
+  border-bottom: 1px solid #005687;
+  outline: none;
+  background-color: transparent;
+  font-size: 24px;
+  line-height: 1.5em;
+}
+div.document main .inner .body .layout .media-container .inset .filter-or-add input[type=text]:focus + label,
+div.document main .inner .body .layout .media-container .inset .filter-or-add input[type=text].has-value + label,
+div.document main .inner .body .layout .media-container .inset .search input[type=text]:focus + label,
+div.document main .inner .body .layout .media-container .inset .search input[type=text].has-value + label,
+div.document main .inner .body .layout .meta-container .inset .filter-or-add input[type=text]:focus + label,
+div.document main .inner .body .layout .meta-container .inset .filter-or-add input[type=text].has-value + label,
+div.document main .inner .body .layout .meta-container .inset .search input[type=text]:focus + label,
+div.document main .inner .body .layout .meta-container .inset .search input[type=text].has-value + label {
+  font-size: 12px;
+  line-height: 1.5em;
+  transform: translateY(0px);
+}
+div.document main .inner .body .layout .media-container .inset .filter-or-add input[type=text]:-webkit-autofill,
+div.document main .inner .body .layout .media-container .inset .filter-or-add input[type=text]:-webkit-autofill:hover,
+div.document main .inner .body .layout .media-container .inset .filter-or-add input[type=text]:-webkit-autofill:focus,
+div.document main .inner .body .layout .media-container .inset .filter-or-add input[type=text]:-webkit-autofill:active,
+div.document main .inner .body .layout .media-container .inset .search input[type=text]:-webkit-autofill,
+div.document main .inner .body .layout .media-container .inset .search input[type=text]:-webkit-autofill:hover,
+div.document main .inner .body .layout .media-container .inset .search input[type=text]:-webkit-autofill:focus,
+div.document main .inner .body .layout .media-container .inset .search input[type=text]:-webkit-autofill:active,
+div.document main .inner .body .layout .meta-container .inset .filter-or-add input[type=text]:-webkit-autofill,
+div.document main .inner .body .layout .meta-container .inset .filter-or-add input[type=text]:-webkit-autofill:hover,
+div.document main .inner .body .layout .meta-container .inset .filter-or-add input[type=text]:-webkit-autofill:focus,
+div.document main .inner .body .layout .meta-container .inset .filter-or-add input[type=text]:-webkit-autofill:active,
+div.document main .inner .body .layout .meta-container .inset .search input[type=text]:-webkit-autofill,
+div.document main .inner .body .layout .meta-container .inset .search input[type=text]:-webkit-autofill:hover,
+div.document main .inner .body .layout .meta-container .inset .search input[type=text]:-webkit-autofill:focus,
+div.document main .inner .body .layout .meta-container .inset .search input[type=text]:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 40px #934A5F inset !important;
+  -webkit-text-fill-color: #333D51 !important;
+}
+div.document main .inner .body .layout .media-container .inset .filter-or-add label,
+div.document main .inner .body .layout .media-container .inset .search label,
+div.document main .inner .body .layout .meta-container .inset .filter-or-add label,
+div.document main .inner .body .layout .meta-container .inset .search label {
+  position: absolute;
+  top: 5px;
+  left: 10px;
+  font-size: 14px;
+  line-height: 1.5em;
+  transform: translateY(22.5px);
+  transition: transform 0.25s, font-size 0.25s;
+}
+div.document main .inner .body .layout .media-container .inset .filter-or-add button,
+div.document main .inner .body .layout .media-container .inset .search button,
+div.document main .inner .body .layout .meta-container .inset .filter-or-add button,
+div.document main .inner .body .layout .meta-container .inset .search button {
+  width: 65px;
+  height: 65px;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+}
+div.document main .inner .body .layout .media-container .inset .inset-location,
+div.document main .inner .body .layout .meta-container .inset .inset-location {
+  max-height: 205px;
+  padding: 0 10px 10px 10px;
+  overflow: scroll;
+}
+div.document main .inner .body .layout .media-container .inset .inset-location .panel,
+div.document main .inner .body .layout .meta-container .inset .inset-location .panel {
+  /*border-left: 1px solid $c-mid-yellow;*/
+  border-left: 1px solid #E5E5E5;
+}
+div.document main .inner .body .layout .media-container .inset .inset-location .panel .opt,
+div.document main .inner .body .layout .meta-container .inset .inset-location .panel .opt {
+  padding: 0 10px;
+  margin: 5px 0;
+  color: #969696;
+  cursor: pointer;
+}
+div.document main .inner .body .layout .media-container .inset .inset-location .panel .opt:not(.selected):hover,
+div.document main .inner .body .layout .meta-container .inset .inset-location .panel .opt:not(.selected):hover {
+  background-color: #E5E5E5;
+  color: #005687;
+}
+div.document main .inner .body .layout .media-container .inset .inset-location .panel .opt.selected,
+div.document main .inner .body .layout .meta-container .inset .inset-location .panel .opt.selected {
+  background-color: #969696;
+  color: #FFF;
+}
+div.document main .inner .body .layout .media-container .inset .inset-index,
+div.document main .inner .body .layout .media-container .inset .inset-sdgs,
+div.document main .inner .body .layout .meta-container .inset .inset-index,
+div.document main .inner .body .layout .meta-container .inset .inset-sdgs {
+  display: grid;
+  grid-gap: 15px;
+  grid-template-columns: repeat(3, 1fr);
+}
+div.document main .inner .body .layout .media-container .inset .inset-index .tag,
+div.document main .inner .body .layout .media-container .inset .inset-sdgs .tag,
+div.document main .inner .body .layout .meta-container .inset .inset-index .tag,
+div.document main .inner .body .layout .meta-container .inset .inset-sdgs .tag {
+  transition: background-color 0.25s;
+}
+div.document main .inner .body .layout .media-container .inset .inset-index .tag input[type=checkbox],
+div.document main .inner .body .layout .media-container .inset .inset-sdgs .tag input[type=checkbox],
+div.document main .inner .body .layout .meta-container .inset .inset-index .tag input[type=checkbox],
+div.document main .inner .body .layout .meta-container .inset .inset-sdgs .tag input[type=checkbox] {
+  display: none;
+}
+div.document main .inner .body .layout .media-container .inset .inset-index .tag label,
+div.document main .inner .body .layout .media-container .inset .inset-sdgs .tag label,
+div.document main .inner .body .layout .meta-container .inset .inset-index .tag label,
+div.document main .inner .body .layout .meta-container .inset .inset-sdgs .tag label {
+  cursor: pointer;
+}
+div.document main .inner .body .layout .media-container .inset .inset-index .tag:hover:not(.disabled),
+div.document main .inner .body .layout .media-container .inset .inset-index .tag.selected,
+div.document main .inner .body .layout .media-container .inset .inset-sdgs .tag:hover:not(.disabled),
+div.document main .inner .body .layout .media-container .inset .inset-sdgs .tag.selected,
+div.document main .inner .body .layout .meta-container .inset .inset-index .tag:hover:not(.disabled),
+div.document main .inner .body .layout .meta-container .inset .inset-index .tag.selected,
+div.document main .inner .body .layout .meta-container .inset .inset-sdgs .tag:hover:not(.disabled),
+div.document main .inner .body .layout .meta-container .inset .inset-sdgs .tag.selected {
+  /*background-color: $c-light-1;*/
+  background-color: #969696;
+}
+div.document main .inner .body .layout .media-container .inset .inset-index .tag:hover:not(.disabled) img,
+div.document main .inner .body .layout .media-container .inset .inset-index .tag.selected img,
+div.document main .inner .body .layout .media-container .inset .inset-sdgs .tag:hover:not(.disabled) img,
+div.document main .inner .body .layout .media-container .inset .inset-sdgs .tag.selected img,
+div.document main .inner .body .layout .meta-container .inset .inset-index .tag:hover:not(.disabled) img,
+div.document main .inner .body .layout .meta-container .inset .inset-index .tag.selected img,
+div.document main .inner .body .layout .meta-container .inset .inset-sdgs .tag:hover:not(.disabled) img,
+div.document main .inner .body .layout .meta-container .inset .inset-sdgs .tag.selected img {
+  filter: brightness(300%);
+}
+div.document main .inner .body .layout .media-container .inset .inset-tag,
+div.document main .inner .body .layout .media-container .inset .inset-skills,
+div.document main .inner .body .layout .media-container .inset .inset-methods,
+div.document main .inner .body .layout .media-container .inset .inset-datasources,
+div.document main .inner .body .layout .meta-container .inset .inset-tag,
+div.document main .inner .body .layout .meta-container .inset .inset-skills,
+div.document main .inner .body .layout .meta-container .inset .inset-methods,
+div.document main .inner .body .layout .meta-container .inset .inset-datasources {
+  max-height: 205px;
+  /*padding: 0 0 10px 10px;*/
+  padding: 5px 10px 10px 10px;
+  overflow: scroll;
+}
+div.document main .inner .body .layout .media-container .inset .inset-tag .tag,
+div.document main .inner .body .layout .media-container .inset .inset-skills .tag,
+div.document main .inner .body .layout .media-container .inset .inset-methods .tag,
+div.document main .inner .body .layout .media-container .inset .inset-datasources .tag,
+div.document main .inner .body .layout .meta-container .inset .inset-tag .tag,
+div.document main .inner .body .layout .meta-container .inset .inset-skills .tag,
+div.document main .inner .body .layout .meta-container .inset .inset-methods .tag,
+div.document main .inner .body .layout .meta-container .inset .inset-datasources .tag {
+  display: inline-block;
+  margin: 0 5px 5px 0;
+  padding: 0 10px;
+  border: 1px solid #969696;
+  border-radius: calc(14px * 2);
+  color: #969696;
+  font-size: 14px;
+  line-height: 2em;
+  transition: background-color 0.25s;
+  cursor: pointer;
+}
+div.document main .inner .body .layout .media-container .inset .inset-tag .tag input,
+div.document main .inner .body .layout .media-container .inset .inset-skills .tag input,
+div.document main .inner .body .layout .media-container .inset .inset-methods .tag input,
+div.document main .inner .body .layout .media-container .inset .inset-datasources .tag input,
+div.document main .inner .body .layout .meta-container .inset .inset-tag .tag input,
+div.document main .inner .body .layout .meta-container .inset .inset-skills .tag input,
+div.document main .inner .body .layout .meta-container .inset .inset-methods .tag input,
+div.document main .inner .body .layout .meta-container .inset .inset-datasources .tag input {
+  display: none;
+}
+div.document main .inner .body .layout .media-container .inset .inset-tag .tag label,
+div.document main .inner .body .layout .media-container .inset .inset-skills .tag label,
+div.document main .inner .body .layout .media-container .inset .inset-methods .tag label,
+div.document main .inner .body .layout .media-container .inset .inset-datasources .tag label,
+div.document main .inner .body .layout .meta-container .inset .inset-tag .tag label,
+div.document main .inner .body .layout .meta-container .inset .inset-skills .tag label,
+div.document main .inner .body .layout .meta-container .inset .inset-methods .tag label,
+div.document main .inner .body .layout .meta-container .inset .inset-datasources .tag label {
+  padding: 3px 5px;
+  cursor: pointer;
+}
+div.document main .inner .body .layout .media-container .inset .inset-tag .tag:hover:not(.disabled),
+div.document main .inner .body .layout .media-container .inset .inset-tag .tag.selected,
+div.document main .inner .body .layout .media-container .inset .inset-skills .tag:hover:not(.disabled),
+div.document main .inner .body .layout .media-container .inset .inset-skills .tag.selected,
+div.document main .inner .body .layout .media-container .inset .inset-methods .tag:hover:not(.disabled),
+div.document main .inner .body .layout .media-container .inset .inset-methods .tag.selected,
+div.document main .inner .body .layout .media-container .inset .inset-datasources .tag:hover:not(.disabled),
+div.document main .inner .body .layout .media-container .inset .inset-datasources .tag.selected,
+div.document main .inner .body .layout .meta-container .inset .inset-tag .tag:hover:not(.disabled),
+div.document main .inner .body .layout .meta-container .inset .inset-tag .tag.selected,
+div.document main .inner .body .layout .meta-container .inset .inset-skills .tag:hover:not(.disabled),
+div.document main .inner .body .layout .meta-container .inset .inset-skills .tag.selected,
+div.document main .inner .body .layout .meta-container .inset .inset-methods .tag:hover:not(.disabled),
+div.document main .inner .body .layout .meta-container .inset .inset-methods .tag.selected,
+div.document main .inner .body .layout .meta-container .inset .inset-datasources .tag:hover:not(.disabled),
+div.document main .inner .body .layout .meta-container .inset .inset-datasources .tag.selected {
+  /*background-color: $c-light-1;*/
+  background-color: #969696;
+  color: #FFF;
+}
+div.document main .inner .body .layout .media-container .inset.template,
+div.document main .inner .body .layout .meta-container .inset.template { /* THIS IS FOR TEMPLATES */ }
+div.document main .inner .body .layout .media-container .inset.template div,
+div.document main .inner .body .layout .meta-container .inset.template div {
+  padding: 0 0 10px 10px;
+  overflow: scroll;
+}
+div.document main .inner .body .layout .media-container .inset.template div .panel,
+div.document main .inner .body .layout .meta-container .inset.template div .panel {
+  /*border-left: 1px solid $c-light-1;*/
+  border-left: 1px solid #969696;
+  padding: 10px 10px 0 10px;
+}
+div.document main .inner .body .layout .media-container .inset.template div .panel .instruction,
+div.document main .inner .body .layout .meta-container .inset.template div .panel .instruction {
+  padding: 0;
+  margin: 0;
+  /*color: $c-light-1;*/
+  color: #969696;
+  cursor: initial;
+}
+div.document main .inner .body .layout .media-container .inset.template .inset-index,
+div.document main .inner .body .layout .media-container .inset.template .inset-sdgs,
+div.document main .inner .body .layout .media-container .inset.template .inset-tag,
+div.document main .inner .body .layout .media-container .inset.template .inset-skills,
+div.document main .inner .body .layout .media-container .inset.template .inset-methods,
+div.document main .inner .body .layout .media-container .inset.template .inset-datasources,
+div.document main .inner .body .layout .meta-container .inset.template .inset-index,
+div.document main .inner .body .layout .meta-container .inset.template .inset-sdgs,
+div.document main .inner .body .layout .meta-container .inset.template .inset-tag,
+div.document main .inner .body .layout .meta-container .inset.template .inset-skills,
+div.document main .inner .body .layout .meta-container .inset.template .inset-methods,
+div.document main .inner .body .layout .meta-container .inset.template .inset-datasources {
+  display: block;
+}
+div.document main .inner .body .layout .media-container .inset.template .inset-index .panel,
+div.document main .inner .body .layout .media-container .inset.template .inset-sdgs .panel,
+div.document main .inner .body .layout .media-container .inset.template .inset-tag .panel,
+div.document main .inner .body .layout .media-container .inset.template .inset-skills .panel,
+div.document main .inner .body .layout .media-container .inset.template .inset-methods .panel,
+div.document main .inner .body .layout .media-container .inset.template .inset-datasources .panel,
+div.document main .inner .body .layout .meta-container .inset.template .inset-index .panel,
+div.document main .inner .body .layout .meta-container .inset.template .inset-sdgs .panel,
+div.document main .inner .body .layout .meta-container .inset.template .inset-tag .panel,
+div.document main .inner .body .layout .meta-container .inset.template .inset-skills .panel,
+div.document main .inner .body .layout .meta-container .inset.template .inset-methods .panel,
+div.document main .inner .body .layout .meta-container .inset.template .inset-datasources .panel {
+  /*.opt:not(.selected):hover {
+  	background-color: transparent;
+  	color: $c-light-green;
+  }*/
+}
+div.document main .inner .body .layout .media-container .inset.template .inset-index .panel .opt,
+div.document main .inner .body .layout .media-container .inset.template .inset-sdgs .panel .opt,
+div.document main .inner .body .layout .media-container .inset.template .inset-tag .panel .opt,
+div.document main .inner .body .layout .media-container .inset.template .inset-skills .panel .opt,
+div.document main .inner .body .layout .media-container .inset.template .inset-methods .panel .opt,
+div.document main .inner .body .layout .media-container .inset.template .inset-datasources .panel .opt,
+div.document main .inner .body .layout .meta-container .inset.template .inset-index .panel .opt,
+div.document main .inner .body .layout .meta-container .inset.template .inset-sdgs .panel .opt,
+div.document main .inner .body .layout .meta-container .inset.template .inset-tag .panel .opt,
+div.document main .inner .body .layout .meta-container .inset.template .inset-skills .panel .opt,
+div.document main .inner .body .layout .meta-container .inset.template .inset-methods .panel .opt,
+div.document main .inner .body .layout .meta-container .inset.template .inset-datasources .panel .opt {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  margin: 0;
+  /*color: $c-light-1;*/
+  color: #969696;
+  cursor: initial;
+}
+div.document main .inner .body .layout .media-container .inset.template .inset-index .panel .opt div,
+div.document main .inner .body .layout .media-container .inset.template .inset-sdgs .panel .opt div,
+div.document main .inner .body .layout .media-container .inset.template .inset-tag .panel .opt div,
+div.document main .inner .body .layout .media-container .inset.template .inset-skills .panel .opt div,
+div.document main .inner .body .layout .media-container .inset.template .inset-methods .panel .opt div,
+div.document main .inner .body .layout .media-container .inset.template .inset-datasources .panel .opt div,
+div.document main .inner .body .layout .meta-container .inset.template .inset-index .panel .opt div,
+div.document main .inner .body .layout .meta-container .inset.template .inset-sdgs .panel .opt div,
+div.document main .inner .body .layout .meta-container .inset.template .inset-tag .panel .opt div,
+div.document main .inner .body .layout .meta-container .inset.template .inset-skills .panel .opt div,
+div.document main .inner .body .layout .meta-container .inset.template .inset-methods .panel .opt div,
+div.document main .inner .body .layout .meta-container .inset.template .inset-datasources .panel .opt div {
+  padding: 0 5px;
+}
+div.document main .inner .body .layout .media-container .inset.template .inset-index .panel .opt .grow,
+div.document main .inner .body .layout .media-container .inset.template .inset-sdgs .panel .opt .grow,
+div.document main .inner .body .layout .media-container .inset.template .inset-tag .panel .opt .grow,
+div.document main .inner .body .layout .media-container .inset.template .inset-skills .panel .opt .grow,
+div.document main .inner .body .layout .media-container .inset.template .inset-methods .panel .opt .grow,
+div.document main .inner .body .layout .media-container .inset.template .inset-datasources .panel .opt .grow,
+div.document main .inner .body .layout .meta-container .inset.template .inset-index .panel .opt .grow,
+div.document main .inner .body .layout .meta-container .inset.template .inset-sdgs .panel .opt .grow,
+div.document main .inner .body .layout .meta-container .inset.template .inset-tag .panel .opt .grow,
+div.document main .inner .body .layout .meta-container .inset.template .inset-skills .panel .opt .grow,
+div.document main .inner .body .layout .meta-container .inset.template .inset-methods .panel .opt .grow,
+div.document main .inner .body .layout .meta-container .inset.template .inset-datasources .panel .opt .grow {
+  flex-grow: 1;
+}
+div.document main .inner .body .layout .media-container .inset.template .inset-tag,
+div.document main .inner .body .layout .media-container .inset.template .inset-skills,
+div.document main .inner .body .layout .media-container .inset.template .inset-methods,
+div.document main .inner .body .layout .media-container .inset.template .inset-datasources,
+div.document main .inner .body .layout .meta-container .inset.template .inset-tag,
+div.document main .inner .body .layout .meta-container .inset.template .inset-skills,
+div.document main .inner .body .layout .meta-container .inset.template .inset-methods,
+div.document main .inner .body .layout .meta-container .inset.template .inset-datasources {
+  max-height: 300px;
+}
+div.document main .inner .body .layout .media-container figcaption,
+div.document main .inner .body .layout .meta-container figcaption {
+  font-size: 12px;
+  line-height: 1.5em;
+}
+div.document main .inner .body .layout .media-container .response.template,
+div.document main .inner .body .layout .meta-container .response.template {
+  color: #969696;
+  /*color: $c-mid-2;*/
+  font-size: 12px;
+  line-height: 1.5em;
+}
+div.document main .inner .body .layout .drawing-container .opts {
+  border-bottom: none;
+}
+div.document main .inner .body .layout .results-container .chart svg rect {
+  fill: #0468B1;
+  cursor: pointer;
+}
+div.document main .inner .body .layout .results-container .chart svg rect:hover {
+  fill: #005687;
+}
+div.document main .inner .body .layout .results-container .chart svg .x.axis text {
+  font-weight: bold;
+}
+div.document main .inner .body .layout .results-container .chart svg .x.axis path {
+  display: none;
+}
+div.document main .inner .body .layout .group-container {
+  position: relative;
+  /*.media-group-items::before {
+  	content: '';
+  	position: absolute;
+  	left: -30px;
+  	top: -15px;
+  	width: 100%;
+  	height: 0;
+  	border-top: 1px solid $c-mid-yellow;
+  }*/
+}
+div.document main .inner .body .layout .group-container .required {
+  left: -45px;
+}
+div.document main .inner .body .layout .group-container .media-group {
+  margin-bottom: 15px;
+}
+div.document main .inner .body .layout .group-container .media-group-items {
+  width: calc(100% - 30px);
+  margin: 15px 0 15px 30px;
+}
+div.document main .inner .body .layout .group-container .media-group-items::before {
+  content: "";
+  position: absolute;
+  left: -30px;
+  width: 0;
+  height: 100%;
+  /*border-left: 1px solid $c-mid-yellow;*/
+  border-left: 1px solid #969696;
+}
+div.document main .inner .body .layout .group-container .media-group-items.animate-in {
+  opacity: 0;
+  animation: slide-down 1s forwards;
+}
+div.document main .inner .body .layout .meta-container.template img {
+  width: 20px;
+  height: 20px;
+  margin: 5px 5px 0 0;
+  vertical-align: text-bottom;
+}
+div.document main .inner .body .layout .media-container:not(.group-container).focus .opts:not(.index-opts),
+div.document main .inner .body .layout .media-container:not(.group-container):hover .opts:not(.index-opts),
+div.document main .inner .body .layout .meta-container:not(.group-container).focus .opts:not(.index-opts),
+div.document main .inner .body .layout .meta-container:not(.group-container):hover .opts:not(.index-opts) {
+  /*border-bottom-color: $c-light-yellow;*/
+  border-bottom-color: #E5E5E5;
+}
+div.document main .inner .body .layout .media-container:not(.group-container).focus .opts:not(.index-opts) .opt-group,
+div.document main .inner .body .layout .media-container:not(.group-container):hover .opts:not(.index-opts) .opt-group,
+div.document main .inner .body .layout .meta-container:not(.group-container).focus .opts:not(.index-opts) .opt-group,
+div.document main .inner .body .layout .meta-container:not(.group-container):hover .opts:not(.index-opts) .opt-group {
+  display: block;
+}
+div.document main .inner .body .layout .media-container:not(.group-container).focus .placement-opts,
+div.document main .inner .body .layout .media-container:not(.group-container):hover .placement-opts,
+div.document main .inner .body .layout .meta-container:not(.group-container).focus .placement-opts,
+div.document main .inner .body .layout .meta-container:not(.group-container):hover .placement-opts {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+div.document main .inner .body .layout .media-container:not(.group-container).focus .add-opt i,
+div.document main .inner .body .layout .media-container:not(.group-container):hover .add-opt i,
+div.document main .inner .body .layout .meta-container:not(.group-container).focus .add-opt i,
+div.document main .inner .body .layout .meta-container:not(.group-container):hover .add-opt i {
+  display: block;
+}
+div.document main .inner .body .layout .media-container:not(.group-container).focus .media-embed,
+div.document main .inner .body .layout .media-container:not(.group-container):hover .media-embed,
+div.document main .inner .body .layout .meta-container:not(.group-container).focus .media-embed,
+div.document main .inner .body .layout .meta-container:not(.group-container):hover .media-embed {
+  background-color: #F3F3F3;
+}
+div.document main .inner .body .layout .media-container:not(.group-container).focus canvas,
+div.document main .inner .body .layout .media-container:not(.group-container):hover canvas,
+div.document main .inner .body .layout .meta-container:not(.group-container).focus canvas,
+div.document main .inner .body .layout .meta-container:not(.group-container):hover canvas {
+  /*border-color: $c-light-yellow;*/
+  border-color: #E5E5E5;
+}
+div.document main .inner .body .layout .media-container.focus .media-group-items:hover .placement-opts,
+div.document main .inner .body .layout .media-container:hover .media-group-items:hover .placement-opts {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+div.document main .inner .body .layout .media-container.focus .add-opt i,
+div.document main .inner .body .layout .media-container:hover .add-opt i {
+  display: block;
+}
+div.document main .inner .body .layout .media-container.focus > .opts,
+div.document main .inner .body .layout .media-container:hover > .opts {
+  /*border-bottom-color: $c-light-yellow;*/
+  border-bottom-color: #E5E5E5;
+}
+div.document main .inner .body .layout .media-container.focus > .opts .opt-group,
+div.document main .inner .body .layout .media-container:hover > .opts .opt-group {
+  display: block;
+}
+div.document main .inner .body .layout .media-container.focus > .placement-opts,
+div.document main .inner .body .layout .media-container:hover > .placement-opts {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+div.document main .inner .body .layout .media-container.move,
+div.document main .inner .body .layout .meta-container.move {
+  transition: transform 0.75s;
+}
+div.document main .inner .body .layout:hover > .placement-opts {
+  display: block;
+}
+div.document main .inner .body .layout.focus {
+  background-color: #F3F3F3;
+}
+div.document main .inner .body .layout.view {
+  border-top: none;
+}
+div.document main .inner .body .layout.view .input-type {
+  display: none;
+}
+div.document main .inner .body .layout.view .media-container,
+div.document main .inner .body .layout.view .meta-container {
+  padding-top: 30px;
+}
+div.document main .inner .body .layout.view .media-container .media,
+div.document main .inner .body .layout.view .media-container .meta,
+div.document main .inner .body .layout.view .meta-container .media,
+div.document main .inner .body .layout.view .meta-container .meta {
+  border-top: none;
+}
+div.document main .inner .body .description-layout {
+  margin-top: 0;
+  padding-bottom: 30px;
+  clear: both;
+  /*border-top-color: $c-light-yellow;*/
+  border-top-color: #E5E5E5;
+  border-bottom: 1px dotted #969696;
+}
+div.document main .inner .body .description-layout .media-container .media,
+div.document main .inner .body .description-layout .media-container .media.focus {
+  border-top: none;
+}
+div.document main .inner .body .description-layout .media-container .media i,
+div.document main .inner .body .description-layout .media-container .media.focus i {
+  color: #646464;
+}
+div.document main .inner .body .description-layout .meta-container {
+  margin: 0 0 5px 0;
+  padding-top: 0;
+}
+div.document main .inner .body .description-layout .meta-container .meta-template {
+  font-size: 12px;
+  line-height: 1.5em;
+  display: inline-block;
+  color: #969696;
+}
+div.document main .inner .body .description-layout .input-slideshow {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  min-height: 30px;
+  margin: 15px 0 0 0;
+  font-size: 14px;
+}
+div.document main .inner .body .description-layout .input-slideshow input[type=checkbox] {
+  display: none;
+}
+div.document main .inner .body .description-layout .input-slideshow input[type=checkbox] + label {
+  display: block;
+  margin: 15px 0;
+  cursor: pointer;
+}
+div.document main .inner .body .description-layout .input-slideshow input[type=checkbox]:checked + label {
+  border-color: #005687;
+}
+div.document main .inner .body .description-layout .input-slideshow input[type=checkbox]:checked + label + p {
+  color: #005687;
+}
+div.document main .inner .body .description-layout .input-slideshow p {
+  justify-self: start;
+  margin-left: 15px;
+  color: #969696;
+}
+div.document main .inner .body .description-layout.view .media-container,
+div.document main .inner .body .description-layout.view .meta-container {
+  padding-top: 0;
+}
+div.document main .inner .body .description-layout.view .media-container .media,
+div.document main .inner .body .description-layout.view .meta-container .media {
+  color: #969696;
+}
+div.document main .inner .body .layout.preview .media-container,
+div.document main .inner .body .layout.preview .meta-container {
+  padding-top: 30px;
+}
+div.document main .inner .body .layout.preview .media-container .media,
+div.document main .inner .body .layout.preview .media-container .meta,
+div.document main .inner .body .layout.preview .meta-container .media,
+div.document main .inner .body .layout.preview .meta-container .meta {
+  border-top: none;
+}
+div.document main .inner .body .layout.preview .media-container .placement-opts,
+div.document main .inner .body .layout.preview .meta-container .placement-opts {
+  top: 15px;
+}
+div.document main .inner .body .layout.animate-in {
+  animation: slide-down 1s;
+}
+div.document main .inner .body .input-toolbox {
+  position: fixed;
+  bottom: 15px;
+  right: 15px;
+  width: 75px;
+  height: 75px;
+  border-radius: 75px;
+  border: 1px solid #E5E5E5;
+  outline: none;
+  background-color: #FFF;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
+  z-index: 1001;
+}
+div.document main .inner .body .input-toolbox.highlight {
+  background-color: #005687;
+  color: #FFF;
+}
+div.document main .inner .body .media-input-group {
+  position: fixed;
+  bottom: 105px;
+  right: 22.5px;
+  max-height: 0;
+  z-index: 1000;
+  transition: max-height 0.25s;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  background-color: #FFF;
+  overflow: scroll;
+}
+div.document main .inner .body .media-input-group .inner .btn-group {
+  outline: none;
+}
+div.document main .inner .body .media-input-group .inner .btn-group input {
+  display: none;
+}
+div.document main .inner .body .media-input-group .inner .btn-group form {
+  position: relative;
+  display: block;
+  width: 60px;
+  height: 45px;
+}
+div.document main .inner .body .media-input-group .inner .btn-group label,
+div.document main .inner .body .media-input-group .inner .btn-group button {
+  position: relative;
+  display: block;
+  width: 45px;
+  height: 45px;
+  margin: 0 7.5px;
+  outline: none;
+  border: none;
+  border-radius: 45px;
+  background-color: transparent;
+  font-size: 16px;
+  line-height: 45px;
+  text-align: center;
+  color: #646464;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  transition: background-color 0.25s;
+  cursor: pointer;
+}
+div.document main .inner .body .media-input-group .inner .btn-group label label,
+div.document main .inner .body .media-input-group .inner .btn-group button label {
+  content: attr(title);
+  position: absolute;
+  top: 0;
+  left: 100%;
+  min-height: 45px;
+  width: 0;
+  margin: 0 0 0 7.5px;
+  background-color: #E5E5E5;
+  border-radius: 0;
+  font-size: 12px;
+  text-align: left;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: padding 0.25s, width 0.25s;
+}
+div.document main .inner .body .media-input-group .inner .btn-group label label span,
+div.document main .inner .body .media-input-group .inner .btn-group button label span {
+  padding: 0 10px;
+}
+div.document main .inner .body .media-input-group .inner .btn-group label i,
+div.document main .inner .body .media-input-group .inner .btn-group button i {
+  font-size: 20px;
+  line-height: 45px;
+}
+div.document main .inner .body .media-input-group .inner .btn-group label img,
+div.document main .inner .body .media-input-group .inner .btn-group button img {
+  width: 20px;
+  vertical-align: middle;
+}
+div.document main .inner .body .media-input-group .inner .btn-group label:hover,
+div.document main .inner .body .media-input-group .inner .btn-group button:hover {
+  background-color: #E5E5E5;
+}
+div.document main .inner .body .media-input-group .inner .btn-group label.highlight,
+div.document main .inner .body .media-input-group .inner .btn-group button.highlight {
+  background-color: #333D51;
+  color: #FFF;
+}
+div.document main .inner .body .media-input-group .inner .btn-group input:disabled,
+div.document main .inner .body .media-input-group .inner .btn-group button:disabled {
+  pointer-events: none;
+  color: #E5E5E5;
+}
+div.document main .inner .body .media-input-group .inner .btn-group input:disabled img,
+div.document main .inner .body .media-input-group .inner .btn-group button:disabled img {
+  filter: brightness(2);
+}
+div.document main .inner .body .media-input-group .inner .btn-group .vertical-separator {
+  width: 60px;
+  height: 0px;
+  border-top: 1px solid #E5E5E5;
+  margin: 10px 0;
+}
+div.document main .inner .body .input-group.inline {
+  position: static;
+  margin-top: 10px;
+  padding-bottom: 0;
+}
+div.document main .inner .body .input-group.inline .inner .btn-group .vertical-separator {
+  margin: 5px 15px;
+}
+div.document main .inner .body .input-group.fixed {
+  position: absolute;
+  height: 100%;
+  padding-bottom: 0;
+  pointer-events: none;
+  z-index: 100;
+}
+div.document main .inner .body .input-group.fixed .inner .btn-group {
+  display: flex;
+  align-items: center;
+}
+div.document main .inner .body .input-group.fixed .inner .btn-group label {
+  pointer-events: all;
+}
+main#reference {
+  pointer-events: none;
+}
+
+footer {
+  position: relative;
+  width: 100vw;
+  clear: both;
+  background-color: #F3F3F3;
+  border-top: 1px solid #E5E5E5;
+}
+footer .inner {
+  position: relative;
+  display: block;
+  width: calc(100% - 60px);
+  margin: 0 auto;
+  padding: 30px;
+  /* BELOW IS FOR THE COMMENTS MODULE */
+}
+footer .inner h2 {
+  font-size: 16px;
+  margin-bottom: 15px;
+}
+footer .inner form {
+  position: relative;
+  margin: 15px 0 45px 0;
+}
+footer .inner form textarea {
+  position: relative;
+  width: calc(100% - 30px);
+  min-height: 16px;
+  height: 1px;
+  padding: 10px 15px;
+  border: none;
+  outline: none;
+  background-color: transparent;
+  font-size: 16px;
+  text-align: left;
+  overflow: hidden;
+  resize: none;
+}
+footer .inner form label {
+  position: absolute;
+  left: 30px;
+  top: 11px;
+  font-size: 14px;
+  line-height: 1.5em;
+  color: #646464;
+  transform: translateY(0);
+  transition: transform 0.25s, font-size 0.25s;
+}
+footer .inner form label::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: -35px;
+  width: 30px;
+  height: 30px;
+  background: url("../imgs/icons/i-comment-outline.svg");
+  filter: brightness(75%);
+}
+footer .inner form textarea + label {
+  pointer-events: none;
+}
+footer .inner form textarea:focus + label,
+footer .inner form textarea.has-value + label {
+  font-size: 12px;
+  line-height: 1.5em;
+  transform: translateY(-20px);
+}
+footer .inner form .btn-group {
+  border-top: 1px solid #646464;
+}
+footer .inner form .btn-group button {
+  display: none;
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 0;
+  /*background-color: $c-mid-yellow;*/
+  background-color: #E5E5E5;
+  font-size: 12px;
+  color: #FFF;
+  float: right;
+}
+footer .inner form .btn-group button:disabled {
+  background-color: #E5E5E5;
+  color: #FFF;
+}
+footer .inner form textarea:focus + label + .btn-group,
+footer .inner form textarea.has-value + label + .btn-group {
+  /*border-color: $c-mid-yellow;*/
+  border-color: #E5E5E5;
+}
+footer .inner form textarea:focus + label + .btn-group button,
+footer .inner form textarea.has-value + label + .btn-group button {
+  display: block;
+}
+footer .inner ul.comments li {
+  margin: 15px 0;
+}
+footer .inner ul.comments li .head .meta .meta-contributor {
+  display: inline-block;
+  margin: 0 5px 0 0;
+  font-size: 14px;
+  line-height: 1.5em;
+  color: #0468B1;
+}
+footer .inner ul.comments li .head .meta .meta-contributor::after {
+  content: ", ";
+  font-size: 14px;
+  line-height: 1.5em;
+  color: #32BEE1;
+}
+footer .inner ul.comments li .head .meta .meta-date {
+  display: inline-block;
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5em;
+  color: #0468B1;
+}
+footer .inner ul.comments li .body {
+  font-size: 14px;
+  line-height: 1.5em;
+}
+footer .inner ul.comments li .foot button.expand-collapsed {
+  background-color: transparent;
+  height: 45px;
+  border: none;
+  outline: none;
+  color: #646464;
+  font-size: 12px;
+  line-height: 1.5em;
+  text-align: left;
+  cursor: pointer;
+}
+footer .inner ul.comments li .foot button.expand-collapsed.wide {
+  position: relative;
+  width: 100%;
+  height: 45px;
+  margin: 10px 0 0 0;
+  background: repeating-linear-gradient(45deg, transparent, transparent 3px, rgba(150, 150, 150, 0.1) 3px, rgba(150, 150, 150, 0.1) 6px);
+}
+footer .inner ul.comments li .foot .collapsed {
+  position: relative;
+  max-height: 0;
+  padding-left: 30px;
+  overflow: hidden;
+  transition: max-height 0.25s ease-out;
+}
+footer .inner ul.comments li .foot .collapsed ul.replies li {
+  margin-top: 5px;
+}
+footer .inner ul.comments li .foot .collapsed form {
+  margin-bottom: 30px;
+}
+footer .inner ul.comments li .foot .collapsed::before {
+  content: "";
+  position: absolute;
+  left: 15px;
+  top: 7.5px;
+  width: 0;
+  height: calc(100% - 15px);
+  border-left: 1px dotted #969696;
+}
+footer .inner button {
+  height: 45px;
+  background-color: #333D51;
+  border: none;
+  outline: none;
+  border-radius: 5px;
+  padding: 0 30px;
+  font-size: 16px;
+  line-height: 1.5em;
+  color: #FFF;
+  cursor: pointer;
+}
+footer .inner .approval-message {
+  position: relative;
+  width: 875px;
+  margin: 0 auto;
+  padding: 10px;
+}
+footer .inner .approval-message small {
+  font-size: 12px;
+  line-height: 1.5em;
+  color: #C2B4D6;
+}
+footer .inner .approval-message p {
+  font-size: 16px;
+  line-height: 1.5em;
+  color: #57648C;
+}
+footer .inner .approval-message::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: -11px;
+  height: calc(100% + 15px);
+  width: 1px;
+  background-color: #C2B4D6;
+}
+footer .inner .approval-message::after {
+  content: "“";
+  position: absolute;
+  /*top: calc(16px / 4);*/
+  top: calc(10px + 16px);
+  left: -11px;
+  width: 10px;
+  vertical-align: middle;
+  background-color: #F3F3F3;
+  border-top: 1px solid #C2B4D6;
+  /*border-bottom: 1px solid $c-light-1;*/
+  font-size: 36px;
+  line-height: 1.5em;
+  color: #C2B4D6;
+  text-align: center;
+}
+
+.document.slideshow {
+  border: none;
+  overflow-x: hidden;
+}
+.document.slideshow main#pad {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #FFF;
+  border: none;
+}
+.document.slideshow main#pad .inner button.slide-nav {
+  position: fixed;
+  top: 0;
+  width: 60px;
+  height: 100vh;
+  /*background-color: $c-light-grey;*/
+  background: repeating-linear-gradient(-45deg, transparent, transparent 3px, rgba(150, 150, 150, 0.1) 3px, rgba(150, 150, 150, 0.1) 6px);
+  border: none;
+  outline: none;
+  color: #969696;
+  font-size: 60px;
+  line-height: 1.5em;
+  cursor: pointer;
+  transition: background 0.25s;
+  z-index: 1001;
+}
+.document.slideshow main#pad .inner button.slide-nav.prev {
+  left: 0;
+}
+.document.slideshow main#pad .inner button.slide-nav.next {
+  right: 0;
+}
+.document.slideshow main#pad .inner button.slide-nav:hover {
+  background: repeating-linear-gradient(-45deg, transparent, transparent 3px, rgba(50, 190, 225, 0.1) 3px, rgba(50, 190, 225, 0.1) 6px);
+}
+.document.slideshow main#pad .inner .description-layout.slide {
+  border-bottom: none;
+}
+.document.slideshow main#pad .inner .body .description-layout.slide,
+.document.slideshow main#pad .inner .slide {
+  position: absolute !important;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  top: 30px;
+  left: 60px;
+  width: calc(100% - 120px) !important;
+  min-height: calc(100vh - 30px);
+  transform: translateX(0);
+  opacity: 1;
+  transition: transform 1s, opacity 1s;
+  background-color: #FFF;
+}
+.document.slideshow main#pad .inner .body .description-layout.slide .required,
+.document.slideshow main#pad .inner .slide .required {
+  position: absolute;
+  left: 100%;
+  top: calc(50% - 16.5px);
+  width: 30px;
+  text-align: center;
+  line-height: 33px;
+}
+.document.slideshow main#pad .inner .body .description-layout.slide-next,
+.document.slideshow main#pad .inner .slide.slide-next {
+  transform: translateX(100%);
+  opacity: 0;
+}
+.document.slideshow main#pad .inner .body .description-layout.slide-prev,
+.document.slideshow main#pad .inner .slide.slide-prev {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+.document.slideshow main#pad .inner .slide.title-slide {
+  width: 100%;
+}
+.document.slideshow main#pad .inner .slide.title-slide .section-header {
+  text-align: left;
+}
+.document.slideshow main#pad .inner .slide.title-slide .section-header label {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  background-color: transparent;
+  font-size: 36px;
+  line-height: 1.5em;
+  color: #005687;
+}
+.document.slideshow main#pad .inner .slide.meta-status .btn-group {
+  width: 100%;
+  text-align: center;
+  height: 45px;
+}
+.document.slideshow main#pad .inner .slide.meta-status .btn-group form button {
+  height: 45px;
+  padding: 0 30px;
+}
+.document.slideshow main#pad .inner .body {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding-bottom: 0;
+}
+.document.slideshow main#pad .inner .body .layout {
+  position: absolute;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+.document.slideshow main#pad .inner .body .layout .meta-container .meta-index,
+.document.slideshow main#pad .inner .body .layout .meta-container .meta-tag {
+  text-align: left;
+}
+div#source {
+  position: fixed;
+  height: 100vh;
+  background: repeating-linear-gradient(-45deg, transparent, transparent 3px, rgba(150, 150, 150, 0.1) 3px, rgba(150, 150, 150, 0.1) 6px);
+  overflow: auto;
+  vertical-align: top;
+  filter: grayscale(1);
+}
+div#source main#reference {
+  width: 100%;
+  min-width: 0;
+  margin: 60px 0 0 0;
+}
+div#source main#reference .inner .head a {
+  display: none;
+}
+
+.document.split-screen {
+  width: calc(50% - 120px);
+  border: none;
+}
+.document.split-screen .media-input-group {
+  left: auto !important;
+  right: 0 !important;
+}
+
+.document.split-screen.right {
+  margin-left: 50%;
+}
+
+div.display-option {
+  position: fixed;
+  top: 30px;
+  width: 100%;
+  z-index: 10000;
+}
+div.display-option a button {
+  width: 100%;
+  height: 20px;
+  outline: none;
+  border: none;
+  padding: 0 10px;
+  background-color: #969696;
+  color: #FFF;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.5em;
+  cursor: pointer;
+  vertical-align: top;
+  transition: background-color 0.25s;
+}
+div.display-option a button:hover {
+  background-color: #646464;
+}
+
+div.display-option.split-screen a button {
+  width: 50%;
+}
+
+/*# sourceMappingURL=pad.xs.css.map */

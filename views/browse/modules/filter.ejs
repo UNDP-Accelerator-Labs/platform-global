@@ -1,0 +1,256 @@
+<%
+	// CREATE ALIASES
+	const object = locals.metadata.page.object
+	const space = locals.metadata.page.space
+	const query = locals.metadata.page.query
+	const language = locals.metadata.page.language
+
+	const display_content = Object.keys(query)?.filter(key => !['status', 'source', 'mapscale']?.includes(key)).length > 0
+%>
+
+
+<nav id='search-and-filter' class='lg'>
+	<form autocomplete='off'>
+		<!-- ADD ALL EXISTING HEADER QUERIES THAT ARE NOT IN THE MENU (THIS IS FOR PERSISTENCE OF VIEW PARAMETERS) -->
+		<% 
+			const menu_keys = locals?.global_info?.filters_menu?.map(d => Object.keys(d)).flat()
+			const view_params = Object.keys(query)?.filter(key => !menu_keys?.includes(key) && !['search', 'status', 'source']?.includes(key)) 
+
+			view_params.forEach(d => {
+				query[d].forEach(c => {
+		%>
+			<input type='hidden' name='<%- d %>' value='<%- c %>'>
+		<% 
+				}) 
+			})
+		%>
+		
+		<% if (display_content) { %>
+			<div class='sources'>
+				<menu>
+					<li class='label'>
+						Datasource: 
+						<!-- TO DO: TRANSLATE -->
+					</li>
+					<% locals.metadata.site.apps_in_suite.forEach(d => { %>
+						<li <% if (d.key === locals.metadata.page.source) { %>class='active'<% } %>>
+							<input type='radio' name='source' id='<%- d.key %>' value='<%- d.key %>' <% if (d.key === locals.metadata.page.source) { %>checked<% } %> onchange='this.form.submit()'>
+							<label for='<%- d.key %>'><%- d.name %></label>
+							<!-- TO DO: TRANSLATE -->
+							<label for='<%- d.key %>' class='count'><%- locals?.global_info?.statistics?.find(c => c.key === d.key).stats.filtered %></label>
+						</li>
+					<% }) %>
+				</menu>
+			</div>
+		<% } %>
+
+		<div class='search'>
+			<% if (query?.search?.length) { %>
+				<input type='text' name='search' id='search-field' class='has-value' value='<%- query?.search %>' onblur='fixLabel(this)'>
+			<% } else { %>
+				<input type='text' name='search' id='search-field' onblur='fixLabel(this)'>
+			<% } %>
+			<label for='search-field'><%- vocabulary['search'][language](object === 'contributors') %></label>
+			<button id='search' type='submit'><img src='/imgs/icons/i-search.svg'></button>
+		</div>
+		
+		<% if (locals?.global_info?.filters_menu?.length) { %>
+			<div class='filters'>
+				<% locals?.global_info?.filters_menu?.forEach(d => { %>
+					<section>
+						<% for (let key in d) { %>
+							<div class='filter'>
+								<input type='text' id='<%- key %>' onblur='fixLabel(this)'>
+								<label for='<%- key %>'><%- vocabulary[key.slice(0, -1).replace(/_/g, ' ')]?.[language](true).capitalize() || vocabulary[key.replace(/_/g, ' ')]?.[language].capitalize() || key.capitalize() %></label>
+								<div class='dropdown'>
+									<menu>
+										<% d[key]?.forEach(c => { %>
+											<li>
+												<% if (c.equivalents?.length) { %>
+													<% c.equivalents.filter(b => b !== c.id).forEach(b => { %>
+														<input type='hidden' value='<%- b %>' name='<%- key %>' <% if (!query?.[key]?.includes(c.id.toString())) { %>disabled<% } %>>
+													<% }) %>
+												<% } %>
+												<input type='checkbox' value='<%- c.id %>' id='<%- key %>-<%- c.id %>' name='<%- key %>' <% if (query?.[key]?.includes(c.id.toString())) { %>checked<% } %> onchange='addequivalents(this)'>
+												<label for='<%- key %>-<%- c.id %>'><%- Number.isInteger(c.name) ? c.name : (c.name?.capitalize() || vocabulary['unknown'][language]) %><span class='count'><%- c.count %></span></label>
+											</li>
+										<% }) %>
+									</menu>
+								</div>
+							</div>
+						<% } %>
+					</section>
+				<% }) %>
+				<div class='break'></div>
+				<button type='submit' class='submit-filters'>
+					<%- vocabulary['apply filters'][language] %>
+				</button>
+			</div>
+		<% } %>
+
+		<% if (locals?.stats?.persistent_breakdown?.length > 1) { %>
+			<div class='status'>
+				<menu>
+					<% locals?.stats?.persistent_breakdown?.forEach(d => { %>
+						<li>
+							<input type='checkbox' class='toggle' id='status-<%- d.status %>' value='<%- d.status %>' name='status' onchange='this.form.requestSubmit[this.form.querySelector("button#search")] || this.form.submit()' <% if (!query?.status || query?.status?.map(d => +d).includes(d.status)) { %>checked<% } %>>
+							<label for='status-<%- d.status %>' data-content='<%- d.count %>'></label>
+							<p>
+								<%- vocabulary['status'][language](object, d.status, d.count) %>
+							</p>
+						</li>
+					<% }) %>
+				</menu>
+			</div>
+		<% } %>
+
+		<% if (display_content && object === 'pads') { %>
+			<div class='global-actions'>
+				<% if (space !== 'pinned') { %>
+					<%# if (query.search?.length || Object.keys(query)?.filter(key => key in locals?.global_info?.filters_menu)?.length) { %>
+						<div class='add filter pinboards'>
+							<input type='text' id='pin-all'>
+							<label for='pin-all'><%- vocabulary["add all to collection"][language](locals?.stats?.filtered ?? 0) %></label>
+							<button id='new-pinboard' type='button'></button>
+							<div class='dropdown'>
+								<menu>
+									<% locals?.pinboards_list?.forEach(d => { %>
+										<li class='pinboard'>
+											<input id='board-<%- d.id %>-object-all' type='radio' value='<%- d.id %>' name='pin-all' onchange='pinAll(this)'>
+											<label class='title' for='board-<%- d.id %>-object-all'><%- d.title %><span class='count'><%- d.count %></span></label>
+										</li>
+									<% }) %>
+								</menu>
+							</div>
+						</div>
+					<%# } %>
+				<% } %>
+
+				<button type='button' class='download lg' onclick='setDownloadOptions()'><%- vocabulary['download all'][language] %></button>
+			</div>
+		<% } else if (object === 'contributors') { %>
+			<div class='global-actions'>
+				<button type='button' class='download lg' onclick='setDownloadOptions()'><%- vocabulary['download all'][language] %></button>
+				<!-- TO DO: FINISH DOWNLOAD ALL USERS -->
+			</div>
+		<% } else { %>
+			<div class='global-actions'></div>
+		<% } %>
+
+		<% if (locals?.global_info?.filters_menu?.length) { %>
+			<button type='button' class='expand-filters' onclick='expandfilters(this)'>
+				<div class='line l1'></div><div class='line l2'></div><div class='line l3'></div>
+			</button>
+		<% } %>
+	</form>
+</nav>
+
+
+<script type='text/javascript'>
+	function expandfilters (node) {
+		d3.select(node).toggleClass('close')
+		const filters = node.form.querySelector('.filters')
+		const padding = filters.querySelector('section').getBoundingClientRect().height / 2
+		// WE NEED TO MANUALLY ADD THE BOTTOM PADDING BECAUSE IT IS NOT COMPUTED IN THE scrollHeight
+		if (filters.style.maxHeight) {
+			filters.style.maxHeight = null
+			filters.style.overflow = 'hidden'
+		} else filters.style.maxHeight = `${filters.scrollHeight + padding}px`
+	}
+	function addequivalents (node, equivalents) {
+		const parent = d3.select(node.parentNode)
+		parent.selectAll('input[type=hidden]')
+			.attr('disabled', node.checked ? null : true)
+	}
+	
+	// MAIN SEARCH BAR
+	d3.selectAll('.filter input[type=text]')
+	.on('keyup', function () {
+		const node = this
+		const dropdown = d3.select(node).findAncestor('filter').select('.dropdown')
+		dropdown.selectAll('menu li')
+			.classed('hide', function () {
+				return !this.textContent.trim().toLowerCase()
+				.includes(node.value.trim().toLowerCase())
+			})
+	}).on('focus', function () {
+		const dropdown = d3.select(this).findAncestor('filter').select('.dropdown')
+		const filters = d3.select(this).findAncestor('filters')
+		if (dropdown.node()) dropdown.node().style.maxHeight = `${Math.min(dropdown.node().scrollHeight, 300)}px`
+		if (filters) filters.node().style.overflow = 'visible'
+
+		dropdown.selectAll('label, a').on('mousedown', function () { 
+			d3.event.preventDefault()
+			// this.previousElementSibling.setAttribute('checked', '')
+		})
+	}).on('blur', function () {
+		const dropdown = d3.select(this).findAncestor('filter').select('.dropdown')
+		if (dropdown.node()) dropdown.node().style.maxHeight = null
+	})
+
+	// PIN ALL SEARCH BAR
+	<% if (object === 'pads') { %>
+		async function pinAll (node) {
+			node.checked = true
+			const id = node.value
+
+			// TO DO: THIS COULD BE IMPROVED HERE AND IN THE BACKEND TO USE full_filters INSTEAD OF PASSING BACK AND FORTH THE FULL LIST OF PAD IDs
+			await POST('/pin', { board_id: id, object_id: <%- JSON.stringify(locals?.global_info?.pads) %>, action: 'insert', object: '<%- object.slice(0, -1) %>' })
+			location.reload()
+		}
+
+		d3.select('#pin-all')
+		.on('keydown', function (d) { // EVERYWHERE ELSE THIS IS keyup BUT WE USE keydown HERE TO PREVENT THE FORM FROM FIRING WHEN THE Enter KEY IS PRESSED (TRIGGERED ON keydown)
+			const evt = d3.event
+			const node = this
+			const dropdown = d3.select(node).findAncestor('filter').select('.dropdown')
+			dropdown.selectAll('menu li')
+				.classed('hide', function () {
+					return !this.textContent.trim().toLowerCase()
+					.includes(node.value.trim().toLowerCase())
+				})
+
+			if (evt.code === 'Enter' || evt.keyCode === 13) {
+				evt.preventDefault()
+				d3.select('#new-pinboard').node().click()
+			}
+		}).on('focus', function (d) {
+			const dropdown = d3.select(this).findAncestor('filter').select('.dropdown')
+			dropdown.node().style.maxHeight = `${Math.min(dropdown.node().scrollHeight, 300)}px`
+
+			dropdown.selectAll('li').on('mousedown', function () { 
+				d3.event.preventDefault()
+			})
+		}).on('blur', function () {
+			const dropdown = d3.select(this).findAncestor('filter').select('.dropdown')
+			dropdown.node().style.maxHeight = null
+			fixLabel(this) // THIS IS NOT WORKING
+		})
+
+		d3.select('#new-pinboard')
+		.on('click', async function () {
+			const node = d3.select('#pin-all').node()
+			
+			if (node.value.trim().length) {
+				const dropdown = d3.select(node).findAncestor('filter').select('.dropdown')
+
+				const existingBoard = dropdown.selectAll('menu li:not(.hide) .title').filter(function () {
+					const match = [...this.childNodes].filter(function (d) { 
+						return d.nodeType === Node.TEXT_NODE
+					}).map(d => d.textContent.trim().toLowerCase()).join(' ')
+					return match === node.value.trim().toLowerCase()
+				})
+
+				if (existingBoard.node()) { // SIMPLY ADD THE OBJECT TO AN EXISTING BOARD
+					pinAll(existingBoard.node().previousElementSibling)							
+				} else { // CREATE A NEW BOARD AND ADD THE OBJECT TO IT
+					const { board_id } = await POST('/pin', { board_title: node.value.trim(), object_id: <%- JSON.stringify(locals?.global_info?.pads) %>, action: 'insert', object: '<%- object.slice(0, -1) %>' })
+					window.location = `./pinned?pinboard=${board_id}`
+				}
+				// RESET DROPDOWN
+				this.value = ''
+				dropdown.selectAll('menu li').classed('hide', false)
+			}
+		})
+	<% } %>
+</script>

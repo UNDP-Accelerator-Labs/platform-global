@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<%
+	// CREATE ALIASES
+	const publicpage = locals.metadata.page.public
+	const activity = locals.metadata.page.activity
+	const object = locals.metadata.page.object
+	const languages = locals.metadata.site.languages
+	const language = locals.metadata.page.language
+
+	const review_template = locals.metadata.page.query?.review_template?.includes('true') || locals.data?.review_template || false
+	const review_language = locals.metadata.page.query?.language?.[0] || locals.data?.review_language || undefined
+%>
+<html lang='<%- language %>'>
+<head>
+
+<%- include ('../../partials/head.ejs') %> 
+
+<link rel='stylesheet' href='https://unpkg.com/leaflet@1.6.0/dist/leaflet.css'
+	integrity='sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=='
+	crossorigin=''/>
+<script src='https://unpkg.com/leaflet@1.6.0/dist/leaflet.js'
+	integrity='sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=='
+	crossorigin=''></script>
+
+<%- include('./render.ejs') %>
+
+</head>
+
+<body>
+
+
+<% include ('../../partials/translations.ejs') %> 
+
+<%- include ('../../partials/menu-languages.ejs') %> 
+<%- include ('../../partials/modals.ejs') %> 
+
+<header>
+	<div class='inner'>
+		<%- include ('../../partials/menu-logo.ejs') %> 
+	</div>
+</header>
+
+
+<div class='document'>
+	<main id='template' class='template'>
+		<div class='inner'>
+			<% if (['contribute', 'edit'].includes(activity)) { %>
+				<!-- <div class='meta-status status-<%- locals.data?.status || 0 %>'>
+					<div class='btn-group'>
+						<form method='GET' action='/publish/pads'>
+							<input type='hidden' name='id' value='<%- locals.data?.id %>'>
+							<% if (locals.data?.status !== 1) { %><button type='submit' class='publish' disabled>Publish</button>
+							<% } else if (locals.data?.status === 1) { %><button type='submit' class='publish'>Publish</button>
+							<% } %>
+						</form>
+					</div>
+				</div> -->
+				<div class='meta-status status-<%- locals.data?.status || 0 %>'>
+					<div class='btn-group'>
+						<% if (['contribute', 'edit'].includes(activity)) { %>
+							<div class='save xs'>
+								<form>
+									<button type='button' onclick='partialSave()' disabled><%- vocabulary['save'][language] %></button>
+								</form>
+							</div>
+						<% } %>
+						<form method='GET' action='/publish/templates'>
+							<input type='hidden' name='id' value='<%- locals.data?.id %>'>
+							<% if ((locals.data?.status ?? 0) !== 1) { %>
+								<button type='submit' class='publish' name='status' value='2' disabled><%- vocabulary['publish'][language] %></button>
+							<% } else { %>
+								<button type='submit' class='publish' name='status' value='2'><%- vocabulary['publish'][language] %></button>
+							<% } %>
+						</form>
+						<% if (!publicpage) { %>
+							<!-- TO DO: THIS DOES NOT WORK WHEN THE PAD HAS JUST BEEN CREATED -->
+							<!-- AND MAKE SURE ALL FIELDS ARE CLEARED BEFORE SHOWING THIS -->
+							<!-- AS ESSENTIALLY THIS IS PUBLISHING THE PAD -->
+							<!-- TO DO: REMOVE if (false) TO REACTIVATE THIS -->
+							<% if (false) { %>
+								<form class='lg' method='POST' action='/generate/pdf'>
+									<input type='hidden' name='id' value='<%- locals.metadata?.page?.query?.id?.[0] %>'>
+									<input type='hidden' name='lang' value='<%- locals.metadata?.page?.lang %>'>
+									<% if (locals.data?.status === 0 || !locals.data?.status) { %><button type='submit' class='generate-pdf' disabled>Generate PDF</button>
+									<% } else if (locals.data?.status > 0) { %><button type='submit' class='generate-pdf'>Generate PDF</button>
+									<% } %>
+								</form>
+							<% } %>
+						<% } %>
+					</div>
+				</div>
+			<% } %>
+
+			<div class='head'>
+				<% if (locals.metadata.page.referer?.includes('browse/templates')) { %>
+					<a href='<%- locals.metadata.page.referer %>' class='return'><%- vocabulary['back to browse'][language] %></a>
+				<% } else { %>
+					<a href='<%- `/${language}/browse/templates/private` %>' class='return'><%- vocabulary['back to browse'][language] %></a>
+				<% } %>
+				<% if (['contribute', 'edit'].includes(activity)) { %>
+					<div class='title' data-placeholder='<%- vocabulary["untitled template"][language] %>' onfocus='this.classList.add("focus")' onblur='partialSave("title")' contenteditable></div>
+				<% } else { %>
+					<div class='title' data-placeholder='<%- vocabulary["untitled template"][language] %>'></div>
+				<% } %>
+				<% if (activity === 'edit') { %>
+					<div class='contributor'><%- vocabulary['credit'][language](locals.data?.owner, locals.data?.ownername, 'contributors') %></div>
+				<% } else { %>
+					<div class='contributor'><%- vocabulary['credit'][language](locals.data?.iso3, locals.data?.country, 'countries') %></div>
+				<% } %>
+			</div>
+			<div class='body'>
+				<section class='description-layout layout <%- activity %>'>
+					<div class='input-type'>
+						<label><%- vocabulary['description'][language] %></label>
+					</div>
+					<div class='media-container txt-container lead' onclick='d3.select(this).classed("focus", true)'>
+						<div class='media media-txt template' data-placeholder='<%- vocabulary["missing template description"][language] %>' onblur='partialSave("description")' contenteditable><% if (review_template) { %><%- locals.template_description || vocabulary["review template description"][language](languages.find(d => d.language === review_language).name) %><% } else { %><%- locals.template_description %><% } %></div>
+						<!-- TO DO: TRANSLATE LANGUAGE NAME (e.g. FRENCH > FRANÇAIS) -->
+					</div>
+					<% if (!review_template) { %>
+						<div class='input-slideshow'>
+							<input id='slideshow-status' type='checkbox' class='toggle' name='slideshow' value='true' <% if (locals.data?.slideshow) { %>checked<% } %>>
+							<label for='slideshow-status'></label>
+							<p><%- vocabulary['show template as slideshow'][language] %></p>
+						</div>
+					<% } %>
+				</section>
+
+				<% if (['contribute', 'edit'].includes(activity)) { %>
+					<button class='input-toolbox xs'><i class='material-icons'>edit</i></button>
+					<div class='media-input-group input-group' tabindex='1'>
+						<button class='scroll-up m lg'><label>&rsaquo;</label></button>
+						<div class='inner'>
+							<div class='btn-group'>
+							<% if (!review_template) { %>
+								<button id='input-media-section' title='Add a section.'><i class='material-icons'>add_circle</i></button>
+								<button id='input-media-repeat-section' title='Add a repetitive section.'><i class='material-icons'>loop</i></button>
+							<% } %>
+							
+							<button id='input-meta-group' title='Add a group of inputs.'><i class='material-icons'>dynamic_form</i></button>
+							<div class='vertical-separator'></div>
+							<button id='input-media-txt' title='Request a description. You can also use the “t” key as a keyboard shortcut.'><i class='material-icons'>text_fields</i></button>
+							<button id='input-media-checklist' title='Request a response from multiple choices. You can also use the “l” key as a keyboard shortcut.'><i class='material-icons'>check_box</i></button>
+							<!-- TO DO: TRANSLATE -->
+							<button id='input-media-radiolist' title='Add a radiolist. You can also use the “r” key as a keyboard shortcut.'><i class='material-icons'>radio_button_checked</i></button>
+							<% if (!review_template) { %>
+								<button id='input-media-img' title='Request an image. You can also use the “i” key as a keyboard shortcut.'><i class='material-icons'>insert_photo</i></button>
+								<button id='input-media-drawing' title='Request a drawing. You can also use the “d” key as a keyboard shortcut.'><i class='material-icons'>gesture</i></button>
+							<% } %>
+							<button id='input-media-embed' title='Request a link or embedded HMTL code. You can also use the “e” key as a keyboard shortcut.'><i class='material-icons'>code</i></button>
+							
+							<% if (!review_template) { %>	
+								<div class='vertical-separator'></div>
+								<% locals.metadata.site.metafields.forEach(d => { %>
+									<button class='labeled' id='input-meta-<%- d.label %>' title='Add one or more <%- d.name %> tag(s).'>
+										<img src='/imgs/icons/i-<%- d.label.replace(/\_/, "-") %>-btn.svg' alt='<%- d.name %>' onerror='this.onerror=null; this.src="/imgs/icons/i-generic-<%- d.type.replace(/\_/, "-") %>-btn.svg"' />
+										<label>
+											<span><%- vocabulary['add tags'][language](d.name.toLowerCase()) %></span>
+										</label>
+									</button>
+								<% }) %>
+							<% } %>
+							</div>
+						</div>
+						<button class='scroll-down m lg'><label>&rsaquo;</label></button>
+					</div>
+					<script type='text/javascript'>
+						if (!mediaSize) var mediaSize = getMediaSize()
+						if (mediaSize === 'xs') {
+							d3.select('button.input-toolbox')
+							.on('touchend, click', function () {
+								d3.select(this).toggleClass('highlight')
+								d3.select('.media-input-group').node().focus() 
+							})
+							d3.select('.media-input-group').on('touchend', function () { this.focus() })
+							.on('focus', function () {
+								if (this.style.maxHeight) this.style.maxHeight = null
+								else this.style.maxHeight = `${Math.min(this.scrollHeight, screen.height * .75)}px`
+							}).on('blur', function () {
+								 this.style.maxHeight = null
+								 d3.select('button.input-toolbox').classed('highlight', false)
+							})
+						}
+						d3.select('.media-input-group')
+						.each(function () {
+							const node = this
+							const sel = d3.select(this)
+							const inner = sel.select('.inner')
+							const height = inner.node().clientHeight || inner.node().offsetHeight
+							const scrollheight = inner.node().scrollHeight
+							const scrolltop = inner.node().scrollTop
+							const buttonheight = inner.select('button').node().clientHeight || inner.select('button').node().offsetHeight
+
+							sel.classed('overflowing', scrollheight > (height + buttonheight))
+							
+							sel.select('button.scroll-up')
+								.classed('hide', scrollheight <= (height + buttonheight))
+							.on('click', function () {
+								inner.node().scrollTo({
+									top: scrolltop - (height - buttonheight),
+									left: 0,
+									behavior: 'smooth'
+								})
+							})
+
+							sel.select('button.scroll-down')
+								.classed('hide', scrollheight <= (height + buttonheight))
+							.on('click', function () {
+								inner.node().scrollTo({
+									top: scrolltop + height - buttonheight,
+									left: 0,
+									behavior: 'smooth'
+								})
+							})
+						})
+					</script>
+				<% } %>
+			</div>
+			
+		</div>
+	</main>
+</div>
+
+<% if (locals.metadata.site.engagementtypes.includes('comment')) { %>
+<footer>
+	<% if (locals.data?.status >= 2) { %>
+		<div class='inner'>
+			<h2><%- locals.comments?.length || 0 %> <%- vocabulary['comment'][language](false, locals.comments?.length !== 1).toLowerCase() %></h2>
+			<form action='/comment' method='POST'>
+				<input type='hidden' name='id' value='<%- locals.data?.id %>'>
+				<input type='hidden' name='object' value='<%- object %>'>
+				<textarea id='input-media-comment' name='message' onkeyup='adjustarea(this)' data-placeholder='test' onchange='fixLabel(this)' onfocus='changeLabel(this, true)' onblur='changeLabel(this, false)' required></textarea>
+				<label for='input-media-comment'><%- vocabulary['comment publicly'][language] %></label>
+				<div class='btn-group'>
+					<button type='submit' disabled><%- vocabulary['comment'][language](true) %></button>
+				</div>
+			</form>
+
+			<ul class='comments'>
+				<% locals.comments?.forEach(d => { %>
+					<li class='comment'>
+						<div class='head'>
+							<div class='meta meta-data'>
+								<div class='meta meta-contributor'><a href='../browse/templates/shared?contributors=<%- d.contributor %>'><%- d.ownername %></a></div>
+								<div class='meta meta-date'><%- vocabulary['date'][language](d.date) %></div>
+							</div>
+						</div>
+						<div class='body'>
+							<%- d.message %>
+						</div>
+						<div class='foot'>
+							<button type='button' class='expand-collapsed <% if (d.replies?.length > 0) { %>wide<% }%>'>
+								<% if (d.replies?.length > 0) { %><%- vocabulary['expand replies'][language](d.replies.length) %>
+								<%} else { %><%- vocabulary['reply'][language](true) %><%} %>
+							</button>
+							<div class='collapsed'>
+								<% if (d.replies?.length > 0) { %>
+									<ul class='comments replies'>
+										<% d.replies.forEach(c => { %>
+										<li class='comment'>
+											<div class='head'>
+												<div class='meta meta-data'>
+													<div class='meta meta-contributor'><a href='../browse/templates/shared?contributors=<%- d.contributor %>'><%- c.ownername %></a></div>
+													<div class='meta meta-date'><%- vocabulary['date'][language](c.date) %></div>
+												</div>
+											</div>
+											<div class='body'>
+												<%- c.message %>
+											</div>
+										</li>
+										<% }) %>
+									</ul>
+								<% } %>
+								<form action='/comment' method='POST'>
+									<input type='hidden' name='id' value='<%- locals.data?.id %>'>
+									<input type='hidden' name='object' value='<%- object %>'>
+									<input type='hidden' name='source' value='<%- d.id %>'>
+									<textarea id='input-media-comment' name='message' onkeyup='adjustarea(this)' data-placeholder='test' onchange='fixLabel(this)' onfocus='changeLabel(this, true)' onblur='changeLabel(this, false)' required></textarea>
+									<!-- <label for='input-media-comment' data-label='Jeremy'>Reply publicly</label> -->
+									<label for='input-media-comment'><%- vocabulary['reply publicly'][language] %></label>
+									<div class='btn-group'>
+										<button type='submit' disabled><%- vocabulary['reply'][language](true) %></button>
+									</div>
+								</form>
+							</div>
+						</div>
+					</li>
+				<% }) %>
+			</ul>
+		</div>
+
+
+		<script type='text/javascript'>
+			// INSPIRED BY https://stackoverflow.com/questions/995168/textarea-to-resize-based-on-content-length
+			function changeLabel (node, focus) {
+				for (let label of node.labels) {
+					const sel = d3.select(label)
+					if (focus || node.value.trim().length > 0) sel.html('<%- locals.metadata.user.name %>')
+					else sel.html('<%- vocabulary["comment publicly"][language] %>	')
+				}
+			}
+
+			function adjustarea(node) { 
+				node.style.height = `${ node.scrollHeight - 20 }px` // WE HAVE A 2x10px PADDING IN THE CSS
+				const submit = d3.select(node.parentNode).select('button[type=submit]').node()
+				submit.disabled = node.value.trim().length === 0
+			}
+			d3.selectAll('footer textarea').each(function () { adjustarea(this) })
+
+			d3.selectAll('.expand-collapsed').on('click', function () {
+				const collapsed = this.nextElementSibling
+				if (collapsed.classList.contains('collapsed')) collapsed.style.maxHeight = `${collapsed.scrollHeight}px`
+				d3.select(this.remove())
+			})
+		</script>
+	<% } %>
+</footer>
+<% } %>
+
+
+<script type='text/javascript'>
+	const metafields = <%- JSON.stringify(locals.metadata.site.metafields || {}) %>
+
+	// ADD ALL INTERACTION WITH MEDIA AND META INPUT BUTTONS
+	d3.select('.media-input-group #input-media-section')
+	.on('mousedown', function () {
+		this['__active_node__'] = d3.selectAll('.media-layout.focus').nodes()?.last()?.nextSibling
+	}).on('click', function () {
+		addSection({ lang: '<%- language %>', sibling: this['__active_node__'], focus: true })
+		this['__active_node__'] = null
+	})
+
+	d3.select('.media-input-group #input-media-repeat-section')
+	.on('mousedown', function () {
+		this['__active_node__'] = d3.selectAll('.media-layout.focus').nodes()?.last()?.nextSibling
+	}).on('click', function () {
+		addSection({ data: { repeat: true }, lang: '<%- language %>', sibling: this['__active_node__'], focus: true })
+		this['__active_node__'] = null
+	})
+
+	d3.select('.media-input-group #input-meta-group')
+	.on('mousedown', function () {
+		this['__active_node__'] = d3.selectAll('.media-container.focus, .meta-container.focus').nodes()?.last()?.nextSibling
+	}).on('click', function () {
+		addGroup({ lang: '<%- language %>', sibling: this['__active_node__'], focus: true })
+		this['__active_node__'] = null
+	})
+
+	d3.select('.media-input-group #input-media-img')
+	.on('mousedown', function () {
+		this['__active_node__'] = d3.selectAll('.media-container.focus, .meta-container.focus').nodes()?.last()?.nextSibling
+	}).on('click', function () {
+		addImg({ lang: '<%- language %>', sibling: this['__active_node__'], focus: true })
+		this['__active_node__'] = null
+	})
+	
+	d3.select('.media-input-group #input-media-drawing')
+	.on('mousedown', function () {
+		this['__active_node__'] = d3.selectAll('.media-container.focus, .meta-container.focus').nodes()?.last()?.nextSibling
+	}).on('click', function () {
+		addDrawing({ lang: '<%- language %>', sibling: this['__active_node__'], focus: true })
+		this['__active_node__'] = null
+	})
+
+	d3.select('.media-input-group #input-media-txt')
+	.on('mousedown', function () {
+		this['__active_node__'] = d3.selectAll('.media-container.focus, .meta-container.focus').nodes()?.last()?.nextSibling
+	}).on('click', function () {
+		addTxt({ lang: '<%- language %>', sibling: this['__active_node__'], focus: true })
+		this['__active_node__'] = null
+	})
+	
+	d3.select('.media-input-group #input-media-embed')
+	.on('mousedown', function () {
+		this['__active_node__'] = d3.selectAll('.media-container.focus, .meta-container.focus').nodes()?.last()?.nextSibling
+	}).on('click', function () {
+		addEmbed({ lang: '<%- language %>', sibling: this['__active_node__'], focus: true })
+		this['__active_node__'] = null
+	})
+	
+	d3.select('.media-input-group #input-media-checklist')
+	.on('mousedown', function () {
+		this['__active_node__'] = d3.selectAll('.media-container.focus, .meta-container.focus').nodes()?.last()?.nextSibling
+	}).on('click', function () {
+		addChecklist({ lang: '<%- language %>', sibling: this['__active_node__'], focus: true })
+		this['__active_node__'] = null
+	})
+
+	d3.select('.media-input-group #input-media-radiolist')
+	.on('mousedown', function () {
+		this['__active_node__'] = d3.selectAll('.media-container.focus, .meta-container.focus').nodes()?.last()?.nextSibling
+	}).on('click', function () {
+		addRadiolist({ lang: '<%- language %>', sibling: this['__active_node__'], focus: true })
+		this['__active_node__'] = null
+	})
+
+	metafields.forEach(d => {
+		d3.select(`.media-input-group #input-meta-${d.label}`)
+		.on('mouseover', function () {
+			d3.select(this).select('label').style('width', function () { return `${this.scrollWidth}px` })
+		}).on('mouseout', function () {
+			d3.select(this).select('label').style('width', 0)
+		}).on('mousedown', function () {
+			this['__active_node__']	= d3.selectAll('.media-container.focus, .meta-container.focus').nodes()?.last()?.nextSibling || null
+		}).on('click', function () { 
+			const data = { level: 'meta', name: d.label, constraint: d.limit || null, required: d.required, options: d.options || null } 
+			if (d.type === 'txt') addTxt({ data, lang: '<%- language %>', sibling: this['__active_node__'], focus: true })
+			if (d.type === 'embed') addEmbed({ data, lang: '<%- language %>', sibling: this['__active_node__'], focus: true })
+			if (d.type === 'checklist') addChecklist({ data, lang: '<%- language %>', sibling: this['__active_node__'], focus: true })
+			if (d.type === 'radiolist') addRadiolist({ data, lang: '<%- language %>', sibling: this['__active_node__'], focus: true })
+			// THE FOLLOWING ARE ALWAYS META
+			if (d.type === 'tag') addTags({ data, lang: '<%- language %>', sibling: this['__active_node__'], focus: true })	
+			else if (d.type === 'index') addIndexes({ data, lang: '<%- language %>', sibling: this['__active_node__'], focus: true })
+			else if (d.type === 'location') addLocations({ data, lang: '<%- language %>', sibling: this['__active_node__'], focus: true })
+			else if (d.type === 'attachment') addAttachment({ data, lang: '<%- language %>', sibling: this['__active_node__'], focus: true })
+
+			d3.select(this).select('label').style('width', 0)
+			this['__active_node__'] = null
+		})
+	})
+
+	const taglists = <%- JSON.stringify(locals.tags || {}) %>;
+	let status = <%- locals.data?.status || 0 %>;	
+
+	let activity = '<%- activity %>';
+	// let published = false
+	const editing = ['contribute', 'edit'].includes(activity)
+	const review_template = <%- JSON.stringify(review_template) %>
+
+	const main = d3.select('main')
+	const head = main.select('.head')
+	const body = main.select('.body')
+	const descriptionLayout = body.select('.description-layout')
+	const footer = d3.select('footer')
+
+
+	head.select('.title')
+	.on('keydown', function () {
+		const evt = d3.event
+		if (evt.code === 'Enter' || evt.keyCode === 13) {
+			evt.preventDefault()
+			this.blur()
+		}
+	})
+	
+	let keyTrack = []
+	window.addEventListener('keydown', function (e) {
+		e = e || event
+		keyTrack.push(e.keyCode)
+
+		if (editing) {
+			// SHIFT + ENTER LEAVES THE FOCUSED CELL
+			if (keyTrack.includes(16) && e.keyCode === 13 
+				&& main.selectAll('.media-container.focus, .meta-container.focus').size()
+			) { 	
+				e.preventDefault()
+				main.selectAll('.media-container, .meta-container').classed('focus', false)
+					.selectAll('.media-title, .media-txt, .media-embed, .media-checklist .list-item, .media-checklist .instruction, .media-radiolist .list-item, .media-radiolist .instruction, .meta-checklist .instruction')
+					.each(function () { this.blur() })
+				main.selectAll('.media-container .inset, .meta-container .inset').style('max-height', null)
+				autofillTitle()
+			}
+			// PROVIDE HIGHLIGHT FEEDBACK
+			if (
+				![head.selectAll('div.title').nodes(), main.selectAll('.section-header h1').nodes(), main.selectAll('input[type=text], input[type=number]').nodes(), footer.selectAll('textarea').nodes()].flat().includes(document.activeElement)
+				&& !(main.selectAll('.layout.focus *:focus').size())
+				&& !(main.selectAll('.media-container.focus, .meta-container.focus').size() || 
+					main.selectAll('.media-container *:focus, .meta-container *:focus').size())
+				&& !d3.select('.modal').node()
+			) {
+				if (e.key === 'i' || e.keyCode === 73) main.select('.media-input-group label[for=input-media-img]').classed('highlight', true)
+				if (e.key === 'd' || e.keyCode === 68) main.select('.media-input-group label[for=input-media-drawing]').classed('highlight', true)
+				if (e.key === 't' || e.keyCode === 84) main.select('.media-input-group label[for=input-media-txt]').classed('highlight', true)
+				if (e.key === 'l' || e.keyCode === 76) main.select('.media-input-group label[for=input-media-checklist]').classed('highlight', true)
+				if (e.key === 'r' || e.keyCode === 82) main.select('.media-input-group label[for=input-media-radiolist]').classed('highlight', true)
+				if (e.key === 'e' || e.keyCode === 69) main.select('.media-input-group label[for=input-media-embed]').classed('highlight', true)
+			}
+		}
+	})
+	window.addEventListener('keyup', function (e) {
+		e = e || event
+
+		if (editing) {
+			if (
+				![head.selectAll('div.title').nodes(), main.selectAll('.section-header h1').nodes(), main.selectAll('input[type=text], input[type=number]').nodes(), footer.selectAll('textarea').nodes()].flat().includes(document.activeElement)
+				&& !(main.selectAll('.layout.focus *:focus').size())
+				&& !(main.selectAll('.media-container.focus, .meta-container.focus').size() || 
+					main.selectAll('.media-container *:focus, .meta-container *:focus').size())
+				&& !d3.select('.modal').node() // THIS IS IF WE ADD THE MODAL FOR SELECTING A COHORT
+			) {
+				if (e.key === 'i' || e.keyCode === 73) {
+					main.select('label[for=input-media-img]').classed('highlight', false)
+					d3.select('#input-media-img').node().click()
+				}
+				if (e.key === 'd' || e.keyCode === 68) {
+					main.select('label[for=input-media-drawing]').classed('highlight', false)
+					d3.select('#input-media-drawing').node().click()
+				}
+				if (e.key === 't' || e.keyCode === 84) {
+					main.select('label[for=input-media-txt]').classed('highlight', false)
+					d3.select('#input-media-txt').node().click()
+				}
+				if (e.key === 'l' || e.keyCode === 76) {
+					main.select('label[for=input-media-checklist]').classed('highlight', false)
+					d3.select('#input-media-checklist').node().click()
+				}
+				if (e.key === 'r' || e.keyCode === 82) {
+					main.select('label[for=input-media-radiolist]').classed('highlight', false)
+					d3.select('#input-media-radiolist').node().click()
+				}
+				if (e.key === 'e' || e.keyCode === 69) {
+					main.select('label[for=input-media-embed]').classed('highlight', false)
+					d3.select('#input-media-embed').node().click()
+				}
+			} else {
+				// switchButtons('<%- language %>')
+				if ((d3.select(e.srcElement).classed('media')
+						|| d3.select(e.srcElement).classed('meta')
+						|| d3.select(e.srcElement).classed('title')
+					) && !(
+					[e.srcElement.nodeName, e.srcElement.tagName].map(d => d.toLowerCase()).includes('input') 
+					&& (
+						d3.select(e.srcElement).findAncestor('search')?.node() 
+						|| d3.select(e.srcElement).findAncestor('filter-or-add')?.node()
+						)
+					)
+				) {
+					switchButtons('<%- language %>') 
+					// THIS PICKS UP ON KEYSTROKES IN media OR meta OUTSIDE OF INPUT FIELDS 
+				}
+			}
+		}
+
+		keyTrack = keyTrack.filter(d => d !== e.keyCode)
+	})
+	window.addEventListener('mouseup', function (e) {
+		e = e || event
+		if (editing) {
+			const focused_node = d3.select('.focus')
+			const target = d3.select(e.target)
+			const media = target.findAncestor('media')
+			const meta = target.findAncestor('meta')
+			const section = target.findAncestor('layout')
+			const inputgroup = target.findAncestor('input-group')
+			if (!inputgroup) {
+				main.selectAll('.layout').filter(function () { return section ? this !== section.node() : true })
+					.classed('focus', false)
+			}
+			const containers = main.selectAll('.media-container, .meta-container')
+				.filter(function () { 
+					if (media) return this !== media.node()
+					else if (meta) return this !== meta.node()
+					else if (d3.select(this).classed('group-container focus') && inputgroup) return false
+					else return true
+				})
+			containers.classed('focus', false)
+				.selectAll('.inset')
+				.style('max-height', null)
+			main.selectAll('.media-input-group label, .meta-input-group label').classed('highlight', false)
+
+
+			if (focused_node.node() && focused_node.classed('title')) {
+				if (!document.activeElement.classList.contains('title')) {
+					focused_node.classed('focus', false)
+				}
+			} else {
+				autofillTitle()
+			}
+		}
+	})
+
+	function retrieveItems (sel, datum, items) {
+		// MEDIA OR META
+		if (datum.type === 'title') {
+			datum.instruction = (sel.select('.media-title').node() || sel.select('.meta-title').node()).innerHTML
+			items.push(datum)
+		}
+		else if (datum.type === 'img') {
+			datum.instruction = (sel.select('.media-img').node() || sel.select('.meta-img').node()).innerHTML
+			items.push(datum)
+		}
+		else if (datum.type === 'drawing') {
+			datum.instruction = (sel.select('.media-drawing').node() || sel.select('.meta-drawing').node()).innerHTML
+			items.push(datum)
+		}
+		else if (datum.type === 'txt') {
+			datum.instruction = (sel.select('.media-txt').node() || sel.select('.meta-txt').node()).innerHTML
+			items.push(datum)
+		}
+		else if (datum.type === 'embed') {
+			datum.instruction = (sel.select('.media-embed').node() || sel.select('.meta-embed').node()).innerHTML
+			items.push(datum)
+		}
+		else if (datum.type === 'checklist') {
+			datum.instruction = (sel.select('.media-checklist .instruction').node() || sel.select('.meta-checklist .instruction').node()).innerHTML
+			const clone = JSON.parse(JSON.stringify(datum))
+			clone.options = clone.options.filter(b => b.name?.length)
+			items.push(clone)
+		}
+		else if (datum.type === 'radiolist') {
+			datum.instruction = (sel.select('.media-radiolist .instruction').node() || sel.select('.meta-radiolist .instruction').node()).innerHTML
+			const clone = JSON.parse(JSON.stringify(datum))
+			clone.options = clone.options.filter(b => b.name?.length)
+			console.log(clone)
+			items.push(clone)
+		}
+		// META
+		else if (datum.type === 'location') {
+			datum.instruction = sel.select('.meta-location').node().innerHTML
+			items.push(datum)
+		}
+		else if (metafields.some(d => ['tag', 'index'].includes(d.type) && [datum.type, datum.name].includes(d.label))) {
+			datum.instruction = (sel.select(`.meta-${datum.type}`).node() || sel.select(`.meta-${datum.name}`).node()).innerHTML
+			items.push(datum)
+			// items.push({ type: datum.type, level: datum.level, instruction: datum.instruction, constraint: datum.constraint, required: datum.required })
+		}
+		// skills SHOULD BE DEPRECATED
+		else if (!metafields.some(d => d.label.toLowerCase() === 'skills') && (datum.type === 'skills' || datum.name === 'skills')) { // skills IS LEGACY FOR THE ACTION PLANS PLATFORM
+			datum.instruction = (sel.select('.meta-methods').node() || sel.select('.meta-skills').node())?.innerHTML
+			items.push(datum)
+			// items.push({ type: datum.type, level: datum.level, instruction: datum.instruction, constraint: datum.constraint, required: datum.required })
+		}
+		else if (datum.type === 'attachment') {
+			datum.instruction = sel.select('.meta-attachment').node().innerHTML
+			items.push(datum)
+		}
+	}
+
+	function compileContent (attr) {
+		const content = {}
+		// COLLECT TITLE
+		const title = head.select('.title').node().innerText
+		if (title.length > 99) title = `${title.slice(0, 98)}…`
+			
+		const description = descriptionLayout.select('.media-container .media-txt').node().innerHTML
+		const slideshow = descriptionLayout.select('.input-slideshow #slideshow-status').node()?.checked || false
+
+		// MAYBE INCLUDE ALERT IF title IS EMPTY
+		// COLLECT ALL MEDIA
+		const sections = []
+		main.selectAll('.layout:not(.description-layout)')
+		.each(function (d) {
+			const items = []
+			const sel = d3.select(this)
+			sel.selectAll('.media-container, .meta-container')
+			.each(function (c) {
+				const sel = d3.select(this)
+				const ingroup = sel.findAncestor('group-container')	
+				// GROUPS
+				if (c.type === 'group') {
+					const groupitems = []
+					sel.selectAll('.media-group-items .media-container, .media-group-items .meta-container')
+					.each(function (b) { 
+						retrieveItems(d3.select(this), b, groupitems) 
+					})
+					c.instruction = sel.select('.media-group').node().innerHTML
+					c.structure = groupitems
+					items.push(c)
+				} else {
+					if (!ingroup) retrieveItems(sel, c, items)
+				}
+			})
+
+			d.title = sel.select('.section-header h1').node().innerText
+			d.lead = (sel.select('.media-lead').node() || {}).innerHTML
+			d.instruction = (sel.select('.media-repeat button div').node() || {}).innerHTML
+			d.structure = items
+			sections.push(d)
+		})
+
+		// COMPILE FULL TXT FOR SEARCH
+		const fullTxt = `${title}\n\n
+			${description}\n\n
+			${sections.map(d => d.title).join('\n\n').trim()}\n\n
+			${sections.map(d => d.lead).join('\n\n').trim()}\n\n
+			${sections.map(d => d.structure).flat().filter(d => d.type === 'title')
+				.map(d => d.instruction).join('\n\n').trim()}\n\n
+			${sections.map(d => d.structure).flat().filter(d => d.type === 'txt')
+				.map(d => d.instruction).join('\n\n').trim()}\n\n
+			${sections.map(d => d.structure).flat().filter(d => d.type === 'embed')
+				.map(d => d.instruction).join('\n\n').trim()}\n\n
+			${sections.map(d => d.structure).flat().filter(d => d.type === 'checklist')
+				.map(d => d.instruction).join('\n\n').trim()}\n\n
+			${sections.map(d => d.structure).flat().filter(d => d.type === 'checklist')
+				.map(d => d.options.map(c => c.name)).flat().join('\n\n').trim()}
+			${sections.map(d => d.structure).flat().filter(d => d.type === 'radiolist')
+				.map(d => d.instruction).join('\n\n').trim()}\n\n
+			${sections.map(d => d.structure).flat().filter(d => d.type === 'radiolist')
+				.map(d => d.options.map(c => c.name)).flat().join('\n\n').trim()}
+			${sections.map(d => d.structure).flat().filter(d => d.type === 'group').map(d => d.structure)
+				.filter(d => d.type === 'txt')
+				.map(d => d.txt).join('\n\n').trim()}\n\n
+			${sections.map(d => d.structure).flat().filter(d => d.type === 'group').map(d => d.structure)
+				.filter(d => d.type === 'embed')
+				.map(d => d.html).join('\n\n').trim()}\n\n
+			${sections.map(d => d.structure).flat().filter(d => d.type === 'group').map(d => d.structure)
+				.filter(d => d.type === 'checklist')
+				.map(d => d.options.filter(c => c.checked).map(c => c.name)).flat().join('\n\n').trim()}
+			${sections.map(d => d.structure).flat().filter(d => d.type === 'group').map(d => d.structure)
+				.filter(d => d.type === 'radiolist')
+				.map(d => d.options.filter(c => c.checked).map(c => c.name)).flat().join('\n\n').trim()}`
+		
+		// COMPILE THE CONTENT
+		content.title = title // ALWAYS SAVE THE TITLE
+		content.slideshow = slideshow // ALWAYS SAVE THE SLIDESHOW OPTION
+		if (!attr || attr === 'description') content.description = description
+		if (!attr || ['lead', 'media', 'meta'].includes(attr) 
+		|| sections.map(d => d.structure).flat().unique('type', true).includes(attr)) { 
+			content.sections = JSON.stringify(sections)
+		}
+		// ALWAYS SEND fullTxt
+		content.full_text = fullTxt
+
+		// ALWAYS SEND status
+		const completion = []
+		completion.push(title?.trim().length > 0)
+		
+		<% if (!review_template) { %>
+			metafields.filter(d => d.required).forEach(d => {
+				completion.push(sections.map(c => c.structure)?.flat().some(c => c.name === d.label))
+			})
+		<% } else { %>
+			completion.push(sections.map(d => d.structure)?.flat()?.length > 0)
+		<% } %>
+		if (completion.every(d => d === true)) status = Math.max(1, status)
+		else status = 0
+		content.status = status
+
+		return content
+	}
+
+	function partialSave (attr) {
+		console.log('saving')
+		// FIRST CHECK IF THIS IS A NEW TEMPLATE
+		// CHECK IF THE PAD ALREADY HAS AN id IN THE DB
+		const url = new URL(window.location)
+		const queryparams = new URLSearchParams(url.search)
+		const id = queryparams.get('id')
+		const source = queryparams.get('source')
+		// IF IT HAS, THEN FOR THE FIRST SAVE, COMPILE EVERYTHING IN CASE IT IS A COPY OF A TEMPLATE
+		let content
+		if (id) {
+			content = compileContent(attr)
+			content.id = +id
+		}
+		else {
+			content = compileContent()
+			if (source) content.source = +source
+		}
+
+		<% if (review_template) { %>
+			content.review_template = true
+			content.review_language = '<%- review_language %>'
+		<% } %>
+
+		POST('/save/template', content)
+		.then(res => {
+			// ADD THE NOTIFICATION
+			window.sessionStorage.removeItem('changed-content')
+			
+			if (!mediaSize) var mediaSize = getMediaSize()
+			if (mediaSize === 'xs') {
+				const save_btn = d3.select('.meta-status .btn-group .save').classed('saved', true)
+				save_btn.select('button')
+					// .html(vocabulary['changes saved']['<%- language %>'])
+					.html('<%- vocabulary["changes saved"][language] %>')
+				window.setTimeout(_ => {
+					save_btn.classed('saved', false)
+					.select('button').each(function () { this.disabled = true })
+						// .html('<%- vocabulary["save"][language] %>')
+						.html('<%- vocabulary["save"][language] %>')
+				}, 1000)
+			} else {
+				const menu_logo = d3.select('nav#site-title .inner')
+				menu_logo.select('.save').classed('saved', true)
+					.select('button')
+					// .html(vocabulary['changes saved']['<%- language %>'])
+					.html('<%- vocabulary["changes saved"][language] %>')
+				window.setTimeout(_ => {
+					menu_logo.selectAll('div.create, h1, h2').classed('hide', false)
+					menu_logo.selectAll('div.save').classed('hide', true)
+				}, 1000)
+			}
+			
+			// CHANGE THE URL TO INCLUDE THE PAD ID
+			if (!id) { // INSERT
+				queryparams.append('id', res.object)
+				url.search = queryparams.toString()
+				// BASED ON:
+				// https://usefulangle.com/post/81/javascript-change-url-parameters
+				// https://www.30secondsofcode.org/blog/s/javascript-modify-url-without-reload
+				const nextURL = url.toString().replace('contribute', 'edit')
+				const nextTitle = 'Update template'
+				const nextState = { additionalInformation: 'Updated the URL with JS' }
+				window.history.pushState(nextState, nextTitle, nextURL)
+				// REMOVE THE templates MENU
+				// d3.select('nav#filter').remove()
+
+				// SET THE ID FOR THE PUBLISH AND GENERATE FORMS
+				d3.selectAll('div.meta-status form input[name="id"]').attr('value', res.object)
+			}
+			// ACTIVATE THE PUBLISHING OPTIONS AT THE END
+			const metastatus = d3.select('div.meta-status')
+				.classed('status-0 status-1', false)
+				.classed(`status-${content.status}`, true)
+			metastatus.select('div.btn-group form button.publish')
+				.attr('disabled', content.status >= 1 ? null : true)
+			metastatus.select('div.btn-group form button.generate-pdf')
+				.attr('disabled', content.status > 0 ? null : true)
+		}).catch(err => console.log(err))
+	}
+
+	// POPULATE THE PAGE
+	<% if (locals.data) { %>
+		const data = <%- JSON.stringify(locals.data || {}) %>;
+		if (activity === 'contribute') data.title = `[<%- vocabulary["copy"][language](false, true) %>] ${data.title}` // THIS IS A COPIED TEMPLATE
+
+		head.select('.title').html(data.title)
+		descriptionLayout.select('.media-container .media-txt').text(data.description)
+		if (data.sections) {
+			data.sections.forEach(d => {
+				addSection({ data: d, lang: '<%- language %>' })
+			})
+		}
+		// CLEAR CHANGES
+		window.sessionStorage.removeItem('changed-content')
+	<% } else { %>
+		addSection({ lang: '<%- language %>' })
+		<% if (review_template) { %>
+			const radiodata = {
+				level: 'meta',
+				type: 'radiolist',
+				name: 'review_score',
+				options: [{ name: '<%- vocabulary["accept"][language] %>', value: 1 }, { name: '<%- vocabulary["reject"][language] %>', value: 0 }],
+				instruction: '<%- vocabulary["accept or reject pad"][language] %>',
+				required: true,
+				editable: false
+			}
+			addRadiolist({ data: radiodata, lang: '<%- language %>', focus: false })
+		<% } else { %>
+			addTitle({ lang: '<%- language %>' })
+		<% } %>
+		// CLEAR CHANGES
+		window.sessionStorage.removeItem('changed-content')
+	<% } %>
+
+</script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+exports.render = require('./render.js').main

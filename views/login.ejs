@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<head>
+<meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta names="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+<%- include ('partials/head.ejs') %> 
+
+<!-- <link rel='stylesheet' type='text/css' href='./css/main.css'> -->
+
+</head>
+
+<body>
+
+<button id='global-login'>
+	<a>Use global login</a>
+</button>
+
+<form action='/login' method='POST'>
+	<input type='text' name='username' placeholder='User name'>
+	<input type='password' name='password' placeholder='Password'>
+	<input type='hidden' name='originalUrl' value='<%- locals.originalUrl %>'>
+	<button type='submit'>Log in</button>
+</form>
+
+<p>Find your username and password on <a href="https://undp.sharepoint.com/:x:/r/sites/AcceleratorLabsNetwork/Shared%20Documents/100%20Day%20Action%20Plans/AA_platform/credentials%20-%20Editable.xlsx?d=wa7d7cc5c41e74a258f6cea45b0bfcea5&csf=1&web=1&e=KX4Bc0" target='_blank' style='color: blue; text-decoration: underline;'>Teams</a>, under:</p>
+<p>Accelerator Labs Network > Action Plans > Files > AA_platform > credentials.xlsx</p>
+
+<script type='text/javascript'>
+	d3.select('#global-login a')
+		// .attr('href', `http://localhost:4000?origin=${encodeURIComponent(window.location)}&platform=${encodeURIComponent('action plans')}`)
+		.attr('href', `https://acclabs-global.azurewebsites.net/?origin=${encodeURIComponent(window.location)}`)
+</script>
+
+</body>
+</html>
