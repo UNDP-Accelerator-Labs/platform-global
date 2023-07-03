@@ -159,7 +159,7 @@ exports.pagemetadata = (_kwargs) => {
 					if (uuid) {
 						const curHost = `${d.baseurl}`.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
 						const token = jwt.sign({ uuid, rights }, process.env.APP_SECRET, { audience: 'user:known', issuer: curHost, expiresIn: '1h' })
-						d.forwardURL = `${d.baseurl.replace(/\/.*$/, '')}/transfer?path=%2F&token=${token}`;
+						d.forwardURL = `${d.baseurl.replace(/\/$/, '')}/transfer?path=%2F&token=${token}`;
 					} else {
 						d.forwardURL = d.baseurl;
 					}
