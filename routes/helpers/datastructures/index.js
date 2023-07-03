@@ -35,7 +35,7 @@ exports.pagemetadata = (_kwargs) => {
 	let { page, pagecount, map, display, mscale, source, req, res } = _kwargs || {}
 	if (!source || !apps_in_suite.some(d => d.key === source)) source = apps_in_suite[0].key
 
-	let { headers, path, params, query, session } = req || {}
+	let { headers, path, params, query, session, ip } = req || {}
 	path = path.substring(1).split('/')
 
 	let { object, space, instance } = params || {}
@@ -158,7 +158,7 @@ exports.pagemetadata = (_kwargs) => {
 				apps_in_suite: apps_in_suite.map((d) => {
 					if (uuid) {
 						const curHost = `${d.baseurl}`.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
-						const token = jwt.sign({ uuid, rights }, process.env.APP_SECRET, { audience: 'user:known', issuer: curHost, expiresIn: '1h' })
+						const token = jwt.sign({ uuid, rights, ip }, process.env.APP_SECRET, { audience: 'user:known', issuer: curHost, expiresIn: '1h' })
 						d.forwardURL = `${d.baseurl.replace(/\/$/, '')}/transfer?path=%2F&token=${token}`;
 					} else {
 						d.forwardURL = d.baseurl;
