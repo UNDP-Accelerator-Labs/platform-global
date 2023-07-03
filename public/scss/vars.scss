@@ -84,8 +84,8 @@ a:hover {
 }
 /* https://stackoverflow.com/questions/2781549/removing-input-background-colour-for-chrome-autocomplete */
 input:-webkit-autofill,
-input:-webkit-autofill:hover, 
-input:-webkit-autofill:focus, 
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
 input:-webkit-autofill:active  {
 	-webkit-box-shadow: 0 0 0 60px white inset !important;
 }
@@ -310,3 +310,41 @@ input.toggle:disabled + label::after {
 	}
 }
 
+.toppage {
+	display: flex;
+    flex-direction: column;
+	justify-content: center;
+    align-items: center;
+    width: 100%;
+	height: max-content;
+	margin: 20px;
+}
+
+.toppage>menu {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+}
+
+.toppage a {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	list-style: none;
+	padding: 5px;
+	margin: 10px;
+	background-color: $c-light-3;
+	border-radius: 5px;
+	width: 120px;
+	height: 100px;
+	text-align: center;
+	text-decoration: none;
+	vertical-align: middle;
+}
+
+.toppage a:hover {
+	color: $c-light-2;
+	background-color: $c-mid-blue;
+}

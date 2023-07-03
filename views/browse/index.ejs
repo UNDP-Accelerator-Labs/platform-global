@@ -49,76 +49,6 @@
 
 <% let slides = locals.sample_images %>
 <div class='public-page-header'>
-	<% if (false) { %>
-	<div class='<%- welcome_module %>'>
-		<% if (welcome_module === 'mosaic') { %>
-			<div class='slides'>
-				<div class='blank-area'></div>
-				<% slides.forEach(d => { %>
-					<div class='slide'>
-						<a href='<%- d.link %>' target='_blank'>
-							<div class='media media-txt'>
-								<p class='country'><%- d.country %></p>
-								<h1><% if (d.title?.length > 50) { %><%- d.title?.slice(0, 50).trim() %>…<% } else { %><%- d.title %><% } %></h1>
-							</div>
-							<img src='<%- d.img[0] %>' onerror='this.src = "/uploads/04c18fce-225c-4912-a43e-561c9fa29ddd/1dbf34121b04849e7d5526b29b15292b.jpeg"'>
-						</a>
-					</div>
-				<% }) %>
-			</div>
-		<% } else if (welcome_module === 'carousel') { %>
-			<div class='slides'>
-				<% slides.forEach(d => { %>
-					<div class='slide'>
-						<a href='<%- d.link %>' target='_blank'>
-							<div class='media media-txt'>
-								<p class='country'><%- d.country %></p>
-								<h1><%- d.title %></h1>
-								<p><% if (d.txt?.[0]?.length > 500) { %><%- d.txt?.[0].slice(0, 500)?.replace(/<\/?[^>]+(>|$)/ig, '').trim() %>…<% } else { %><%- d.txt?.[0]?.replace(/<\/?[^>]+(>|$)/ig, '').trim() %><% } %></p>
-							</div>
-							<img src='<%- d.img[0]?.replace("uploads/sm/", "uploads/") %>' onerror='this.src = "/uploads/04c18fce-225c-4912-a43e-561c9fa29ddd/1dbf34121b04849e7d5526b29b15292b.jpeg"'>
-						</a>
-					</div>
-				<% }) %>
-			</div>
-			<div class='dots'>
-				<% for (let i = 0; i < slides.length; i ++) { %>
-					<div class='dot'></div>
-				<% } %>
-			</div>
-			<script type='text/javascript'>
-
-				function animateCarousel (idx) {
-					const carousel = d3.select('.carousel')
-					const deck = carousel.select('.slides')
-					const slides = carousel.selectAll('.slide')
-					const delay = 3000
-
-					if (idx === slides.size()) idx = 0
-					deck.node().scrollTo({
-						top: 0,
-						left: idx * (slides.node().clientWidth || slides.node().offsetWidth || slides.node().scrollWidth),
-						behavior: 'smooth'
-					})
-					slides.selectAll('.media-txt')
-					.on('mouseover', _ => clearTimeout(animation))
-					.on('mouseout', _ => animation = setTimeout(_ => animateCarousel(idx + 1), delay))
-					carousel.selectAll('.dot')
-					.classed('highlight', (d, i) => i === idx)
-					.on('click', function (d, i) {
-						idx = i
-						clearTimeout(animation)
-						animateCarousel(idx)
-					})
-
-					let animation = setTimeout(_ => animateCarousel(idx + 1), delay)
-				}
-				animateCarousel(0)
-			</script>
-		<% } %>
-	</div>
-	<% } %>
-
 	<button class='scroll-nav' onclick='scrollToPad(this)'><label class='rotate'>&rsaquo;</label></button>
 	<script type='text/javascript'>
 		function scrollToPad (node) {
@@ -135,19 +65,29 @@
 	</script>
 
 	<h1 class='site-title'><%- locals.metadata.site.title %></h1>
-	<h4>Contribute to:</h4>
-	<!-- TO DO: TRANSLATE -->
-	<menu>
-		<% locals.metadata.site.apps_in_suite.forEach(d => { %>
-			<a href='<%- d.baseurl %>' target='_blank'>
-				<li><h3><%- d.name %></h3></li>
-			</a>
-		<% }) %>
+	<% if (true) { // FIXME find a good condition to show it up here  %>
+	<div class="toppage">
+		<h4>Contribute to:</h4>
+		<!-- TO DO: TRANSLATE -->
+		<menu>
+			<% locals.metadata.site.apps_in_suite.forEach(d => { %>
+				<a href='<%- d.baseurl %>' target='_blank'>
+					<li><h3><%- d.name %></h3></li>
+				</a>
+			<% }) %>
 
-		<a href='/en/browse/blog/preview' >
-			<li><h3>Blog</h3></li>
-		</a>
-	</menu>
+			<a href='/en/browse/blog/preview' >
+				<li><h3>Blog</h3></li>
+			</a>
+		</menu>
+	</div>
+	<% } // page links %>
+	<% if (publicpage) { %>
+	<div class="toppage">
+		<h4>Have an Account?</h4>
+		<a href='/login' class='login'><h3><%- vocabulary['log in'][language] %></h3></a>
+	</div>
+	<% } // publicpage %>
 	<% if (locals.metadata.page.instance_title) { %><h2><%- locals.metadata.page.instance_title %></h2><% } %>
 	<% if (locals.metadata.site.description?.[language]) { %><p class='lead'><%- locals.metadata.site.description[language] %></p><% } %>
 </div>
@@ -441,6 +381,19 @@
 	<nav class='pagination xs sm m'>
 		<% if (activity === 'browse') { %><%- include('./modules/pagination') %><% } %>
 	</nav>
+	<h4>Contribute to:</h4>
+	<!-- TO DO: TRANSLATE -->
+	<menu>
+		<% locals.metadata.site.apps_in_suite.forEach(d => { %>
+			<a href='<%- d.baseurl %>' target='_blank'>
+				<li><h3><%- d.name %></h3></li>
+			</a>
+		<% }) %>
+
+		<a href='/en/browse/blog/preview' >
+			<li><h3>Blog</h3></li>
+		</a>
+	</menu>
 	<% if (pagedisplay === 'slideshow') { %>
 		<div class='inner'>
 			<div class='dots'></div>

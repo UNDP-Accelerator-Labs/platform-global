@@ -282,6 +282,45 @@ input.toggle:disabled + label::after {
     transform: translate(24px, 0);
   }
 }
+.toppage {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: max-content;
+  margin: 20px;
+}
+
+.toppage > menu {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+.toppage a {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  list-style: none;
+  padding: 5px;
+  margin: 10px;
+  background-color: #F3F3F3;
+  border-radius: 5px;
+  width: 120px;
+  height: 100px;
+  text-align: center;
+  text-decoration: none;
+  vertical-align: middle;
+}
+
+.toppage a:hover {
+  color: #E5E5E5;
+  background-color: #0468B1;
+}
+
 html, body {
   font-size: 11pt;
   line-height: 1.5em;

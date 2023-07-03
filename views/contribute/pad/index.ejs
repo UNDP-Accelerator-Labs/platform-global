@@ -25,7 +25,7 @@
 	<!-- <meta property='og:image' content='https://ia.media-imdb.com/images/rock.jpg' /> -->
 <% } %>
 
-<%- include ('../../partials/head.ejs') %> 
+<%- include ('../../partials/head.ejs') %>
 
 <link rel='stylesheet' href='https://unpkg.com/leaflet@1.6.0/dist/leaflet.css'
 	integrity='sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=='
@@ -44,7 +44,7 @@
 	// 	reconnectionAttempts: Infinity
 	// })
 
-	// THE FOLLOWING IS INSPIRED BY: 
+	// THE FOLLOWING IS INSPIRED BY:
 	// https://www.programmersought.com/article/5248306768/
 	// https://stackoverflow.com/questions/926916/how-to-get-the-bodys-content-of-an-iframe-in-javascript
 	function loadHTML(url, source, target) {
@@ -85,19 +85,19 @@
 <body>
 <!-- <div class='fixed-bg hashed'></div> -->
 
-<%- include ('../../partials/translations.ejs') %> 
-<%- include ('../../partials/menu-languages.ejs') %> 
+<%- include ('../../partials/translations.ejs') %>
+<%- include ('../../partials/menu-languages.ejs') %>
 
 <!-- IF THIS PAD IS A FOLLOW UP, THEN DO NOT ADD THE MENU TO SAVE SCREEN SPACE -->
 <% if (!pagedisplay.includes('adjacent')) { %>
 	<header>
 		<div class='inner'>
-			<%- include ('../../partials/menu-logo.ejs') %> 
+			<%- include ('../../partials/menu-logo.ejs') %>
 		</div>
 	</header>
 <% } %>
 
-<%- include ('../../partials/modals.ejs') %> 
+<%- include ('../../partials/modals.ejs') %>
 
 <% if (locals.source) { %>
 	<% if (pagedisplay === 'adjacent-source') { %>
@@ -109,7 +109,7 @@
 		<div id='source' class='document split-screen lg'></div>
 		<script type='text/javascript'>
 			loadHTML('../view/pad?id=<%- locals.source %><% if (object === "review" || locals.data?.is_review) { %>&anonymize=true<% } %>', '#pad', '#source')
-			
+
 			// const url = new URL(window.location) // url IS ALREADY DEFINED SOMEWHERE ELSE
 			if (!queryparams) var queryparams = new URLSearchParams(url.search)
 			queryparams.delete('display')
@@ -131,7 +131,7 @@
 
 <!-- ONLY MAKE REVIEWS VIEWABLE IF THE PAD BELONGS TO THE CURRENT USER, OR IF THE CURRENT USER IS ONE OF THE REVIEWERS -->
 <% if (locals.data?.reviews?.length > 0
-	&& (locals.data.owner === locals.metadata.user.uuid || locals.data.reviews.some(d => d.owner === locals.metadata.user.uuid)) 
+	&& (locals.data.owner === locals.metadata.user.uuid || locals.data.reviews.some(d => d.owner === locals.metadata.user.uuid))
 ){ %>
 	<% if (pagedisplay === 'adjacent-reviews') { %>
 		<div class='display-option display-reviews split-screen right lg'><a>
@@ -146,7 +146,7 @@
 			<% locals.data.reviews.forEach((d, i) => { %>
 				loadHTML('../view/pad?id=<%- d.id %>', '#pad', '#review-<%- i %>')
 			<% }) %>
-			
+
 			// const url = new URL(window.location) // url IS ALREADY DEFINED SOMEWHERE ELSE
 			if (!queryparams) var queryparams = new URLSearchParams(url.search)
 			queryparams.delete('display')
@@ -177,7 +177,7 @@
 					<div class='label'><%- vocabulary['bookmark'][language](locals.data.bookmarked) %></div>
 				</div>
 				<ul>
-					<% ['inspiration', 'approval', 'flag'].forEach(type => { 
+					<% ['inspiration', 'approval', 'flag'].forEach(type => {
 						let count = locals.engagement[`${type}s`] || 0
 						let icon
 						let label
@@ -227,10 +227,10 @@
 						<% } %>
 						<form method='GET' action='/publish/<%- `${object}s` %>'>
 							<input type='hidden' name='id' value='<%- locals.data?.id %>'>
-							<% if ((locals.data?.status || 0) < 1 
+							<% if ((locals.data?.status || 0) < 1
 								|| ((locals.data?.status || 0) === 2 && !locals.data?.publishable)
-								|| (locals.data?.status || 0) === 3 
-								|| (object === 'review' && (locals.data?.status || 0) === 2)) 
+								|| (locals.data?.status || 0) === 3
+								|| (object === 'review' && (locals.data?.status || 0) === 2))
 							{ %>
 								<% if (object === 'review') { %>
 									<input type='hidden' name='source' value='<%- locals.source %>'>
@@ -331,27 +331,6 @@
 
 							</script>
 						</form>
-						<% if (!publicpage) { %>
-							<!-- TO DO: THIS DOES NOT WORK WHEN THE PAD HAS JUST BEEN CREATED -->
-							<!-- AND MAKE SURE ALL FIELDS ARE CLEARED BEFORE SHOWING THIS -->
-							<!-- AS ESSENTIALLY THIS IS PUBLISHING THE PAD -->
-							<!-- TO DO: REMOVE if (false) TO REACTIVATE THIS -->
-							<% if (false) { %>
-								<form class='lg' method='POST' action='/generate/pdf'>
-									<input type='hidden' name='id' value='<%- locals.metadata?.page?.query?.id?.[0] %>'>
-									<input type='hidden' name='lang' value='<%- locals.metadata?.page?.lang %>'>
-									<% if (locals.data?.status === 0 || !locals.data?.status) { %>
-										<button type='submit' class='generate-pdf' disabled>
-											<%- vocabulary['generate file'][language]('.pdf') %>
-										</button>
-									<% } else if (locals.data?.status > 0) { %>
-										<button type='submit' class='generate-pdf'>
-											<%- vocabulary['generate file'][language]('.pdf') %>
-										</button>
-									<% } %>
-								</form>
-							<% } %>
-						<% } %>
 					</div>
 				</div>
 			<% } %>
@@ -429,9 +408,9 @@
 						</div>
 					</section>
 				<% } %>
-				
 
-				<% if (editing && !publicpage && (!templated || ![null, undefined].includes(locals.display_template.medium))) 
+
+				<% if (editing && !publicpage && (!templated || ![null, undefined].includes(locals.display_template.medium)))
 				{ %>
 					<button class='input-toolbox xs'><i class='material-icons'>edit</i></button>
 					<div class='media-input-group input-group' tabindex=1>
@@ -440,7 +419,7 @@
 							<div class='btn-group'>
 							<% if (!templated) { %>
 								<button id='input-media-section' title='Add a section.'><i class='material-icons'>add_circle</i></button>
-									
+
 								<div class='vertical-separator'></div>
 								<!-- TO DO: TRANSLATE title INFO -->
 								<form action='/upload/img' method='POST' enctype='multipart/form-data'>
@@ -457,7 +436,7 @@
 								<button id='input-media-embed' title='Embed a link or HTML code. Simply paste the link to the video to see it displayed. You can also use the “e” key as a keyboard shortcut.'><i class='material-icons'>code</i></button>
 								<button id='input-media-checklist' title='Add a checklist. You can also use the “l” key as a keyboard shortcut.'><i class='material-icons'>check_box</i></button>
 								<button id='input-media-radiolist' title='Add a radiolist. You can also use the “r” key as a keyboard shortcut.'><i class='material-icons'>radio_button_checked</i></button>
-								
+
 								<div class='vertical-separator'></div>
 							<% } %>
 							<% if (!templated || ![null, undefined].includes(locals.display_template.medium)) { %>
@@ -478,7 +457,7 @@
 							d3.select('button.input-toolbox')
 							.on('touchend, click', function () {
 								d3.select(this).toggleClass('highlight')
-								d3.select('.media-input-group').node().focus() 
+								d3.select('.media-input-group').node().focus()
 							})
 							d3.select('.media-input-group').on('touchend', function () { this.focus() })
 							.on('focus', function () {
@@ -501,7 +480,7 @@
 								const buttonheight = inner.select('button').node().clientHeight || inner.select('button').node().offsetHeight
 
 								sel.classed('overflowing', scrollheight > (height + buttonheight))
-								
+
 								sel.select('button.scroll-up')
 									.classed('hide', scrollheight <= (height + buttonheight))
 								.on('click', function () {
@@ -614,7 +593,7 @@
 				}
 			}
 
-			function adjustarea(node) { 
+			function adjustarea(node) {
 				node.style.height = `${ node.scrollHeight - 20 }px` // WE HAVE A 2x10px PADDING IN THE CSS
 				const submit = d3.select(node.parentNode).select('button[type=submit]').node()
 				submit.disabled = node.value.trim().length === 0
@@ -641,12 +620,12 @@
 
 			// const comments = d3.select('footer ul.comments')
 			// .addElems('li', 'comment', d3.range(10).map(d => makeid(Math.random() * 1000)))
-			
+
 			// const chead = comments.addElems('div', 'head')
 			// 	.addElems('div', 'meta meta-data')
 			// chead.addElems('div', 'meta meta-contributor').html('Contributor name')
 			// chead.addElems('div', 'meta meta-date').html(new Date(Date.now()).toString())
-			
+
 			// comments.addElems('div', 'body').html(d => d)
 
 		</script>
@@ -745,13 +724,13 @@
 		}).on('mousedown', function () {
 			this['__active_node__']	= d3.selectAll('.media-container.focus, .meta-container.focus').nodes()?.last()?.nextSibling || null
 		}).on('click', function () {
-			const data = { level: 'meta', name: d.label, constraint: d.limit || null, required: d.required, options: d.options || null } 
+			const data = { level: 'meta', name: d.label, constraint: d.limit || null, required: d.required, options: d.options || null }
 			if (d.type === 'txt') addTxt({ data, lang: '<%- language %>', sibling: this['__active_node__'], focus: true })
 			if (d.type === 'embed') addEmbed({ data, lang: '<%- language %>', sibling: this['__active_node__'], focus: true })
 			if (d.type === 'checklist') addChecklist({ data, lang: '<%- language %>', sibling: this['__active_node__'], focus: true })
 			if (d.type === 'radiolist') addRadiolist({ data, lang: '<%- language %>', sibling: this['__active_node__'], focus: true })
 			// THE FOLLOWING ARE ALWAYS META
-			if (d.type === 'tag') addTags({ data, lang: '<%- language %>', sibling: this['__active_node__'], focus: true })	
+			if (d.type === 'tag') addTags({ data, lang: '<%- language %>', sibling: this['__active_node__'], focus: true })
 			if (d.type === 'index') addIndexes({ data, lang: '<%- language %>', sibling: this['__active_node__'], focus: true })
 			if (d.type === 'location') addLocations({ data, lang: '<%- language %>', sibling: this['__active_node__'], focus: true })
 			if (d.type === 'attachment') addAttachment({ data, lang: '<%- language %>', sibling: this['__active_node__'], focus: true })
@@ -767,8 +746,8 @@
 
 	const templated = <%- JSON.stringify(templated) %>;
 	const httpquery = <%- JSON.stringify(locals.metadata.page.query) %>;
-	
-	const publicpage = <%- JSON.stringify(publicpage) %>;	
+
+	const publicpage = <%- JSON.stringify(publicpage) %>;
 	let activity = '<%- activity %>';
 	const editing = <%- JSON.stringify(editing || false) %>;
 	const rights = <%- rights %>;
@@ -833,7 +812,7 @@
 		else if (datum.type === 'location') {
 			datum.has_content = datum.centerpoints?.length > 0
 			items.push(datum)
-		}		
+		}
 		else if (['tag', 'index'].includes(datum.type)) {
 			datum.has_content = (datum.sdgs?.length || datum.tags?.length) > 0 // THIS IS LEGACY FOR THE ACTION PLANNING PLATFORM: TO DO: DEPRECATE
 			items.push(datum)
@@ -842,11 +821,11 @@
 			datum.has_content = datum.srcs?.length > 0
 			items.push(datum)
 		}
-		
+
 	}
 	function getStatus () {
 		const completion = []
-		
+
 		const title = head.select('.title').node()?.innerText || (body.select('.media-title').node() || body.select('.meta-title').node())?.innerText || '<%- vocabulary["missing title"][language] %>'
 		completion.push(title?.trim()?.length > 0)
 
@@ -866,21 +845,21 @@
 		.each(function (d) {
 			const items = []
 			const sel = d3.select(this)
-			
+
 			sel.selectAll('.media-container, .meta-container')
 			.each(function (c) {
 				const sel = d3.select(this)
-				const ingroup = sel.findAncestor('group-container')	
+				const ingroup = sel.findAncestor('group-container')
 				// GROUPS
 				if (c.type === 'group') {
 					// const groupitems = []
 					sel.selectAll('.media-group-items')
-						.each(function () { 
+						.each(function () {
 							const sel = d3.select(this)
 							const subitems = []
 							sel.selectAll('.media-container, .meta-container')
-								.each(function (b) { 
-									retrieveItems(d3.select(this), b, subitems) 
+								.each(function (b) {
+									retrieveItems(d3.select(this), b, subitems)
 								})
 							// completion.push(!subitems.map(checkCompletion).unique().includes(false))
 							completion.push(subitems.map(checkCompletion).every(d => d === true))
@@ -918,21 +897,21 @@
 		.each(function (d) {
 			const items = []
 			const sel = d3.select(this)
-			
+
 			sel.selectAll('.media-container, .meta-container')
 			.each(function (c) {
 				const sel = d3.select(this)
-				const ingroup = sel.findAncestor('group-container')	
+				const ingroup = sel.findAncestor('group-container')
 				// GROUPS
 				if (c.type === 'group') {
 					const groupitems = []
 					sel.selectAll('.media-group-items')
-						.each(function () { 
+						.each(function () {
 							const sel = d3.select(this)
 							const subitems = []
 							sel.selectAll('.media-container, .meta-container')
-								.each(function (b) { 
-									retrieveItems(d3.select(this), b, subitems) 
+								.each(function (b) {
+									retrieveItems(d3.select(this), b, subitems)
 								})
 							groupitems.push(subitems)
 						})
@@ -949,12 +928,12 @@
 			d.items = items
 			sections.push(d)
 		})
-		
+
 		// const location = main.select('.location-container').node() ? main.select('.location-container').datum() : null // THIS IS NOT NEEDED
 		// let skills = main.select('.skills-container').node() ? main.select('.skills-container').datum().tags.map(d => d.name) : null
 
 		// THIS SHOULD REPLAE WHAT IS ABOVE
-		
+
 		// if (main.select('.sdgs-container').node()) {
 		// 	main.selectAll('.sdgs-container').each(d => {
 		// 		d.tags.forEach(c => {
@@ -979,7 +958,7 @@
 		if (main.select('.location-container').node()) {
 			content.locations = main.select('.location-container')?.datum()?.centerpoints
 		} else content.locations = null
-		
+
 		const otherMetadata = []
 		metafields.filter(d => !['tag', 'index', 'location'].includes(d.type))
 		.forEach(d => {
@@ -1035,14 +1014,14 @@
 
 		// COLLECT DELETED MATERIAL (THIS WILL BE CLEARED FROM SESSIONSTORAGE UPON SUCCESS)
 		const deletion = JSON.parse(window.sessionStorage.getItem('deleted')) || []
-	
+
 		// IF THIS IS A NEW PAD, CHECK WHETHER IT HAS A SOURCE
-		// if (activity === 'contribute') 
+		// if (activity === 'contribute')
 		// ALWAYS SEND THE SOURCE (BECAUSE reviews DEPEND ON THE SOURCE)
 		content.source = <%- locals.source || JSON.stringify(locals.source) || JSON.stringify(null) %>;
 		// ALWAYS SAVE THE TITLE
-		content.title = title 
-		if (!attr || ['title', 'lead', 'media', 'meta', 'group'].includes(attr) 
+		content.title = title
+		if (!attr || ['title', 'lead', 'media', 'meta', 'group'].includes(attr)
 		|| sections.map(d => d.items).flat().unique('type', true).includes(attr)) {
 			content.sections = JSON.stringify(sections)
 		}
@@ -1052,10 +1031,10 @@
 		// if (!attr || attr === 'tag') content.tags = JSON.stringify(tags)
 		// if (!attr || attr === 'skills') content.skills = JSON.stringify(skills)
 		// if (!attr || attr === 'datasources') content.datasources = JSON.stringify(datasources)
-		
+
 		// FULL TEXT
-		// if (!attr || ['title', 'lead', 'txt', 'embed', 'checklist', 'radiolist', 'tags', 'group'].includes(attr)) 
-		
+		// if (!attr || ['title', 'lead', 'txt', 'embed', 'checklist', 'radiolist', 'tags', 'group'].includes(attr))
+
 
 		// ALWAYS SEND status
 		const completion = getStatus()
@@ -1087,7 +1066,7 @@
 			.then(res => {
 				// ADD THE NOTIFICATION
 				window.sessionStorage.removeItem('changed-content')
-				
+
 				if (!mediaSize) var mediaSize = getMediaSize()
 				if (mediaSize === 'xs') {
 					const save_btn = d3.select('.meta-status .btn-group .save').classed('saved', true)
@@ -1108,7 +1087,7 @@
 						menu_logo.selectAll('div.save').classed('hide', true)
 					}, 1000)
 				}
-				
+
 				// REMOVE ITEMS TO DELETE
 				window.sessionStorage.removeItem('deleted')
 				// CHANGE THE URL TO INCLUDE THE PAD ID
@@ -1161,9 +1140,9 @@
 
 		if (editing) {
 			// SHIFT + ENTER LEAVES THE FOCUSED CELL
-			if (keyTrack.includes(16) && e.keyCode === 13 
+			if (keyTrack.includes(16) && e.keyCode === 13
 				&& (main.selectAll('.media-container.focus, .meta-container.focus').size())
-			) { 
+			) {
 				e.preventDefault()
 				main.selectAll('.media-container, .meta-container').classed('focus', false)
 					.selectAll('.media-txt, .media-embed, .media-checklist .list-item, .media-radiolist .list-item')
@@ -1175,7 +1154,7 @@
 			if (
 				![head.selectAll('div.title').nodes(), main.selectAll('.section-header h1').nodes(), main.selectAll('input[type=text], input[type=number]').nodes(), footer.selectAll('textarea').nodes()].flat().includes(document.activeElement)
 				&& !(main.selectAll('.layout.focus *:focus').size())
-				&& !(main.selectAll('.media-container.focus, .meta-container.focus').size() || 
+				&& !(main.selectAll('.media-container.focus, .meta-container.focus').size() ||
 					main.selectAll('.media-container *:focus, .meta-container *:focus').size())
 				&& !d3.select('.modal').node()
 				&& !templated
@@ -1207,7 +1186,7 @@
 			if (
 				![head.selectAll('div.title').nodes(), main.selectAll('.section-header h1').nodes(), main.selectAll('input[type=text], input[type=number]').nodes(), footer.selectAll('textarea').nodes()].flat().includes(document.activeElement)
 				&& !(main.selectAll('.layout.focus *:focus').size())
-				&& !(main.selectAll('.media-container.focus, .meta-container.focus').size() || 
+				&& !(main.selectAll('.media-container.focus, .meta-container.focus').size() ||
 					main.selectAll('.media-container *:focus, .meta-container *:focus').size())
 				&& !d3.select('.modal').node()
 				&& !templated
@@ -1247,22 +1226,22 @@
 						|| d3.select(e.srcElement).classed('meta')
 						|| d3.select(e.srcElement).classed('title')
 					) && !(
-					[e.srcElement.nodeName, e.srcElement.tagName].map(d => d.toLowerCase()).includes('input') 
+					[e.srcElement.nodeName, e.srcElement.tagName].map(d => d.toLowerCase()).includes('input')
 					&& (
-						d3.select(e.srcElement).findAncestor('search')?.node() 
+						d3.select(e.srcElement).findAncestor('search')?.node()
 						|| d3.select(e.srcElement).findAncestor('filter-or-add')?.node()
 						)
 					)
 				) {
 					if (editing) {
-						if (!publicpage) switchButtons('<%- language %>') 
+						if (!publicpage) switchButtons('<%- language %>')
 						else window.sessionStorage.setItem('changed-content', true)
 					}
-					// THIS PICKS UP ON KEYSTROKES IN media OR meta OUTSIDE OF INPUT FIELDS 
+					// THIS PICKS UP ON KEYSTROKES IN media OR meta OUTSIDE OF INPUT FIELDS
 				}
 			}
 		}
-			
+
 		keyTrack = keyTrack.filter(d => d !== e.keyCode)
 	})
 	window.addEventListener('mouseup', function (e) {
@@ -1279,7 +1258,7 @@
 					.classed('focus', false)
 			}
 			const containers = main.selectAll('.media-container, .meta-container')
-				.filter(function () { 
+				.filter(function () {
 					if (media) return this !== media.node()
 					else if (meta) return this !== meta.node()
 					else if (d3.select(this).classed('group-container focus') && inputgroup) return false
@@ -1317,7 +1296,7 @@
 				<% } %>
 			})
 		}
-		<% if (pagedisplay === 'slideshow') { %> 
+		<% if (pagedisplay === 'slideshow') { %>
 			initSlideshow()
 		<% } %>
 		// CLEAR CHANGES
@@ -1363,7 +1342,7 @@
 					template.sections.forEach(async d => {
 						<% if (pagedisplay === 'slideshow') { %>
 							await addSlides({ data: d, lang: '<%- language %>' })
-						<% } else { %> 
+						<% } else { %>
 							await addSection({ data: d, lang: '<%- language %>' })
 						<% } %>
 					})
@@ -1389,7 +1368,7 @@
 		if (!structure) structure = []
 		if (!items) items = []
 
-		if (editing && templated && (!items.length || sibling)) items = JSON.parse(JSON.stringify(structure)) 
+		if (editing && templated && (!items.length || sibling)) items = JSON.parse(JSON.stringify(structure))
 
 		// DETERMINE ID TO KNOW WHETHER SECTION CAN BE REMOVED
 		// const section_id = uuidv4()
@@ -1404,7 +1383,7 @@
 				.datum({ type: 'section', title, lead, structure, items, repeat, group })
 			.on('click.focus', function () { d3.select(this).classed('focus', editing && !templated) })
 			// .addElems('div', 'inner')
-			
+
 			// THIS ALL GOES INTO A SLIDE: THIS IS ACTUALLY THE ONLY THING THAT CHANGES
 			if (title || lead) {
 				const titleslide = section.addElems('div', 'title-slide')
@@ -1414,11 +1393,11 @@
 						.addElems('h1')
 						.html(d => d.title)
 				}
-				
+
 				if (lead) {
 					const medialead = new Media({
-						parent: titleslide.node(), 
-						type: 'lead', 
+						parent: titleslide.node(),
+						type: 'lead',
 						datum: { type: 'lead', lead: lead },
 						lang: lang
 					})
@@ -1436,8 +1415,8 @@
 					.select('.repeat-container').classed('hide', true)
 
 				const mediarepeat = new Media({
-					parent: section.node(), 
-					type: 'repeat', 
+					parent: section.node(),
+					type: 'repeat',
 					datum: { type: 'repeat', instruction: instruction },
 					lang: lang
 				})
@@ -1448,7 +1427,7 @@
 				mediarepeat.media.addElems('button')
 				.on('click.repeat', function () {
 					const sel = d3.select(this)
-					
+
 					const promises = []
 					section.findAncestor('pad').selectAll('.body>*')
 					.each(function (d, i) {
@@ -1456,7 +1435,7 @@
 							if (this === section.node()) {
 								kwargs.sibling = `section:nth-child(${i + 2})`
 								kwargs.focus = true
-								
+
 								const new_section = await addSlides(kwargs) // THIS TOO IS DIFFERENT TO addSection
 								initSlideshow()
 							}
@@ -1466,7 +1445,7 @@
 
 					Promise.all(promises)
 					.then(_ => switchslide(idx))
-				}).addElems('div').attrs({ 
+				}).addElems('div').attrs({
 					'data-placeholder': d => '<%- vocabulary["repeat section"][language] %>'
 				}).html(d => d.instruction)
 			}
@@ -1501,10 +1480,10 @@
 
 		d3.selectAll('.title-slide, .description-layout:not(.hide), .media-layout > .media-container:not(.lead-container):not(.hide), .media-layout > .meta-container:not(.hide)')
 			.classed('slide', true)
-		
+
 		// PREVENT GROUPS FROM ANIMATING IN
 		d3.selectAll('.media-group-items').classed('animate-in', false)
-		
+
 		// ADD BUTTON TO SAVE AND GENERATE PDF AT THE END
 		const status_slide = d3.select('.meta-status')
 		if (status_slide.node()) {
