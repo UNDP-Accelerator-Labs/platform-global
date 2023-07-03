@@ -71,7 +71,7 @@
 		<!-- TO DO: TRANSLATE -->
 		<menu>
 			<% locals.metadata.site.apps_in_suite.forEach(d => { %>
-				<a href='<%- d.baseurl %>' target='_blank'>
+				<a href='<%- d.forwardURL %>' target='_blank'>
 					<li><h3><%- d.name %></h3></li>
 				</a>
 			<% }) %>
@@ -227,7 +227,7 @@
 	<!-- TO DO: TRANSLATE -->
 	<menu>
 		<% locals.metadata.site.apps_in_suite.forEach(d => { %>
-			<a href='<%- d.baseurl %>' target='_blank'>
+			<a href='<%- d.forwardURL %>' target='_blank'>
 				<li><h3><%- d.name %></h3></li>
 			</a>
 		<% }) %>

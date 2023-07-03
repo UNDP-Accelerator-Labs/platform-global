@@ -156,10 +156,12 @@ exports.pagemetadata = (_kwargs) => {
 		obj.metadata = {
 			site: {
 				apps_in_suite: apps_in_suite.map((d) => {
-					if (uuid && !d.baseurl.includes('token=')) {
+					if (uuid) {
 						const curHost = `${d.baseurl}`.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
 						const token = jwt.sign({ uuid, rights }, process.env.APP_SECRET, { audience: 'user:known', issuer: curHost })
-						d.baseurl = `${d.baseurl}?token=${token}`;
+						d.forwardURL = `${d.baseurl.replace(/\/.*$/, '')}/login?token=${token}`;
+					} else {
+						d.forwardURL = d.baseurl;
 					}
 					return d;
 				}),
