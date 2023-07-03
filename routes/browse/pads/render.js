@@ -280,7 +280,7 @@ exports.main = async (req, res) => {
 	}).catch(err => console.log(err))
 
 
-	/*
+	/*  // FIXME no pinboards in prod
 	const [ pinboards_list, uniqueboard ] = await DB.conn.tx(t => {
 		const batch = []
 		// PINBOARDS LIST

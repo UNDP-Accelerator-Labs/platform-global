@@ -9,7 +9,7 @@ exports.main = async kwargs => {
 	const { object } = req.params || {}
 	let { source } = req.query || {}
 	if (!source || !apps_in_suite.some(d => d.key === source)) source = apps_in_suite[0].key
-	
+
 	// const { uuid, rights, collaborators } = req.session || {}
 	if (req.session.uuid) { // USER IS LOGGED IN
 		var { uuid, rights, collaborators } = req.session || {}
@@ -20,19 +20,19 @@ exports.main = async kwargs => {
 
 	// GET FILTERS
 	const [ f_space, order, page, full_filters ] = await filter(req, res)
-	
+
 	const module_rights = modules.find(d => d.type === object)?.rights
 	let collaborators_ids = collaborators.map(d => d.uuid) //.filter(d => d.rights >= (module_rights?.write ?? Infinity)).map(d => d.uuid)
 	if (!collaborators_ids.length) collaborators_ids = [ uuid ]
 
 	const engagement = engagementsummary({ doctype: 'pad', engagementtypes, uuid })
- 
+
 	// CONSTRUCT FOLLOW-UPS GRAPH
 	return conn.task(t => {
 		// THE ORDER HERE IS IMPORTANT, THIS IS WHAT ENSURE THE TREE CONSTRUCTION LOOP WORKS
 		return t.any(`
-			SELECT id, source FROM pads 
-			WHERE id IN (SELECT source FROM pads) 
+			SELECT id, source FROM pads
+			WHERE id IN (SELECT source FROM pads)
 				OR source IS NOT NULL
 			ORDER BY date ASC
 		;`).then(async results => {
@@ -44,16 +44,16 @@ exports.main = async kwargs => {
 			// console.log(results.length)
 			// console.log(results)
 			// console.log(groups.length)
-			// console.log(groups)			
+			// console.log(groups)
 
 			// FOLLOW UP json_agg INSPIRED BY:
 			// https://stackoverflow.com/questions/54637699/how-to-group-multiple-columns-into-a-single-array-or-similar/54638050
 			// https://stackoverflow.com/questions/24155190/postgresql-left-join-json-agg-ignore-remove-null
-			
+
 			return t.any(`
 				SELECT p.id, p.owner, p.title, p.sections, p.template, p.status, p.source,
-					m.id AS mobilization, 
-					m.title AS mobilization_title, m.pad_limit, 
+					m.id AS mobilization,
+					m.title AS mobilization_title, m.pad_limit,
 					t.title AS template_title,
 
 					CASE WHEN p.id IN (SELECT pad FROM review_requests)
@@ -77,7 +77,7 @@ exports.main = async kwargs => {
 					-- END AS date,
 
 					CASE WHEN p.source IS NOT NULL
-						THEN (SELECT p2.title FROM pads p2 WHERE p2.id = p.source) 
+						THEN (SELECT p2.title FROM pads p2 WHERE p2.id = p.source)
 						ELSE NULL
 					END AS source_title,
 
@@ -96,45 +96,45 @@ exports.main = async kwargs => {
 						END AS is_forward,
 
 					COALESCE(json_agg(json_build_object(
-						'id', fmob.id, 
-						'title', fmob.title, 
-						'source', p.id, 
+						'id', fmob.id,
+						'title', fmob.title,
+						'source', p.id,
 						'template', fmob.template,
-						'count', (SELECT COUNT(p2.id) FROM pads p2 
-							INNER JOIN mobilization_contributions mc2 
-								ON p2.id = mc2.pad 
-							WHERE p2.source = p.id 
+						'count', (SELECT COUNT(p2.id) FROM pads p2
+							INNER JOIN mobilization_contributions mc2
+								ON p2.id = mc2.pad
+							WHERE p2.source = p.id
 							AND mc2.mobilization = fmob.id),
 						'max', $12::INT
-					)) FILTER (WHERE fmob.id IS NOT NULL AND fmob.copy = FALSE AND p.status >= 2), '[]') 
+					)) FILTER (WHERE fmob.id IS NOT NULL AND fmob.copy = FALSE AND p.status >= 2), '[]')
 					AS followups,
 
 					COALESCE(json_agg(json_build_object(
-						'id', fmob.id, 
-						'title', fmob.title, 
-						'source', p.id, 
+						'id', fmob.id,
+						'title', fmob.title,
+						'source', p.id,
 						'template', fmob.template,
-						'count', (SELECT COUNT(p2.id) FROM pads p2 
-							INNER JOIN mobilization_contributions mc2 
-								ON p2.id = mc2.pad 
-							WHERE p2.source = p.id 
+						'count', (SELECT COUNT(p2.id) FROM pads p2
+							INNER JOIN mobilization_contributions mc2
+								ON p2.id = mc2.pad
+							WHERE p2.source = p.id
 							AND mc2.mobilization = fmob.id),
 						'max', $12::INT
-					)) FILTER (WHERE fmob.id IS NOT NULL AND fmob.copy = TRUE AND p.status >= 2), '[]') 
+					)) FILTER (WHERE fmob.id IS NOT NULL AND fmob.copy = TRUE AND p.status >= 2), '[]')
 					AS forwards,
 
 					COALESCE(
-						(SELECT m.pad_limit - COUNT (id) FROM pads pp 
+						(SELECT m.pad_limit - COUNT (id) FROM pads pp
 							WHERE pp.owner IN ($2:csv)
 							AND pp.id IN (SELECT pad FROM mobilization_contributions WHERE mobilization = m.id)
-							AND pp.status >= 2  
+							AND pp.status >= 2
 						), 1)::INT AS available_publications,
 
 					COALESCE(p.source, p.id) AS group_id,
 
 					-- THESE ARE THE ENGAGEMENT COALESCE STATEMENTS
-					$3:raw, 
-					
+					$3:raw,
+
 					-- CASE WHEN p.owner IN ($2:csv)
 					--	OR $4 > 2
 					--		THEN TRUE
@@ -142,14 +142,14 @@ exports.main = async kwargs => {
 					--	END AS editable,
 
 					FALSE AS editable,
-					
+
 					-- THESE ARE THE ENGAGEMENT CASE STATEMENTS
 					$5:raw,
 
 					-- THIS IS THE PINBOARD CASE STATEMENT
 					-- COALESCE(
 					-- (SELECT json_agg(json_build_object(
-					-- 		'id', pb.id, 
+					-- 		'id', pb.id,
 					-- 		'title', pb.title
 					-- 	)) FROM pinboards pb
 					-- 	INNER JOIN pinboard_contributions pbc
@@ -164,54 +164,54 @@ exports.main = async kwargs => {
 					'[]'::JSONB AS pinboards,
 
 					$13 || p.id AS link
-				
+
 				FROM pads p
-				
+
 				LEFT JOIN templates t
 					ON t.id = p.template
-				
+
 				LEFT JOIN ($6:raw) ce ON ce.docid = p.id
-				
+
 				LEFT JOIN mobilization_contributions mc
 					ON mc.pad = p.id
-				
+
 				LEFT JOIN mobilizations m
 					ON m.id = mc.mobilization
-				
+
 				LEFT JOIN (
 					SELECT id, title, source, template, copy FROM mobilizations
 					WHERE status = 1
 				) fmob
 					ON fmob.source = m.id
-				
-				WHERE TRUE 
-					$7:raw 
+
+				WHERE TRUE
+					$7:raw
 					AND (m.id = (SELECT MAX(mc2.mobilization) FROM mobilization_contributions mc2 WHERE mc2.pad = p.id)
 						OR m.id IS NULL) -- THIS IS IN CASE A PAD IS CONTRIBUTED TO TWO MOBILIZATIONS
 					AND p.id NOT IN (SELECT review FROM reviews)
-				
+
 				GROUP BY (
-					p.id, 
-					m.id, 
-					m.title, 
+					p.id,
+					m.id,
+					m.title,
 					m.pad_limit,
 					t.title,
 					$8:raw
 				)
 				$9:raw
 				LIMIT $10 OFFSET $11
-			;`, [ 
+			;`, [
 				/* $1 */ DB.pgp.as.format(uuid === null ? 'NULL' : '$1', [ uuid ]),
-				/* $2 */ collaborators_ids, 
-				/* $3 */ engagement.coalesce, 
-				/* $4 */ rights, 
-				/* $5 */ engagement.cases, 
-				/* $6 */ engagement.query, 
-				/* $7 */ full_filters, 
-				/* $8 */ engagement.list, 
-				/* $9 */ order, 
-				/* $10 */ page_content_limit, 
-				/* $11 */ (page - 1) * page_content_limit, 
+				/* $2 */ collaborators_ids,
+				/* $3 */ engagement.coalesce,
+				/* $4 */ rights,
+				/* $5 */ engagement.cases,
+				/* $6 */ engagement.query,
+				/* $7 */ full_filters,
+				/* $8 */ engagement.list,
+				/* $9 */ order,
+				/* $10 */ page_content_limit,
+				/* $11 */ (page - 1) * page_content_limit,
 				/* $12 */ followup_count,
 				/* $13 */ `${baseurl}/${language}/view/pad?id=`,
 				/* $14 */ source // THIS IS NOT USED AND NEEDS TO BE TAKEN OUT SINCE THE PINBOARD INFO IS NOT IN THIS DB
@@ -241,6 +241,8 @@ exports.main = async kwargs => {
 				})
 
 				if (results.length) {
+					return [];
+					/*  // FIXME no pinboards in prod
 					return DB.conn.any(`
 						SELECT p.pad AS id,
 							json_agg(json_build_object(
@@ -261,6 +263,7 @@ exports.main = async kwargs => {
 						const data = join.multijoin.call(results, [ pins, 'id' ])
 						return data
 					}).catch(err => console.log(err))
+					*/
 				} else return results
 
 			}).catch(err => console.log(err))
@@ -274,11 +277,11 @@ exports.main = async kwargs => {
 	}).then(async results => {
 		const data = await join.users(results, [ language, 'owner' ])
 
-		return { 
+		return {
 			data,
-			// count: (page - 1) * page_content_limit, 
-			// count: page * page_content_limit, 
-			count: page_content_limit, 
+			// count: (page - 1) * page_content_limit,
+			// count: page * page_content_limit,
+			count: page_content_limit,
 			sections: [{ data }]
 		}
 	}).catch(err => console.log(err))
