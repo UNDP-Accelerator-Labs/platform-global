@@ -164,7 +164,9 @@ exports.process.callapi = (req, res) => {
 exports.render.login = require('./login/').render
 exports.process.login = require('./login/').process
 exports.process.logout = require('./login/').logout
+// exports.redirect.home = require('./redirect/').home
 exports.redirect.home = require('./login/').redirect
+exports.redirect.browse = require('./redirect/').browse
 
 exports.redirect.public = (req, res) => res.redirect('/public')
 exports.dispatch.public = require('./login/').public
