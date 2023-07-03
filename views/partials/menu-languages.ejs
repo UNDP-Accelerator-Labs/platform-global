@@ -12,7 +12,7 @@
 	<menu>
 		<!-- TO DO: PASS THIS FROM CONFIG FILE (THERE MIGHT NOT ALWAYS BE A SUITE) -->
 		<li class='home-btn lg'>
-			<a href='https://acclabs-global.azurewebsites.net/'>Accelerator Labs Suite</a>
+			<a href='https://acclabs.azurewebsites.net/'>Accelerator Labs Suite</a>
 		</li>
 		<li class='options'>
 			<ul>
@@ -27,7 +27,7 @@
 			<% if (!publicpage) { %>
 				<span><%- vocabulary['logged in'][language](username, uuid) %>. | </span><a href='/logout' class='logout'><%- vocabulary['log out'][language] %></a>
 			<% } else { %>
-				<a href='/login' class='login'><%- vocabulary['log in'][language] %></a> 
+				<a href='/login' class='login'><%- vocabulary['log in'][language] %></a>
 			<% } %>
 		</li>
 	</menu>
