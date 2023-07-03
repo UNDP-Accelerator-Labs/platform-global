@@ -37,6 +37,7 @@ exports.pagemetadata = (_kwargs) => {
 
 	let { headers, path, params, query, session } = req || {}
 	path = path.substring(1).split('/')
+	const { host } = headers || {}
 
 	let { object, space, instance } = params || {}
 	if (instance) {
@@ -158,6 +159,7 @@ exports.pagemetadata = (_kwargs) => {
 				apps_in_suite: apps_in_suite.map((d) => {
 					if (uuid && !d.baseurl.includes('token=')) {
 						const curHost = `${d.baseurl}`.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+						console.log(`SIGN USER for ${curHost} from ${host}`)
 						const token = jwt.sign({ uuid, rights }, process.env.APP_SECRET, { audience: 'user:known', issuer: curHost })
 						d.baseurl = `${d.baseurl}?token=${token}`;
 					}
