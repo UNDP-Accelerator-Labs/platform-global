@@ -5,7 +5,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta names="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-<%- include ('partials/head.ejs') %> 
+<%- include ('partials/head.ejs') %>
 
 <!-- <link rel='stylesheet' type='text/css' href='./css/main.css'> -->
 
@@ -23,6 +23,11 @@
 	<input type='hidden' name='originalUrl' value='<%- locals.originalUrl %>'>
 	<button type='submit'>Log in</button>
 </form>
+
+<div style="padding-top: 20px; font-size: 12px;">
+	<hr/>
+	<p style="padding-top: 20px;"> Forgot password? <a href="/forget-password"> Reset you password </a></p>
+</div>
 
 <p>Find your username and password on <a href="https://undp.sharepoint.com/:x:/r/sites/AcceleratorLabsNetwork/Shared%20Documents/100%20Day%20Action%20Plans/AA_platform/credentials%20-%20Editable.xlsx?d=wa7d7cc5c41e74a258f6cea45b0bfcea5&csf=1&web=1&e=KX4Bc0" target='_blank' style='color: blue; text-decoration: underline;'>Teams</a>, under:</p>
 <p>Accelerator Labs Network > Action Plans > Files > AA_platform > credentials.xlsx</p>

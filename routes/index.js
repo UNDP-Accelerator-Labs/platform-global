@@ -26,7 +26,7 @@ exports.forwardGeocoding = require('./helpers/geo/').forwardcode.render
 // (req, res) => {
 // 	const { locations, list } = req.body || {}
 // 	const { country } = req.session || {}
-	
+
 // 	const promises = geocode(locations, country.lnglat, list, 'forward')
 // 	Promise.all(promises)
 // 	.then(data => res.json(data))
@@ -40,7 +40,7 @@ exports.reverseGeocoding = require('./helpers/geo/').reversecode.render
 // (req, res) => {
 // 	const { locations, list } = req.body || {}
 // 	const { country } = req.session || {}
-	
+
 // 	const promises = geocode(locations, country.lnglat, list, 'reverse')
 // 	Promise.all(promises)
 // 	.then(data => res.json(data))
@@ -133,13 +133,13 @@ exports.reverseGeocoding = require('./helpers/geo/').reversecode.render
 
 exports.process.callapi = (req, res) => {
 	const { uri, method, key, expect } = req.body || {}
-	const headers = { 
-		'Accept': 'application/*', 
-		'Content-Type': 'application/*', 
+	const headers = {
+		'Accept': 'application/*',
+		'Content-Type': 'application/*',
 		'X-Requested-With': 'XMLHttpRequest',
 		'x-access-token': process.env[key]
 	}
-	
+
 	fetch(uri, { method: method, headers: headers })
 		.then(response => {
 			if (expect === 'json') return response.json()
@@ -169,6 +169,9 @@ exports.redirect.home = require('./login/').redirect
 exports.redirect.public = (req, res) => res.redirect('/public')
 exports.dispatch.public = require('./login/').public
 
+exports.process.forgetPassword = require('./login/').forgetPassword
+exports.process.getResetToken = require('./login/').getResetToken
+exports.process.updatePassword = require('./login/').updatePassword
 
 /* =============================================================== */
 /* =========================== BROWSE ============================ */
@@ -215,7 +218,7 @@ function compileMobilization (req, res) {
 			return t.batch(batch)
 		}).then(results => {
 			const [ template, pads ] = results
-			
+
 			console.log(template.sections)
 			pads.forEach(d => console.log(d.id, d.title, d.sections))
 			pads.forEach(d => console.log(d.id, d.title, d.sections.map(c => c.structure)))
