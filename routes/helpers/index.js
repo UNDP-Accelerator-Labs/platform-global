@@ -7,6 +7,7 @@ exports.datastructures = require('./datastructures/')
 exports.checklanguage = require('./language/').main
 exports.email = require('./email/').main
 exports.geo = require('./geo/')
+exports.axios = require('./axios')
 
 exports.flatObj = function () {
 	// FLATTEN OBJECT: https://stackoverflow.com/questions/31136422/flatten-array-with-objects-into-1-object
