@@ -1,8 +1,9 @@
 const { app_title, app_title_short, app_languages, modules, DB } = include('config/')
 const { checklanguage, datastructures, join } = include('routes/helpers/')
 const jwt = require('jsonwebtoken')
+const getResetToken = require('./forget-password').getResetToken
 
-exports.render = (req, res, next) => {
+exports.render = async (req, res, next) => {
 	const token = req.body.token || req.query.token || req.headers['x-access-token']
 	const { originalUrl, path } = req || {}
 	const { object, space, instance } = req.params || {}
@@ -11,6 +12,12 @@ exports.render = (req, res, next) => {
 
 	const contribute = /\/?\w{2}\/(contribute|edit)\//
 	const view = /\/?\w{2}\/(edit|view)\//
+
+	const { errormessage, successmessage } = req.session || {}
+	const metadata = await datastructures.pagemetadata({ req, res })
+	const data = Object.assign(metadata, { originalUrl, errormessage, successmessage })
+
+	const resetToken = req.params.token;
 
 	if (uuid) next() // A USER IS LOGGED
 	else if (token) this.process(req, res) // A LOGIN TOKEN IS RECEIVED
@@ -108,7 +115,15 @@ exports.render = (req, res, next) => {
 		next()
 	}
 
-	else res.render('login', { title: `${app_title} | Login`, originalUrl: req.originalUrl, errormessage: req.session.errormessage })
+	else if(path === '/forget-password'){
+		return res.render('forget-password', data)
+	}
+	else if(path === '/reset-password'){
+		return res.render('reset-password', data)
+	}
+	else if(resetToken) getResetToken(req, res, next)
+
+	else res.render('login', data)
 }
 exports.process = (req, res) => { // REROUTE
 	const token = req.body.token || req.query.token || req.headers['x-access-token']
