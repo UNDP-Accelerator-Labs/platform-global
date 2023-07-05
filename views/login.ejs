@@ -1,19 +1,19 @@
 <!DOCTYPE html>
-<% 
+<%
 	// CREATE ALIASES
 	const language = locals.metadata.page.language
 %>
 <head>
 
-<%- include ('partials/head.ejs') %> 
+<%- include ('partials/head.ejs') %>
 
 </head>
 
 
 <body>
 
-<%- include ('partials/translations.ejs') %> 
-<%- include ('partials/menu-languages.ejs') %> 
+<%- include ('partials/translations.ejs') %>
+<%- include ('partials/menu-languages.ejs') %>
 
 <div class='screen <% if (locals.errormessage) { %>error<% } else { %>blue<% } %>'>
 	<div class='modal login-module'>
@@ -53,22 +53,20 @@
 			</ul>
 		</form>
 
-		
+
 		<div class="ul-link">
 			<hr/>
+			<!-- TO DO: TRANSLATE -->
 			<p > Forgot password? <a href="/forget-password"> Reset you password </a></p>
-
-			<p>Find your username and password on <a href="https://undp.sharepoint.com/:x:/r/sites/AcceleratorLabsNetwork/Shared%20Documents/100%20Day%20Action%20Plans/AA_platform/credentials%20-%20Editable.xlsx?d=wa7d7cc5c41e74a258f6cea45b0bfcea5&csf=1&web=1&e=KX4Bc0" target='_blank' style='color: blue; text-decoration: underline;'>Teams</a>, under:</p> 
-			<p>Accelerator Labs Network > Action Plans > Files > AA_platform > credentials.xlsx</p>
 		</div>
-		
+
 	</div>
 </div>
 
 <div class='main-content'>
 <header>
 	<div class='inner'>
-		<%- include ('partials/menu-logo.ejs') %> 
+		<%- include ('partials/menu-logo.ejs') %>
 	</div>
 </header>
 <div class='browse'></div>
@@ -82,7 +80,7 @@
 	document.addEventListener('DOMContentLoaded', evt => {
 		// GENERIC BLUR FUNCTION
 		const inputs = d3.selectAll('input[type=text], input[type=password]')
-		inputs.on('blur.fixlabel', function () { 
+		inputs.on('blur.fixlabel', function () {
 			fixLabel(this)
 		})
 		inputs.each(function () { fixLabel(this) })
