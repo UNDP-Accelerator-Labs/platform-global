@@ -24,23 +24,23 @@
 	}
 
 	const display_content = Object.keys(query)?.filter(key => !['status', 'source', 'mapscale', 'display'].includes(key)).length > 0
-	
+
 %>
 <html lang='<%- language %>'>
 <head>
 
-<%- include ('../partials/head.ejs') %> 
+<%- include ('../partials/head.ejs') %>
 
 </head>
 
 <body>
 
-<% include ('../partials/translations.ejs') %> 
+<% include ('../partials/translations.ejs') %>
 
-<%- include ('../partials/menu-languages.ejs') %> 
-<%- include ('../partials/modals.ejs') %> 
+<%- include ('../partials/menu-languages.ejs') %>
+<%- include ('../partials/modals.ejs') %>
 
-<%- include ('./modules/download.ejs') %> 
+<%- include ('./modules/download.ejs') %>
 
 
 <% const welcome_module = locals.metadata.site.welcome_module %>
@@ -49,76 +49,6 @@
 
 <% let slides = locals.sample_images %>
 <div class='public-page-header'>
-	<% if (false) { %>
-	<div class='<%- welcome_module %>'>
-		<% if (welcome_module === 'mosaic') { %>
-			<div class='slides'>
-				<div class='blank-area'></div>
-				<% slides.forEach(d => { %>
-					<div class='slide'>
-						<a href='<%- d.link %>' target='_blank'>
-							<div class='media media-txt'>
-								<p class='country'><%- d.country %></p>
-								<h1><% if (d.title?.length > 50) { %><%- d.title?.slice(0, 50).trim() %>…<% } else { %><%- d.title %><% } %></h1>
-							</div>
-							<img src='<%- d.img[0] %>' onerror='this.src = "/uploads/04c18fce-225c-4912-a43e-561c9fa29ddd/1dbf34121b04849e7d5526b29b15292b.jpeg"'>
-						</a>
-					</div>
-				<% }) %>
-			</div>
-		<% } else if (welcome_module === 'carousel') { %>
-			<div class='slides'>
-				<% slides.forEach(d => { %>
-					<div class='slide'>
-						<a href='<%- d.link %>' target='_blank'>
-							<div class='media media-txt'>
-								<p class='country'><%- d.country %></p>
-								<h1><%- d.title %></h1>
-								<p><% if (d.txt?.[0]?.length > 500) { %><%- d.txt?.[0].slice(0, 500)?.replace(/<\/?[^>]+(>|$)/ig, '').trim() %>…<% } else { %><%- d.txt?.[0]?.replace(/<\/?[^>]+(>|$)/ig, '').trim() %><% } %></p>
-							</div>
-							<img src='<%- d.img[0]?.replace("uploads/sm/", "uploads/") %>' onerror='this.src = "/uploads/04c18fce-225c-4912-a43e-561c9fa29ddd/1dbf34121b04849e7d5526b29b15292b.jpeg"'>
-						</a>
-					</div>
-				<% }) %>
-			</div>
-			<div class='dots'>
-				<% for (let i = 0; i < slides.length; i ++) { %>
-					<div class='dot'></div>
-				<% } %>
-			</div>
-			<script type='text/javascript'>
-
-				function animateCarousel (idx) {
-					const carousel = d3.select('.carousel')
-					const deck = carousel.select('.slides')
-					const slides = carousel.selectAll('.slide')
-					const delay = 3000
-
-					if (idx === slides.size()) idx = 0
-					deck.node().scrollTo({
-						top: 0,
-						left: idx * (slides.node().clientWidth || slides.node().offsetWidth || slides.node().scrollWidth),
-						behavior: 'smooth'
-					})
-					slides.selectAll('.media-txt')
-					.on('mouseover', _ => clearTimeout(animation))
-					.on('mouseout', _ => animation = setTimeout(_ => animateCarousel(idx + 1), delay))
-					carousel.selectAll('.dot')
-					.classed('highlight', (d, i) => i === idx)
-					.on('click', function (d, i) {
-						idx = i
-						clearTimeout(animation)
-						animateCarousel(idx)
-					})
-
-					let animation = setTimeout(_ => animateCarousel(idx + 1), delay)
-				}
-				animateCarousel(0)
-			</script>
-		<% } %>
-	</div>
-	<% } %>
-
 	<button class='scroll-nav' onclick='scrollToPad(this)'><label class='rotate'>&rsaquo;</label></button>
 	<script type='text/javascript'>
 		function scrollToPad (node) {
@@ -135,6 +65,29 @@
 	</script>
 
 	<h1 class='site-title'><%- locals.metadata.site.title %></h1>
+	<% if (true) { // FIXME find a good condition to show it up here  %>
+	<div class="toppage">
+		<h4>Contribute to:</h4>
+		<!-- TO DO: TRANSLATE -->
+		<menu>
+			<% locals.metadata.site.apps_in_suite.forEach(d => { %>
+				<a href='<%- d.forwardURL %>' target='_blank'>
+					<li><h3><%- d.name %></h3></li>
+				</a>
+			<% }) %>
+
+			<a href='/en/browse/blog/preview' >
+				<li><h3>Blog</h3></li>
+			</a>
+		</menu>
+	</div>
+	<% } // page links %>
+	<% if (publicpage) { %>
+	<div class="toppage">
+		<h4>Have an Account?</h4>
+		<a href='/login' class='login'><h3><%- vocabulary['log in'][language] %></h3></a>
+	</div>
+	<% } // publicpage %>
 	<% if (locals.metadata.page.instance_title) { %><h2><%- locals.metadata.page.instance_title %></h2><% } %>
 	<% if (locals.metadata.site.description?.[language]) { %><p class='lead'><%- locals.metadata.site.description[language] %></p><% } %>
 </div>
@@ -142,7 +95,7 @@
 
 <header <% if (!display_content) { %>class='center'<% } %>>
 	<div class='inner'>
-		<%- include ('../partials/menu-logo.ejs') %> 
+		<%- include ('../partials/menu-logo.ejs') %>
 	</div>
 </header>
 
@@ -175,7 +128,7 @@
 					const tabs = d3.select(`nav.tabs .inner .${mediaSize}`)
 					let activetab = d3.select('.dropdown menu li.active')
 					const button = d3.select(`nav.tabs .inner .${mediaSize} button.space`)
-					
+
 					if (activetab.select('input')?.node()) {
 						button.html(activetab.select('input').node().value)
 					} else {
@@ -247,7 +200,7 @@
 							</menu>
 							<div class='btn-group'>
 								<button type='button' onclick='openPreview()'><%- vocabulary['preview'][language] %></button>
-								
+
 								<button type='button' onclick='setShareOptions()'>Share</button>
 								<!-- TO DO: TRANSLATE -->
 
@@ -265,11 +218,11 @@
 
 								async function setShareOptions () {
 									const contributors = await POST('/<%- language %>/browse/contributors/invited', { limit: null })
-									
+
 									const formdata = { action: '/share/pinboard',  method: 'POST' }
 									const message = 'Share with contributors'
 									const opts = []
-									
+
 									contributors.data.forEach(d => {
 										opts.push({ node: 'input', type: 'checkbox', name: 'contributor', value: d.id, placeholder: d.name, checked: (<%- JSON.stringify(locals.pinboard.contributors) %>).includes(d.id), default: true })
 									})
@@ -321,7 +274,7 @@
 						</form>
 					</div>
 				<% } %>
-			
+
 				<div class='head'>
 					<% if (activity !== 'preview' && locals.pinboard.editable) { %>
 						<div class='title' data-placeholder='<%- vocabulary["untitled pad"][language] %>' onfocus='this.classList.add("focus")' onkeydown='checkForEnter(event, this)' onblur='partialSave()' contenteditable><%- locals.pinboard.title %></div>
@@ -342,7 +295,7 @@
 						if (evt.code === 'Enter' || evt.keyCode === 13) {
 							evt.preventDefault()
 							node.blur()
-						}	
+						}
 					}
 
 					async function partialSave () {
@@ -361,7 +314,7 @@
 							console.log('saved')
 							const { datum } = res
 							updateTab(datum.title)
-							
+
 							// TO DO: UPDATE THIS TO USE THE RENDER FUNCTIONS BELOW
 							// d3.selectAll('.pin, .pinboard').html(d => d.title = datum.title)
 							d3.selectAll('.pin label.name').html(d => d.title = datum.title)
@@ -372,7 +325,7 @@
 
 			<!-- SEARCH AND FILTER MENU -->
 			<% if (
-				!(space === 'pinned' 
+				!(space === 'pinned'
 					&& (!locals.pinboard?.editable || activity === 'preview')
 					&& !locals.pinboard?.display_filters)
 				&& pagedisplay !== 'slideshow'
@@ -382,10 +335,10 @@
 
 			<!-- MAP -->
 			<% if (
-				display_content 
-				&& (locals.metadata.page.map 
+				display_content
+				&& (locals.metadata.page.map
 					&& locals.stats.filtered > 0)
-				&& !(space === 'pinned' 
+				&& !(space === 'pinned'
 					&& (!locals.pinboard?.editable || activity === 'preview')
 					&& !locals.pinboard?.display_map)
 				&& pagedisplay !== 'slideshow'
@@ -428,16 +381,11 @@
 	<nav class='pagination xs sm m'>
 		<% if (activity === 'browse') { %><%- include('./modules/pagination') %><% } %>
 	</nav>
-	<% if (pagedisplay === 'slideshow') { %>
-		<div class='inner'>
-			<div class='dots'></div>
-		</div>
-	<% } %>
 	<h4>Contribute to:</h4>
 	<!-- TO DO: TRANSLATE -->
 	<menu>
 		<% locals.metadata.site.apps_in_suite.forEach(d => { %>
-			<a href='<%- d.baseurl %>' target='_blank'>
+			<a href='<%- d.forwardURL %>' target='_blank'>
 				<li><h3><%- d.name %></h3></li>
 			</a>
 		<% }) %>
@@ -446,6 +394,11 @@
 			<li><h3>Blog</h3></li>
 		</a>
 	</menu>
+	<% if (pagedisplay === 'slideshow') { %>
+		<div class='inner'>
+			<div class='dots'></div>
+		</div>
+	<% } %>
 	<% if (display_content && pages > 1) { %>
 		<div class='outer'>
 				<p class='nav-info'>&larr; <%- vocabulary['navigate here'][language] %></p>
@@ -470,7 +423,7 @@
 		var firstSentence = matches[0];
 		var lastSentence = matches[matches.length - 1];
 
-		return `${firstSentence || ''} ${lastSentence || ''}` 
+		return `${firstSentence || ''} ${lastSentence || ''}`
 
 	}
 </script>
@@ -480,13 +433,13 @@
 	const main = d3.select('div.browse main')
 	const layout = main.select('div.inner')
 	const overview = layout.select('section.overview')
-	
+
 	let page = <% if (!isNaN(locals.metadata.page.id)) { %><%- locals.metadata.page.id %><% } else if (![null, undefined].includes(locals.metadata.page.id)) { %>'<%- locals.metadata.page.id %>'<% } else { %>undefined<% } %>;
 	var lazyloading = false
 
 	function renderSections (_data) {
 		const sections = layout.addElems('section', 'container <%- object %>', _data)
-		
+
 		sections.addElems('div', 'layout')
 		.each(function (d) {
 			const section = d3.select(this)
@@ -512,16 +465,16 @@
 
 		this.container = parent.addElem('article', '<%- object.slice(0, -1) %><% if (pagedisplay === "slideshow") { %> slide<% } %>')
 			.datum(data)
-		.each(function (d) { 
+		.each(function (d) {
 			d3.select(this).classed(`status-${d.status}`, true)
 		})
 
 		this.inner = this.container.addElems('div', 'inner')
 			.classed('centered', d => {
 				return (display === 'slideshow'
-				&& d.img?.length === 0 
-				&& d.items === undefined 
-				&& d.contributors === undefined 
+				&& d.img?.length === 0
+				&& d.items === undefined
+				&& d.contributors === undefined
 				&& d.private_associated_pads === undefined
 				&& d.associated_pads === undefined
 				&& d.ongoing_associated_mobilizations === undefined
@@ -534,9 +487,9 @@
 		this.body = this.inner.addElems('div', 'body')
 			.classed('full-width', d => {
 				return (display !== 'columns'
-				&& d.img?.length === 0 
-				&& d.items === undefined 
-				&& d.contributors === undefined 
+				&& d.img?.length === 0
+				&& d.items === undefined
+				&& d.contributors === undefined
 				&& d.private_associated_pads === undefined
 				&& d.associated_pads === undefined
 				&& d.ongoing_associated_mobilizations === undefined
@@ -544,9 +497,9 @@
 			})
 		this.foot = this.inner.addElems('div', 'foot', d => {
 			if (display === 'columns'
-				|| d.img?.length > 0 
-				|| d.items !== undefined 
-				|| d.contributors !== undefined 
+				|| d.img?.length > 0
+				|| d.items !== undefined
+				|| d.contributors !== undefined
 				|| d.private_associated_pads !== undefined
 				|| d.associated_pads !== undefined
 				|| d.ongoing_associated_mobilizations !== undefined
@@ -556,15 +509,15 @@
 		})
 
 		if (display !== 'columns') this.metagroup = this.head.addElems('div', 'meta meta-group')
-	
+
 		this.render = {
 			owner: function (_sel) {
 				const metainfo = _sel.addElems('div', 'meta meta-data')
 				metainfo.addElems('div', 'meta meta-contributor')
 					.addElems('a', 'contributor-name')
 					.attr('href', d => {
-						<% if ((['pads', 'templates', 'files'].includes(object) && ['private', 'curated'].includes(space)) 
-							|| object === 'mobilizations') 
+						<% if ((['pads', 'templates', 'files'].includes(object) && ['private', 'curated'].includes(space))
+							|| object === 'mobilizations')
 						{ %>
 							return `?contributors=${d.owner}`
 						<% } else if (object === 'reviews') { %>
@@ -573,8 +526,8 @@
 							return `?countries=${d.iso3}`
 						<% } %>
 					}).html(d => {
-						<% if ((['pads', 'templates', 'files'].includes(object) && ['private', 'curated'].includes(space)) 
-							|| object === 'mobilizations') 
+						<% if ((['pads', 'templates', 'files'].includes(object) && ['private', 'curated'].includes(space))
+							|| object === 'mobilizations')
 						{ %>
 							return d.ownername || '<%- vocabulary["anonymous contributor"][language] %>'
 						<% } else if (object === 'reviews' && space === 'private') { %>
@@ -635,9 +588,9 @@
 								<% } %>
 
 								if (publish_dropdown.length > 0) opts.push({ action: '/publish/<%- object %>', method: 'GET', node: 'button', type: 'button', value: d.id, disabled: !(d.editable && [1, 2].includes(d.status) && (d.available_publications === undefined || d.available_publications > 0)), classname: 'publish', label: '<%- vocabulary["publish"][language] %>', dropdown: publish_dropdown, inputs: [{ name: 'id', value: d.id }, { name: 'title', value: d.title }] })
-								
+
 								// if (d.status > 1) opts.push({ action: '/publish/<%- object %>', method: 'GET', node: 'button', type: 'submit', value: d.id, disabled: !d.editable, classname: 'unpublish', label: '<%- vocabulary["unpublish"][language] %>', inputs: [{ name: 'status', value: 1 }] })
-								
+
 								if (d.status > 1) opts.push({ node: 'button', type: 'button', value: d.id, disabled: !d.editable, classname: 'unpublish', label: '<%- vocabulary["unpublish"][language] %>', fn: unpublishArticles })
 							}
 						<% } else if (object === 'templates') { %>
@@ -654,25 +607,25 @@
 							<% if (space === 'pending') { %>
 								if (!d.is_review) {
 									if (d.reviewers < <%- modules.find(d => d.type === 'reviews')?.reviewers %>) {
-										opts.push({ 
-											action: '/accept/review', 
-											method: 'GET', 
-											node: 'button', 
-											type: 'submit', 
+										opts.push({
+											action: '/accept/review',
+											method: 'GET',
+											node: 'button',
+											type: 'submit',
 											classname: 'accept',
 											label: '<%- vocabulary["accept"][language] %>',
 											value: d.id,
 											inputs: [{ name: 'template', value: d.review_template }]
 										})
 										if (!d.required) {
-											opts.push({ 
-												action: '/decline/review', 
-												method: 'GET', 
-												node: 'button', 
-												type: 'submit', 
+											opts.push({
+												action: '/decline/review',
+												method: 'GET',
+												node: 'button',
+												type: 'submit',
 												classname: 'decline',
 												label: '<%- vocabulary["decline"][language] %>',
-												value: d.id 
+												value: d.id
 											})
 										}
 									}
@@ -697,29 +650,29 @@
 						<% } %>
 
 						return opts
-					}).attrs({ 
-						'action': d => d.action, 
+					}).attrs({
+						'action': d => d.action,
 						'method': d => d.method,
 						'target': d => d.target || null
 					}).each(function (d) {
 						const sel = d3.select(this)
 						sel.addElems('input', 'get-value', d.inputs || [])
-							.attrs({ 
-								'type': 'hidden', 
-								'name': c => c.name, 
-								'value': c => c.value 
+							.attrs({
+								'type': 'hidden',
+								'name': c => c.name,
+								'value': c => c.value
 							})
 
 						sel.addElems(d.node, 'btn-overlay', [d])
 							.classed(d.classname.toLowerCase(), true)
 							.attrs({
-								'type': c => c.type, 
+								'type': c => c.type,
 								'name': c => c.name || 'id',
 								'value': c => c.value,
-								'disabled': c => c.disabled || null 
+								'disabled': c => c.disabled || null
 							}).html(c => c.label)
-						.on('click', function (c) { 
-							c.fn?.call(this) || null 
+						.on('click', function (c) {
+							c.fn?.call(this) || null
 							this.focus()
 						}).on('focus', _ => {
 							const dropdown = sel.select('.dropdown')
@@ -739,9 +692,9 @@
 							.addElems('li', 'opt', d.dropdown)
 							.addElems('button')
 								.classed('highlight', c => c.highlight || false)
-								.attrs({ 
-									'type': c => c.fn ? 'button' : 'submit', 
-									'name': c => c.name, 
+								.attrs({
+									'type': c => c.fn ? 'button' : 'submit',
+									'name': c => c.name,
 									'value': c => c.value,
 									'disabled': c => (c.disabled && !c.highlight) || null
 								}).html(c => c.label)
@@ -764,11 +717,11 @@
 						}) // TO DO: IMPROVE THIS
 						const formdata = { action: '/request/review',  method: 'POST' }
 						const message = '<%- vocabulary["select review language"][language] %>'
-						
+
 						const opts = []
 						opts.push({ node: 'select', name: 'language', label: '<%- vocabulary["select language"][language](false) %>', options: target_opts, fn: updateReviewerList })
 						opts.push({ node: 'select', name: 'reviewers', label: 'Select specific reviewers', options: reviewer_opts, classname: 'reviewer-list' }) // TO DO: TRANSLATE
-						
+
 						inputs.forEach(d => {
 							opts.push({ node: 'input', type: 'hidden', name: d.name, value: d.value })
 						})
@@ -786,8 +739,8 @@
 						// 	return !d3.select(this).classed(language)
 						// }) // THIS CONFLICTS WITH THE SEARCH OPERATIONS (BECAUSE BOTH USE THE class='hide')
 						.select('input')
-						.each(function () { 
-							this.disabled = !d3.select(this.parentNode).classed(language) 
+						.each(function () {
+							this.disabled = !d3.select(this.parentNode).classed(language)
 						})
 
 
@@ -832,11 +785,11 @@
 						// opts.push({ node: 'input', type: 'date', name: 'invite', value: `${yyyy}-${mm}-${dd}` })
 						opts.push({ node: 'input', type: 'date', name: 'date', value: `${yyyy}-${mm}-${dd}` })
 						// opts.push({ node: 'input', type: 'email', name: 'email' })
-					
+
 						// SET WHETHER TO EXCLUDE OR TO REMOVE RIGHTS
 						// opts.push({ node: 'input', type: 'radio', name: 'type', value: 'revoke', placeholder: 'Remove user rights', checked: true, default: true }) // TO DO: TRANSLATE
 						// opts.push({ node: 'input', type: 'radio', name: 'type', value: 'delete', placeholder: 'Exclude from platform and suite', checked: false, default: true }) // TO DO: TRANSLATE
-						
+
 						opts.push({ node: 'input', type: 'hidden', name: 'id', value: value })
 
 						opts.push({ node: 'button', type: 'submit', label: '<%- vocabulary["revoke"][language] %>' })
@@ -847,14 +800,14 @@
 			img: function (_sel) {
 				_sel.addElems('div', 'media media-img', d => d.img?.length ? [d] : [])
 					.addElems('a', 'pad-link')
-					.attrs({ 
+					.attrs({
 						'href': d => {
 							const queryparams = new URLSearchParams()
 							if (d.id) queryparams.set('id', d.id)
 							if (d.source) queryparams.set('source', d.source)
 							if (d.is_followup || d.is_review) queryparams.set('display', 'adjacent-source')
 							if ((d.is_review) && d.review_template) queryparams.set('template', d.review_template)
-						
+
 							<% if (object === 'reviews') { %>
 								if (!d.is_review && d.reviews?.length > 0) {
 									queryparams.set('display', 'adjacent-reviews')
@@ -863,7 +816,7 @@
 							<% } %>
 							// if (d.editable) return `../../edit/<%- object.slice(0, -1) %>?${queryparams.toString()}`
 							// else return `../../view/<%- object.slice(0, -1) %>?${queryparams.toString()}`
-							
+
 							return d.link
 						}, 'target': '_blank'
 					})
@@ -885,8 +838,8 @@
 					// 	// const imgdata = URL.createObjectURL(data)
 
 					// 	// const img = new Image()
-					// 	// img.onload = function () { 
-					// 	// 	node.src = this.src 
+					// 	// img.onload = function () {
+					// 	// 	node.src = this.src
 					// 	// }
 					// 	// img.onerror = function (err) {
 					// 	// 	if (err) console.log(err)
@@ -967,14 +920,14 @@
 			title: function (_sel) {
 				const title = _sel.addElems('div', 'media media-title')
 					.addElems('a', 'pad-link')
-					.attrs({ 
+					.attrs({
 						'href': d => {
 							const queryparams = new URLSearchParams()
 							if (d.id) queryparams.set('id', d.id)
 							if (d.source) queryparams.set('source', d.source)
 							if (d.is_followup || d.is_review) queryparams.set('display', 'adjacent-source')
 							if (d.is_review && d.review_template) queryparams.set('template', d.review_template)
-							
+
 							<% if (object === 'reviews') { %>
 								if (!d.is_review && d.reviews?.length > 0) {
 									queryparams.set('display', 'adjacent-reviews')
@@ -1007,33 +960,33 @@
 					if (d.txt) {
 						if (!Array.isArray(d.txt)) d.txt = [d.txt]
 						return d.txt.map(c => {
-							return { 
-								id: d.id, 
-								editable: d.editable, 
-								source: d.source, 
-								is_followup: d.is_followup, 
+							return {
+								id: d.id,
+								editable: d.editable,
+								source: d.source,
+								is_followup: d.is_followup,
 								is_review: d.is_review,
 								reviews: d.reviews,
-								txt: c.split(/\n\n+/)[0] 
+								txt: c.split(/\n\n+/)[0]
 							}
 						})
 					} else return []
 				}).addElems('a', 'pad-link')
-					.attrs({ 
+					.attrs({
 						'href': d => {
 							const queryparams = new URLSearchParams()
 							if (d.id) queryparams.set('id', d.id)
 							if (d.source) queryparams.set('source', d.source)
 							if (d.is_followup || d.is_review) queryparams.set('display', 'adjacent-source')
 							if ((d.is_review) && d.review_template) queryparams.set('template', d.review_template)
-							
+
 							<% if (object === 'reviews') { %>
 								if (!d.is_review && d.reviews?.length > 0) {
 									queryparams.set('display', 'adjacent-reviews')
 									return `../../view/pad?${queryparams.toString()}`
 								}
 							<% } %>
-						
+
 							// if (d.editable) return `../../edit/<%- object.slice(0, -1) %>?${queryparams.toString()}`
 							// else return `../../view/<%- object.slice(0, -1) %>?${queryparams.toString()}`
 
@@ -1111,7 +1064,7 @@
 				.addElems('a')
 					.attr('href', d => `?mobilizations=${d.mobilization}`)
 					.html(d => d.mobilization_title?.length > 25 ? `${d.mobilization_title.slice(0, 25)}…` : d.mobilization_title)
-				
+
 				<% if (object === 'mobilizations') { %>
 					_sel.addElems('div', 'meta meta-public', d => d.public ? [d] : [])
 						.html('<i><%- vocabulary["public mobilization"][language] %></i> ')
@@ -1121,7 +1074,7 @@
 					.attr('title', d => d.template_title)
 					.html('<i><%- vocabulary["template"][language](false, false) %>:</i> ')
 				.addElems('a')
-					.attrs({ 
+					.attrs({
 						'href': d => `../../view/template?id=${d.template}`
 						//'target': '_blank'
 					}).html(d => d.template_title?.length > 25 ? `${d.template_title.slice(0, 25)}…` : d.template_title)
@@ -1205,9 +1158,9 @@
 				}
 			}.bind(this),
 			engagement: function (_sel) {
-				<% if (!['mobilizations', 'contributors', 'reviews'].includes(object) 
-					&& !publicpage 
-					&& locals.metadata.site.engagementtypes?.length) 
+				<% if (!['mobilizations', 'contributors', 'reviews'].includes(object)
+					&& !publicpage
+					&& locals.metadata.site.engagementtypes?.length)
 				{ %>
 					const engagementgroup = _sel.addElems('div', 'engagement-group', d => d.status > 1 ? [d] : [])
 
@@ -1217,7 +1170,7 @@
 						.each(function (d) {
 							<% if (e === 'like') { %>
 								this.disabled = d.disliked
-							<% } else if (e === 'dislike') { %> 
+							<% } else if (e === 'dislike') { %>
 								this.disabled = d.liked
 							<% } %>
 							const sel = d3.select(this)
@@ -1249,7 +1202,7 @@
 
 								<% if (e === 'like') { %>
 									engagementgroup.select('button.engagement-dislike').attr('disabled', res.active)
-								<% } else if (e === 'dislike') { %> 
+								<% } else if (e === 'dislike') { %>
 									engagementgroup.select('button.engagement-like').attr('disabled', res.active)
 								<% } %>
 							}
@@ -1258,7 +1211,7 @@
 				<% } %>
 			}.bind(this),
 			pin: function (_sel) {
-				<% if ((object === 'pads' 
+				<% if ((object === 'pads'
 					&& modules.some(d => d.type === 'pinboards' && rights >= d.rights.write)
 					) || (
 					object === 'contributors'
@@ -1335,7 +1288,7 @@
 								const res = await POST('/pin', { board_id: d.id, object_id: { id: d.object_id, source }, action: 'insert', object: '<%- object.slice(0, -1) %>' })
 								if (res.status === 200) {
 									pins.call(renderPins, res.pins)
-									
+
 									pinboards.find(b => b.id === d.id).count += 1
 									d3.selectAll('.pinboard-group .dropdown')
 										.selectAll('.pinboard .count')
@@ -1391,7 +1344,7 @@
 					const pingroup = _sel.addElems('div', 'pinboard-group')
 					const pins = pingroup.addElems('div', 'pins')
 					.each(function (d) { d3.select(this).call(renderPins, d.pinboards) })
-					
+
 					const newpin = pingroup.addElems('div', 'add filter')
 					newpin.addElems('input')
 						.attrs({ 'type': 'text', 'id': 'new-pinboard' })
@@ -1417,7 +1370,7 @@
 						const dropdown = d3.select(this).findAncestor('filter').select('.dropdown')
 						dropdown.node().style.maxHeight = `${Math.min(dropdown.node().scrollHeight, 300)}px`
 
-						dropdown.selectAll('li').on('mousedown', function () { 
+						dropdown.selectAll('li').on('mousedown', function () {
 							d3.event.preventDefault()
 						})
 					}).on('blur', function () {
@@ -1455,9 +1408,9 @@
 										// pins.call(renderPins, res.pins)
 										// // ADD THE NEW PINBOARD TO ALL LISTS
 										// d3.selectAll('.pinboard-group').selectAll('.add.filter')
-										// .each(function (c) { 
+										// .each(function (c) {
 										// 	const data = res.pinboards_list.map(b => Object.assign(Object.assign({}, b), { object_id: c.id, checked: c.pinboards.map(a => a.id).includes(b.id) ? true : null }))
-										// 	d3.select(this).call(renderPinOptions, data) 
+										// 	d3.select(this).call(renderPinOptions, data)
 										// })
 										// // ADD THE NEW PINBOARD TO LIST IN MAIN NAV AT THE TOP
 										// renderPinNavigation(res.pinboards_list)
@@ -1533,7 +1486,7 @@
 			contributor: function (_sel) { // THIS DOES NOT SEEM TO BE USED
 				const name = _sel.addElems('div', 'media media-name')
 					.addElems('a', 'pad-link')
-					.attrs({ 
+					.attrs({
 						'href': d => {
 							let query = `id=${d.uuid}`
 							if (d.editable) return `../../edit/<%- object.slice(0, -1) %>?${query}`
@@ -1549,7 +1502,7 @@
 				name.addElems('span')
 					.html(d => d.name || '[<%- vocabulary[`untitled ${object.slice(0, -1)}`]?.[language] %>]')
 
-				
+
 				_sel.addElems('div', 'meta meta-email')
 				.html(d => d.email)
 
@@ -1566,15 +1519,15 @@
 		const { data, display } = _kwargs
 		console.log(data)
 
-		const entry = new Entry({ 
-			parent: _section, 
+		const entry = new Entry({
+			parent: _section,
 			data: data,
 			display: display,
 			language: '<%- language %>'
 		})
 		// CREATE ALIAS FOR render
 		const render = entry.render
-	
+
 		if (display === 'columns') {
 			render.img(entry.head)
 			render.actions(entry.head)
@@ -1617,7 +1570,7 @@
 			render.pin(entry.inner)
 			render.delete(entry.outer)
 			render.unpublish(entry.outer)
-		}		
+		}
 	}
 
 	function initSlideshow () {
@@ -1720,10 +1673,10 @@
 			if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight && !lazyloading) {
 				console.log('hit the bottom')
 				main.select('.lds-ellipsis').classed('hide', false)
-				
+
 				if (!isNaN(page)) page ++
 				lazyloading = true
-				
+
 				const url = new URL(window.location)
 				const queryparams = new URLSearchParams(url.search)
 				queryparams.set('page', page)
@@ -1779,12 +1732,12 @@
 			let message = ''
 			if (action === 'delete') message = '<%- vocabulary["what pads to delete"][language] %>'
 			else if (action === 'unpublish') message = '<%- vocabulary["what pads to unpublish"][language] %>'
-			
+
 			const opts = [
 				{ node: 'button', type: 'button', label: '<%- vocabulary["all selected"][language] %>', resolve: _ => d3.selectAll('article .outer.expand').data().map(d => d.id) },
-				{ 
-					node: 'button', 
-					type: 'button', 
+				{
+					node: 'button',
+					type: 'button',
 					label: Function(`"use strict";return (<%- vocabulary["only pad"][language] %>)`)()(datum.title),
 					resolve: [ datum.id ]
 				}

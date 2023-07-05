@@ -131,6 +131,17 @@ app.route('/login')
 	.post(routes.process.login)
 app.get('/logout', routes.process.logout)
 
+app.route('/reset/:token')
+	.get(routes.redirect.browse, routes.render.login)
+
+app.route('/forget-password')
+	.get(routes.redirect.browse, routes.render.login)
+	.post(routes.process.forgetPassword)
+
+app.route('/reset-password')
+	.get(routes.redirect.browse, routes.render.login)
+	.post(routes.process.updatePassword)
+
 app.route('/:language/contribute/:object')
 	.get(routes.render.login, routes.dispatch.contribute)
 app.route('/:language/edit/:object')

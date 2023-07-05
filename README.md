@@ -1,6 +1,10 @@
 =======
 # AccLab Global Platform
 
+The live platforms can be accessed via:
+
+https://acclabs.azurewebsites.net/
+
 This is a Node.js application that uses Express.js for routing and EJS as the view engine. It interacts with two Postgres databases, where one stores shared information like user sessions and credentials, and the other stores information on pads.
 
 ## Local Setup

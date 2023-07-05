@@ -7,14 +7,14 @@ const fetch = require('node-fetch')
 const load = require('./load/')
 const filter = require('./filter.js').main
 
-exports.main = async (req, res) => { 
+exports.main = async (req, res) => {
 	let { mscale, display, pinboard, source } = req.query || {}
 	if (!source || !apps_in_suite.some(d => d.key === source)) source = apps_in_suite[0].key
 	const { object, instance } = req.params || {}
 	const path = req.path.substring(1).split('/')
 	const activity = path[1]
 	if (instance) pinboard = res.locals.instance_vars?.pinboard
-	
+
 	if (req.session.uuid) { // USER IS LOGGED IN
 		var { uuid, rights, collaborators, public } = req.session || {}
 	} else { // PUBLIC/ NO SESSION
@@ -24,7 +24,7 @@ exports.main = async (req, res) => {
 
 	// GET FILTERS
 	const [ f_space, order, page, full_filters ] = await filter(req, res)
-	
+
 	const module_rights = modules.find(d => d.type === object)?.rights
 	let collaborators_ids = collaborators.map(d => d.uuid) //.filter(d => d.rights >= (module_rights?.write ?? Infinity)).map(d => d.uuid)
 	if (!collaborators_ids.length) collaborators_ids = [ uuid ]
@@ -33,14 +33,14 @@ exports.main = async (req, res) => {
 	// TO DO: CHECK IF THERE IS A QUERY
 	// IF NOT, THEN SIMPLY RETURN THE MENU INFO
 	const sourceDB = DB.conns.find(d => d.key === source)
-	
+
 	const data = await sourceDB.conn.tx(async t => {
 		// const { participations } = await header_data({ connection: t, req })
 		const batch = []
-		
+
 		// PADS DATA
 		batch.push(load.data({ connection: t, req, res, baseurl: sourceDB.baseurl }))
-		
+
 		// FILTERS MENU DATA
 		batch.push(load.filters_menu({ connection: t, participations: [], req, res }))
 		// SUMMARY STATISTICS
@@ -55,7 +55,7 @@ exports.main = async (req, res) => {
 				// [1000, 100] ARE THE DISTANCES (IN KM) FOR THE DBSCAN CLUSTERING
 				[1000, 100].forEach(d => {
 					batch1.push(t1.any(`
-						SELECT 
+						SELECT
 						jsonb_build_object(
 							'type', 'Feature',
 							'geometry', ST_AsGeoJson(ST_Centroid(ST_Collect(clusters.geo)))::jsonb,
@@ -64,7 +64,7 @@ exports.main = async (req, res) => {
 						FROM (
 							SELECT points.pad, ST_ClusterDBSCAN(points.projected_geom, eps := $1, minpoints := 2) over () AS cid, points.geo
 							FROM (
-								SELECT ST_Transform(ST_SetSRID(ST_Point(l.lng, l.lat), 4326), 3857) AS projected_geom, ST_Point(l.lng, l.lat) AS geo, l.pad 
+								SELECT ST_Transform(ST_SetSRID(ST_Point(l.lng, l.lat), 4326), 3857) AS projected_geom, ST_Point(l.lng, l.lat) AS geo, l.pad
 								FROM locations l
 								INNER JOIN pads p
 									ON l.pad = p.id
@@ -80,14 +80,14 @@ exports.main = async (req, res) => {
 				})
 				// NEED EXTRA LEVEL WITH SINGLE (NOT CLUSTERED) POINTS
 				batch1.push(t1.any(`
-					SELECT 
+					SELECT
 					jsonb_build_object(
 						'type', 'Feature',
 						'geometry', ST_AsGeoJson(points.geo)::jsonb,
 						'properties', json_build_object('pads', json_agg(DISTINCT (points.pad)), 'count', COUNT(points.pad), 'cid', NULL)::jsonb
 					) AS json
 					FROM (
-						SELECT ST_Point(l.lng, l.lat) AS geo, l.pad 
+						SELECT ST_Point(l.lng, l.lat) AS geo, l.pad
 						FROM locations l
 						INNER JOIN pads p
 							ON l.pad = p.id
@@ -98,7 +98,7 @@ exports.main = async (req, res) => {
 				;`, [ full_filters ])
 				.then(results => results.map(d => d.json))
 				.catch(err => console.log(err)))
-			} else if (map) { 
+			} else if (map) {
 				// USERS CANNOT INPUT LOCATIONS, BUT THERE IS A MAP SO WE POPULATE IT WITH USER LOCATION INFO
 				batch1.push(t1.any(`
 					SELECT p.id AS pad, p.owner FROM pads p
@@ -110,9 +110,9 @@ exports.main = async (req, res) => {
 						const columns = Object.keys(results[0])
 						const values = DB.pgp.helpers.values(results, columns)
 						const set_table = DB.pgp.as.format(`SELECT $1:name FROM (VALUES $2:raw) AS t($1:name)`, [ columns, values ])
-			
+
 						return DB.general.any(`
-							SELECT 
+							SELECT
 							jsonb_build_object(
 								'type', 'Feature',
 								'geometry', ST_AsGeoJson(ST_Centroid(ST_Collect(clusters.geo)))::jsonb,
@@ -120,7 +120,7 @@ exports.main = async (req, res) => {
 							) AS json
 							FROM (
 								SELECT c.iso3 AS cid, ST_Point(c.lng, c.lat) AS geo, t.pad FROM countries c
-								INNER JOIN users u 
+								INNER JOIN users u
 									ON u.iso3 = c.iso3
 								INNER JOIN ($1:raw) t
 									ON t.owner::uuid = u.uuid::uuid
@@ -136,7 +136,7 @@ exports.main = async (req, res) => {
 			return t1.batch(batch1)
 			.catch(err => console.log(err))
 		}))
-		
+
 		if (public && !pinboard) {
 			batch.push(t.any(`
 				SELECT id, title, owner, sections FROM pads
@@ -163,23 +163,23 @@ exports.main = async (req, res) => {
 		.then(async results => {
 			let [ data,
 				filters_menu,
-				statistics, 
+				statistics,
 				clusters,
 				sample_images
 			] = results
 
 			// const { sections, pads } = data
 			const { sections } = data
-			const stats = { 
-				total: array.sum.call(statistics.total, 'count'), 
-				filtered: array.sum.call(statistics.filtered, 'count'), 
-				
+			const stats = {
+				total: array.sum.call(statistics.total, 'count'),
+				filtered: array.sum.call(statistics.filtered, 'count'),
+
 				private: statistics.private,
 				curated: statistics.curated,
 				shared: statistics.shared,
 				reviewing: statistics.reviewing,
 				public: statistics.public,
-				
+
 				displayed: data.count,
 				breakdown: statistics.filtered,
 				persistent_breakdown: statistics.persistent,
@@ -250,7 +250,7 @@ exports.main = async (req, res) => {
 					if (allkeys.filter(d => d === value).length === 1) accumulator.push(value)
 					return accumulator
 				}, [])
-				
+
 				const obj = {}
 				commonkeys.forEach(d => {
 					const values = arr.map(c => c[d]).filter(c => c).flat()
@@ -275,29 +275,30 @@ exports.main = async (req, res) => {
 		}
 		global_info.filters_menu = new Array(Math.max(...results.map(d => d.filters_menu.length)))
 			.fill(0).map((d, i) => mergeObjValues(results.map(c => c.filters_menu[i]).filter(c => c)))
-		
+
 		return global_info
 	}).catch(err => console.log(err))
-	
 
+
+	/*  // FIXME no pinboards in prod
 	const [ pinboards_list, uniqueboard ] = await DB.conn.tx(t => {
 		const batch = []
 		// PINBOARDS LIST
 		if (modules.some(d => d.type === 'pinboards' && d.rights.read <= rights)) {
 			batch.push(t.any(`
-				SELECT p.id, p.title, 
+				SELECT p.id, p.title,
 					COALESCE(
 						(SELECT COUNT (DISTINCT (pad)) FROM pinboard_contributions WHERE pinboard = p.id),
-					0)::INT AS count 
+					0)::INT AS count
 
 				FROM pinboards p
-				
+
 				WHERE $1 IN (SELECT participant FROM pinboard_contributors WHERE pinboard = p.id)
 				GROUP BY p.id
 				ORDER BY p.title
 			;`, [ uuid ]))
 		} else batch.push(null)
-		// PINBOARD 
+		// PINBOARD
 		if (modules.some(d => d.type === 'pinboards') && pinboard) {
 			batch.push(t.one(`
 				SELECT p.*, array_agg(pc.participant) AS contributors,
@@ -325,6 +326,9 @@ exports.main = async (req, res) => {
 		return t.batch(batch)
 		.catch(err => console.log(err))
 	}).catch(err => console.log(err))
+	*/
+	const pinboards_list = [];
+	const uniqueboard = null;
 
 	data.metadata.page.display = uniqueboard?.slideshow && (!uniqueboard?.editable || activity === 'preview') ? 'slideshow' : display
 

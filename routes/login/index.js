@@ -8,13 +8,13 @@ exports.render = (req, res, next) => {
 	const { object, space, instance } = req.params || {}
 	const { uuid } = req.session || {}
 	const language = checklanguage(req.params?.language || req.session.language)
-	
+
 	const contribute = /\/?\w{2}\/(contribute|edit)\//
 	const view = /\/?\w{2}\/(edit|view)\//
 
 	if (uuid) next() // A USER IS LOGGED
 	else if (token) this.process(req, res) // A LOGIN TOKEN IS RECEIVED
-	
+
 
 	else if (object === 'pad') { // A POTENTIALLY PUBLIC PAD IS SOUGHT
 		const { id, mobilization } = req.query || {}
@@ -36,11 +36,11 @@ exports.render = (req, res, next) => {
 				} else res.render('login', { title: `${app_title} | Login`, originalUrl: req.originalUrl, errormessage: req.session.errormessage })
 			}).catch(err => console.log(err))
 		} else res.render('login', { title: `${app_title} | Login`, originalUrl: req.originalUrl, errormessage: req.session.errormessage })
-	
-	
+
+
 
 	} else if (object === 'pads' && !uuid) { // THIS SHOULD ALWAYS BE A PUBLIC VIEW
-		if (space === 'public') next() 
+		if (space === 'public') next()
 		else if (space === 'pinned') {
 			let { pinboard } = req.query
 			if (!pinboard) {
@@ -53,8 +53,8 @@ exports.render = (req, res, next) => {
 				else res.render('login', { title: `${app_title} | Login`, originalUrl: req.originalUrl, errormessage: req.session.errormessage })
 			})
 		} else res.redirect('./public')
-	
-	
+
+
 
 	} else if (![null, undefined].includes(instance)) { // THIS IS FOR THE /:language/:instance PATH (FOR PUBLIC VIEW)
 		// CHECK IF INSTANCE IS IN COUNTRY LIST
@@ -158,15 +158,15 @@ exports.process = (req, res) => { // REROUTE
 				res.redirect('/login')
 			}
 		}
-	} 
+	}
 	else {
 		const { username, password, originalUrl } = req.body || {}
 
 		// TO DO: SET UP CONFIG FOR PUBLIC VIEW
-		
-		
+
+
 		if (!username || !password) res.redirect('/login')
-		else { 
+		else {
 
 			DB.general.tx(t => {
 				return t.oneOrNone(`
@@ -261,3 +261,6 @@ exports.logout = (req, res) => {
 	req.session.destroy()
 	res.redirect('/')
 }
+exports.forgetPassword = require('./forget-password.js').forgetPassword
+exports.getResetToken = require('./forget-password.js').getResetToken
+exports.updatePassword = require('./forget-password.js').updatePassword
