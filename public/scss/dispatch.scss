@@ -114,7 +114,7 @@
 			break-before: page;
 
 			.title {
-				string-set: title content(text);
+				string-set: title content(text);  // FIXME string-set doesn't exist anymore
 				line-height: 1.2em;
 			}
 

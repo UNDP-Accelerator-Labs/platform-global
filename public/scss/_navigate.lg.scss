@@ -675,9 +675,9 @@ header {
 				}
 			}
 		}
-		nav#site-title.public {
-			/*margin-top: 90px;*/
-		}
+		// nav#site-title.public {
+		// 	/*margin-top: 90px;*/
+		// }
 		nav#modules {
 			margin-bottom: 120px;
 			pointer-events: all;
@@ -773,7 +773,7 @@ header.center {
 	display: block;
 	float: right;
 	top: 0;
-	vertical-align: top;
+	vertical-align: top;  // FIXME ignored because of display block
 	width: calc((100vw - (300px * 3 + 15px * 4)) / 2);
 	min-height: 100vh;
 }

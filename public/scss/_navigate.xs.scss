@@ -195,7 +195,7 @@ nav.tabs {
 				li {
 					position: relative;
 					display: block;
-					vertical-align: top;
+					vertical-align: top;  // FIXME ignored because of display block
 
 					a {
 						display: block;
