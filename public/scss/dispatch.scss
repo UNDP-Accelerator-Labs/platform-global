@@ -2,8 +2,6 @@
 
 @import '_base';
 
-@import '_login.lg';
-
 /* Small devices (landscape phones, 480px and up) */
 @media (max-width: 480px) {
 /*@media (max-width: 480px) and (orientation: portrait) {*/
@@ -16,6 +14,7 @@
 	@import '_profile.xs';
 	@import '_browse.xs';
 	@import '_mobilize.lg';
+	@import '_login.lg';
 }
 
 /* Medium devices (laptops) */
@@ -29,6 +28,7 @@
 	@import '_profile.xs';
 	@import '_browse.xs';
 	@import '_mobilize.lg';
+	@import '_login.lg';
 }
 
 /* Large devices (desktops, 1024px and up) */
@@ -42,6 +42,7 @@
 // 	@import '_profile.xs';
 // 	@import '_browse.m';
 // 	@import '_mobilize.lg';
+//  @import '_login.lg';
 // }
 
 
@@ -65,6 +66,7 @@
 	@import '_import.lg';
 	@import '_browse.lg';
 	@import '_mobilize.lg';
+	@import '_login.lg';
 }
 
 @media print {
