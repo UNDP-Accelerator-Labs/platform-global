@@ -1,15 +1,4 @@
-@import 'vars';
-
-$t-xxsmall: 8px;
-$t-xsmall: 10px;
-$t-small: 12px;
-$t-mid-small: 14px;
-$t-main: 16px;
-$t-mid: 20px;
-$t-large: 24px;
-$t-xlarge: 36px;
-$t-xxlarge: 60px;
-$t-xxxlarge: 90px;
+@import '_vars.xs';
 
 html, body {
 	font-size: $t-main;

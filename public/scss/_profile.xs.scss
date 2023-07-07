@@ -1,35 +1,32 @@
-@import 'vars.lg';
-
 .fact-sheet {
 	position: relative;
 	display: block;
 	float: left;
-	width: calc(300px * 3 + 15px * 2 - 90px);
-	padding: 30px 60px 0 60px;
+
+	width: calc(100vw - 60px);
+	padding: 45px 30px 0 30px;
 	background-color: #FFF;
-	min-height: calc(100vh - 30px);
-	border-left: 1px solid $c-light-2;
-	border-right: 1px solid $c-light-2;
+	min-height: calc(100vh - 45px);
 
 	main#profile {
 		.inner {
 			.meta-status {
 				position: sticky;
-				top: 30px;
-				width: calc(100% + 120px);
-				margin: 0 0 30px -60px;
+				top: 45px;
+				width: calc(100% + 60px);
+				margin: 0 0 45px -30px;
 				z-index: 100;
 
 				.btn-group {
-					height: 30px;
-					padding: 15px 10px 15px 0;
+					height: 45px;
+					padding: 10px 0;
 					margin: 0 0 0 auto;
-					text-align: right;
+					text-align: center;
 					z-index: 100;
 
 					button {
-						height: 30px;
-						padding: 0 10px;
+						height: 45px;
+						padding: 0 15px;
 						margin: 0 5px;
 						border: 1px solid $c-dark-blue;
 						outline: none;
@@ -97,14 +94,14 @@
 					width: 100%;
 					outline: none;
 					border-bottom: 1px solid transparent;
-					font-size: $t-xlarge;
+					font-size: $t-large;
 					line-height: 1.3em;
 					font-weight: 700;
 				}
 			}
 			.body {
 				form {
-					button.expand-collapsed {
+					button.expand-info {
 						position: relative;
 						width: 100%;
 						min-height: 65px;
@@ -119,45 +116,25 @@
 						);
 
 						border: none;
+
 						outline: none;
 						color: $c-dark-blue;
 						font-size: $t-main;
 						line-height: 1.5em;
 						cursor: pointer;
-
-						/*
-						&::after {
-							content: '';
-							position: absolute;
-							top: 0;
-							width: 0;
-							height: 0;
-							border-left: 6px solid transparent;
-							border-right: 6px solid transparent;
-							border-bottom: 8px solid $c-light-grey;
-							transform: translate(-4px, -8px);
-						}
-						*/
 					}
 					div.info {
 						margin: 30px 0;
 						ul {
 							li {
 								position: relative;
-								min-height: 45px;
 								margin: 5px 0;
-								/*border-bottom: 1px dotted $c-light-grey;*/
 
 								.required {
 									position: absolute;
-									display: flex;
-									justify-content: center;
-									align-items: center;
-									left: -45px;
+									left: -30px;
+									top: 20px;
 									width: 30px;
-									top: -5px;
-									height: 100%;
-									margin: 5px 0;
 									text-align: center;
 
 									input {
@@ -168,7 +145,6 @@
 										line-height: 1.5em;
 										color: $c-light-grey;
 										cursor: pointer;
-										margin-top: 10px;
 									}
 									input:checked + label,
 									label.active {
@@ -191,65 +167,6 @@
 									display: inline-block;
 									position: relative;
 									width: 50%;
-
-									input.toggle + label {
-										margin: 0;
-									}
-								}
-								.pinboard-group {
-									display: inline-block;
-									position: relative;
-									width: 50%;
-
-									.pinboard {
-										/*display: flex;
-										justify-content: flex-start;
-										align-items: top;*/
-										width: 100%;
-										min-height: 45px;
-										margin-top: 10px;
-
-										.pins {
-											display: flex;
-											margin: auto 0;
-											flex-wrap: wrap;
-
-											.pin {
-												display: inline-block;
-												height: 30px;
-												padding: 0 0 0 5px;
-												margin: 0 5px 5px 0;
-												font-size: $t-small;
-												line-height: 30px;
-												border: 1px solid $c-light-grey;
-												color: $c-light-grey;
-												white-space: nowrap;
-
-												label {
-													vertical-align: top;
-												}
-												.name {
-													flex-grow: 1;
-													margin: 0 10px 0 5px;
-													white-space: nowrap;
-													font-weight: normal;
-												}
-												.close {
-													display: inline-block;
-													width: 30px;
-													background-color: $c-light-grey;
-													text-align: center;
-													font-size: $t-mid-small;
-													line-height: 30px;
-													color: #FFF;
-													cursor: pointer;
-												}
-											}
-										}
-									}
-								}
-								.pinboard-group.margin-left {
-									margin-left: calc(30% + 15px);
 								}
 
 								input[type=text],
@@ -299,6 +216,7 @@
 										rgba(165, 30, 65, .1) 6px
 									);
 								}
+
 								div.select {
 									position: relative;
 									display: inline-block;
@@ -337,7 +255,6 @@
 
 											li {
 												width: 100%;
-												min-height: 0;
 												margin: 0;
 												padding: 0;
 												border: none;
@@ -376,19 +293,11 @@
 								}
 								button.add-info {
 									min-height: 45px;
-									/*width: 100%;*/
 									border: none;
 									outline: none;
 									background-color: transparent;
 									color: $c-light-grey;
 									cursor: pointer;
-									/*background: repeating-linear-gradient(
-										45deg,
-										transparent,
-										transparent 3px,
-										rgba(150, 150, 150, .1) 3px,
-										rgba(150, 150, 150, .1) 6px
-									);*/
 								}
 							}
 						}
@@ -399,7 +308,7 @@
 						overflow: hidden;
 						transition: max-height 0.25s ease-out;
 
-						button.expand-collapsed {
+						button.expand-info {
 							margin-top: 15px;
 						}
 					}

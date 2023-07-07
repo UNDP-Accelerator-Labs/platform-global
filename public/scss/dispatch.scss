@@ -1,47 +1,47 @@
 /* https://www.freecodecamp.org/news/css-media-queries-breakpoints-media-types-standard-resolutions-and-more/ */
 
-@import 'vars';
+@import '_base';
 
-@import 'login.lg';
+@import '_login.lg';
 
 /* Small devices (landscape phones, 480px and up) */
 @media (max-width: 480px) {
 /*@media (max-width: 480px) and (orientation: portrait) {*/
-	@import 'vars.xs';
-	@import 'navigate.xs';
-	@import 'filter.lg';
-	@import 'map.lg';
+	@import '_base.xs';
+	@import '_navigate.xs';
+	@import '_filter.lg';
+	@import '_map.lg';
 
-	@import 'pad.xs';
-	@import 'profile.xs';
-	@import 'browse.xs';
-	@import 'mobilize.lg';
+	@import '_pad.xs';
+	@import '_profile.xs';
+	@import '_browse.xs';
+	@import '_mobilize.lg';
 }
 
 /* Medium devices (laptops) */
 @media only screen and (min-width: 768px) and (max-width: 991.98px) {
-	@import 'vars.xs';
-	@import 'navigate.xs';
-	@import 'filter.lg';
-	@import 'map.lg';
+	@import '_base.xs';
+	@import '_navigate.xs';
+	@import '_filter.lg';
+	@import '_map.lg';
 
-	@import 'pad.xs';
-	@import 'profile.xs';
-	@import 'browse.xs';
-	@import 'mobilize.lg';
+	@import '_pad.xs';
+	@import '_profile.xs';
+	@import '_browse.xs';
+	@import '_mobilize.lg';
 }
 
 /* Large devices (desktops, 1024px and up) */
 // @media (max-width: 1024px) {
-// 	@import 'vars.m';
-// 	@import 'navigate.m';
-// 	@import 'filter.lg';
-// 	@import 'map.lg';
+// 	@import '_base.m';
+// 	@import '_navigate.m';
+// 	@import '_filter.lg';
+// 	@import '_map.lg';
 
-// 	@import 'pad.xs';
-// 	@import 'profile.xs';
-// 	@import 'browse.m';
-// 	@import 'mobilize.lg';
+// 	@import '_pad.xs';
+// 	@import '_profile.xs';
+// 	@import '_browse.m';
+// 	@import '_mobilize.lg';
 // }
 
 
@@ -55,23 +55,21 @@
 
 /* Extra large devices (large desktops, 1200px and up) */
 @media only screen and (min-width: 1200px) {
-	@import 'vars.lg';
-	@import 'navigate.lg';
-	@import 'filter.lg';
-	@import 'map.lg';
+	@import '_base.lg';
+	@import '_navigate.lg';
+	@import '_filter.lg';
+	@import '_map.lg';
 
-	@import 'pad.lg';
-	@import 'profile.lg';
-	@import 'import.lg';
-	@import 'browse.lg';
-	@import 'mobilize.lg';
+	@import '_pad.lg';
+	@import '_profile.lg';
+	@import '_import.lg';
+	@import '_browse.lg';
+	@import '_mobilize.lg';
 }
 
-
-
 @media print {
-	@import 'vars.print';
-/*	@import 'pad.lg';*/
+	@import '_base.print';
+/*	@import '_pad.lg';*/
 	@page {
 		size: A4 portrait;
 		margin: 20mm 30mm;
