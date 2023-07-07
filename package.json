@@ -41,7 +41,6 @@
     "pg-promise": "^10.4.3",
     "read-excel-file": "^4.0.6",
     "request": "^2.88.2",
-    "sass": "^1.62.1",
     "topojson": "^3.0.2",
     "uuid": "^8.3.2",
     "xlsx": "^0.16.4"
@@ -53,6 +52,7 @@
     "pagedjs-cli": "^0.3.3",
     "pagedjs": "^0.4.0",
     "pdfkit": "^0.13.0",
+    "sass": "^1.62.1",
     "socket.io": "^4.5.4"
   }
 }
