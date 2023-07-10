@@ -1,0 +1,396 @@
+@import '_vars.lg';
+
+html, body {
+	font-size: $t-main;
+	line-height: 1.5em;
+}
+.xs,
+.sm,
+.m {
+	display: none;
+}
+.no-bg {
+	background-color: transparent !important;
+}
+
+.modal {
+	width: 300px;
+	margin-bottom: 75px;
+
+	.close {
+		padding: 5px 10px;
+		font-size: $t-small;
+	}
+	.inner {
+		clear: both;
+		padding: 15px 15px 5px 15px;
+		background-color: #FFF;
+
+		.headline {
+			margin-bottom: 15px;
+			padding-bottom: 10px;
+			border-bottom: 1px solid $c-light-1;
+			font-size: $t-main;
+			text-align: center;
+		}
+		.message {
+			margin-bottom: 15px;
+			font-size: $t-main;
+
+			input[type=text],
+			input[type=number] {
+				width: 65px;
+				border: none;
+				border-bottom: 1px solid $c-mid-yellow;
+				outline: none;
+				text-align: center;
+				font-weight: 700;
+				color: $c-mid-yellow;
+			}
+			small {
+				font-size: $t-small;
+				color: $c-light-1;
+			}
+		}
+		ul {
+
+			li {
+				position: relative;
+				margin-bottom: 10px;
+				text-align: center;
+				font-size: $t-main;
+
+				button {
+					width: 100%;
+					min-height: 30px;
+					border: 1px solid $c-dark-blue;
+					outline: none;
+					background-color: transparent;
+					padding: 0 30px;
+					font-size: $t-main;
+					cursor: pointer;
+					transition: background-color .25s;
+
+					.sub {
+						font-size: $t-small;
+						color: $c-light-grey;
+					}
+				}
+				button.padded {
+					padding: 10px 30px;
+				}
+				textarea {
+					width: 100%;
+					min-height: 300px;
+					border: none;
+					border-bottom: 1px solid $c-light-grey;
+					outline: none;
+					background-color: transparent;
+					font-size: $t-large;
+					resize: none;
+					box-sizing: border-box;
+				}
+				label {
+					position: absolute;
+					top: -15px;
+					left: 0;
+					font-size: $t-main;
+					color: $c-light-grey;
+					transform: translateY(calc(#{$t-main}));
+					transition: transform .25s, font-size .25s;
+					cursor: pointer;
+				}
+				input:not([type=checkbox]):not([type=radio]):focus + label,
+				input.has-value:not([type=checkbox]):not([type=radio]) + label,
+				textarea:focus + label,
+				textarea.has-value + label {
+					font-size: $t-small;
+					transform: translateY(-5px);
+				}
+				input.full-width {
+					width: 100%;
+					margin: 5px 0 15px 0;
+					padding: 15px 0 15px 0;
+					border: none;
+					border-bottom: 1px solid $c-dark-blue;
+					outline: none;
+					font-size: $t-main;
+				}
+				input + label {
+					top: 1px;
+				}
+				input:focus {
+					border-color: $c-light-yellow;
+				}
+				input[type=date] {
+					padding-bottom: 5px;
+					border: none;
+					border-bottom: 1px solid $c-light-grey;
+					outline: none;
+					font-size: $t-main;
+					font-family: 'Noto Sans', Helvetica, Arial, sans-serif;
+					color: $c-dark-blue;
+
+					&::before {
+						content: none;
+					}
+				}
+				/*button.dropbtn {
+					border: none;
+					border-bottom: 1px solid $c-light-grey;
+					color: $c-light-grey;
+					font-size: $t-mid-small;
+				}*/
+				.filter {
+					input[type=text] {
+						width: calc(100% - 30px);
+						height: 45px;
+						margin-left: 0;
+						padding: 0 15px;
+						border: none;
+						outline: none;
+						border-bottom: 1px solid $c-light-grey;
+						font-size: $t-main;
+						line-height: 1.5em;
+					}
+					input[type=text] + label {
+						left: 15px;
+						font-size: $t-mid-small;
+						line-height: 1.5em;
+						transform: translateY($t-small);
+					}
+					input[type=text]:focus + label,
+					input[type=text].has-value + label {
+						font-size: $t-small;
+						line-height: 1.5em;
+						transform: translateY(-10px);
+					}
+					.dropdown {
+						position: absolute;
+						width: 100%;
+						max-height: 0;
+						left: 0;
+						top: 100%;
+						background-color: #FFF;
+						box-shadow: 0px 10px 10px rgba(0,0,0,.1);
+						overflow: scroll;
+						z-index: 10;
+						transition: max-height 0.25s ease-out;
+
+						menu {
+							width: 100%;
+
+							li {
+								display: inline-block;
+								width: 100%;
+								margin: 0;
+								padding: 5px 15px 5px 15px;
+								list-style: none;
+								box-sizing: border-box;
+
+								input[type=checkbox],
+								input[type=radio] {
+									display: none;
+								}
+								label {
+									display: block;
+									position: static;
+									cursor: pointer;
+									font-size: $t-mid-small;
+									line-height: 1.5em;
+									color: $c-dark-grey;
+									transform: none;
+									pointer-events: all;
+									cursor: pointer;
+
+									.count {
+										float: right;
+										color: $c-light-grey;
+									}
+								}
+								label.secondary {
+									padding: 0;
+									font-size: $t-small;
+									color: $c-light-grey;
+									font-style: italic;
+								}
+								input:disabled + label {
+									color: $c-light-grey;
+								}
+
+								&:hover {
+									background-color: $c-light-3;
+								}
+							}
+							li.active {
+								background-color: $c-light-blue;
+							}
+						}
+					}
+				}
+			}
+			li.default {
+				text-align: left;
+
+				label {
+					position: static;
+					margin-left: 10px;
+					color: $c-dark-grey;
+					font-size: $t-mid-small;
+				}
+			}
+			// li:hover {
+			// 	/*button {
+			// 		background-color: $c-dark-blue;
+			// 		color: #FFF;
+			// 	}*/
+			// }
+		}
+		.foot {
+			margin: 10px 0;
+			text-align: center;
+
+			/*button {
+				border: none;
+				outline: none;
+				height: 45px;
+				width: 100%;
+				border-radius: 5px;
+				padding: 0 30px;
+				font-size: $t-main;
+				background-color: $c-light-2;
+				color: $c-dark-1;
+				cursor: pointer;
+				transition: background-color .25s;
+			}
+			button:hover {
+				background-color: $c-dark-1;
+				color: #FFF;
+			}*/
+			button {
+				width: 100%;
+				min-height: 30px;
+				border: 1px solid $c-dark-blue;
+				outline: none;
+				background-color: transparent;
+				padding: 0 30px;
+				font-size: $t-main;
+				cursor: pointer;
+				transition: background-color .25s;
+
+				.sub {
+					font-size: $t-small;
+					color: $c-light-grey;
+				}
+			}
+		}
+	}
+}
+.modal.longlist {
+
+	.inner {
+		padding: 0;
+
+		.message {
+			padding: 15px 15px 5px 15px;
+			margin: 0;
+		}
+		ul {
+			width: 100%;
+			max-height: 500px;
+			overflow: scroll;
+
+			li.filter {
+				position: fixed;
+				height: 45px;
+				width: 300px;
+				background-color: #FFF;
+				border-bottom: 1px solid $c-light-grey;
+				z-index: 100;
+
+				input[type=text] {
+					position: relative;
+					width: calc(100% - 30px);
+					height: 30px;
+					padding: 15px 15px 0 15px;
+					border: none;
+					outline: none;
+					background-color: transparent;
+					font-size: $t-mid-small;
+					color: $c-dark-blue;
+				}
+				label {
+					position: absolute;
+					left: 15px;
+					/*width: calc(100% - 30px);*/
+					font-size: $t-mid-small;
+					line-height: 1.5em;
+					color: $c-light-grey;
+					transform: translateY(13.5px);
+					transition: transform .25s, font-size .25s;
+
+					&::after {
+						content: '';
+						position: absolute;
+						top: 4px;
+						margin-left: 10px;
+						width: 15px;
+						height: 15px;
+						background: url('../imgs/icons/i-search-sm.svg');
+					}
+				}
+				input[type=text] + label {
+					pointer-events: none;
+				}
+				input[type=text]:focus + label,
+				input[type=text].has-value + label {
+					font-size: $t-small;
+					line-height: 1.5em;
+					transform: translateY(2px);
+				}
+			}
+			li.padding {
+				width: 100%;
+				height: 45px;
+				margin: 0;
+			}
+			li.opt {
+				margin: 0;
+
+				input[type=checkbox] {
+					display: none;
+				}
+				label {
+					display: block;
+					padding: 5px 15px;
+					margin: 0;
+					transform: none;
+				}
+				label:hover {
+					background-color: $c-light-3;
+				}
+				input:checked + label {
+					background-color: $c-light-blue;
+				}
+			}
+		}
+		.foot {
+			padding: 15px;
+			margin: 0;
+		}
+	}
+}
+
+.add-circle {
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+	margin-right: 15px;
+	border-radius: 20px;
+	background-color: $c-light-grey;
+	color: #FFF;
+	font-size: $t-mid;
+	line-height: 19px;
+	text-align: center;
+	vertical-align: text-top;
+}

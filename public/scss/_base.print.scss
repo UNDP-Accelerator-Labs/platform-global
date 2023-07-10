@@ -1,0 +1,31 @@
+@import '_vars.print';
+
+html, body {
+	font-size: $t-main;
+	line-height: 1.5em;
+}
+.xs,
+.sm,
+.m {
+	display: none;
+}
+.no-bg {
+	background-color: transparent !important;
+}
+.add-circle {
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+	margin-right: 15px;
+	border-radius: 20px;
+	background-color: $c-light-grey;
+	color: #FFF;
+	font-size: $t-mid;
+	line-height: 19px;
+	text-align: center;
+	vertical-align: text-top;
+}
+
+/*.pagedjs_page {
+	margin: auto;
+}*/
