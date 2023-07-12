@@ -34,7 +34,7 @@ exports.main = async (req, res) => {
 
 	})
 	.then(async results => {
-		metadata = await datastructures.pagemetadata({ req, res, page, pagecount: +(results[1]['total_pages']) || 1, map, mscale, source, display: 'blog'  })
+		metadata = await datastructures.pagemetadata({ req, res, page, pagecount: +(results[1]['total_pages']) || 1, map, mscale, source, display: 'blog' })
 		
 		if(!metadata?.metadata?.page?.query['search']){
 			metadata.metadata.page.query.search = ""
