@@ -3,7 +3,7 @@ const { page_content_limit } = include('config/')
 
 const theWhereClause = (country, type )=> {
   let whereClause = '';
-    
+  
     if (country) {
       if (Array.isArray(country) && country.length > 0) {
         whereClause += ` AND country IN ('${country.join("','")}')`;
@@ -22,6 +22,19 @@ const theWhereClause = (country, type )=> {
     
 
     return whereClause;
+}
+
+const searchTextConditionFn = (searchText) => {
+  let searchTextCondition = '';
+   if (searchText !== null && searchText !== undefined && searchText.length > 0) {
+    searchTextCondition = `
+      AND (title ~* '\\m${searchText}\\M'
+        OR content ~* '\\m${searchText}\\M'
+        OR all_html_content ~* '\\m${searchText}\\M')
+    `;
+  }
+
+  return searchTextCondition;
 }
 
 exports.blogAggQuery =`
@@ -45,16 +58,31 @@ exports.totalUnknownCountries = `
     FROM articles
     WHERE country IS NULL;
 `
+
 exports.searchBlogQuery = (searchText, page, country, type) => {
   let whereClause = theWhereClause(country, type);
-
-  return {
+  let values = [
+    page_content_limit,
+    (page - 1) * page_content_limit,
+    page,
+  ];
+  let searchTextCondition = '';
+   if (searchText !== null && searchText !== undefined && searchText.length > 0) {
+    searchTextCondition = `
+      AND (title ~* ('\\m' || $3::TEXT || '\\M')
+        OR content ~* ('\\m' || $3::TEXT || '\\M')
+        OR all_html_content ~* ('\\m' || $3::TEXT || '\\M')
+        OR country ~* ('\\m' || $3::TEXT || '\\M'))
+    `;
+     values.splice(2, 0, searchText);
+  }
+   return {
     text: `
       WITH search_results AS (
         SELECT id, url, content, country, article_type, title, posted_date, posted_date_str, language, created_at, all_html_content
         FROM articles
-        WHERE (title ~* ('\\m' || $3::TEXT || '\\M') OR content ~* ('\\m' || $3::TEXT || '\\M') OR all_html_content ~* ('\\m' || $3::TEXT || '\\M') OR country ~* ('\\m' || $3::TEXT || '\\M'))
-        AND has_lab IS TRUE
+        WHERE has_lab IS TRUE
+        ${searchTextCondition}
         ${whereClause}
         ORDER BY posted_date DESC
         LIMIT $1 OFFSET $2
@@ -62,34 +90,28 @@ exports.searchBlogQuery = (searchText, page, country, type) => {
       total_count AS (
         SELECT COUNT(*) AS total_records
         FROM articles
-        WHERE (title ~* ('\\m' || $3::TEXT || '\\M') OR content ~* ('\\m' || $3::TEXT || '\\M') OR all_html_content ~* ('\\m' || $3::TEXT || '\\M') OR country ~* ('\\m' || $3::TEXT || '\\M') OR country ~* ('\\m' || $3::TEXT || '\\M'))
-        AND has_lab IS TRUE
+        WHERE has_lab IS TRUE
+        ${searchTextCondition}
         ${whereClause}
       )
-      SELECT sr.*, tc.total_records, (CEIL(tc.total_records::numeric / $1)) AS total_pages, $4 AS current_page
+      SELECT sr.*, tc.total_records, (CEIL(tc.total_records::numeric / $1)) AS total_pages, ${searchTextCondition ? '$4' : '$3'}  AS current_page
       FROM search_results sr
       CROSS JOIN total_count tc;
     `,
-    values: [
-      page_content_limit,
-      (page - 1) * page_content_limit,
-      searchText,
-      page,
-    ],
+    values,
   };
 };
 
 exports.articleGroup = (searchText, country, type) => {
   let whereClause = theWhereClause(country, type);
+  let searchTextCondition = searchTextConditionFn(searchText);
 
   return {
     text: `
       SELECT article_type, COUNT(*) AS recordCount
       FROM articles
       WHERE has_lab IS TRUE
-        AND (title ~* '\\m${searchText}\\M'
-          OR content ~* '\\m${searchText}\\M'
-          OR all_html_content ~* '\\m${searchText}\\M')
+        ${searchTextCondition}
         ${whereClause}
       GROUP BY article_type;
     `,
@@ -99,33 +121,32 @@ exports.articleGroup = (searchText, country, type) => {
 
 exports.countryGroup = (searchText, country, type) => {
   let whereClause = theWhereClause(country, type);
+  let searchTextCondition = searchTextConditionFn(searchText);
 
-  return {
+   return {
     text: `
       SELECT country, iso3, COUNT(*) AS recordCount
       FROM articles
       WHERE has_lab IS TRUE
-        AND (title ~* '\\m${searchText}\\M'
-          OR content ~* '\\m${searchText}\\M'
-          OR all_html_content ~* '\\m${searchText}\\M')
+        ${searchTextCondition}
         ${whereClause}
       GROUP BY country, iso3;
     `,
     values: [],
   };
-};  
-
+};
 
   exports.statsQuery = (searchText, country, type) => {
     let whereClause = theWhereClause(country, type);
-  
+    let searchTextCondition = searchTextConditionFn(searchText);
+
     return {
       text: `
         WITH search_results AS (
           SELECT id, url, content, country, article_type, title, posted_date, posted_date_str, created_at, has_lab, iso3
           FROM articles
-          WHERE (title ~* '\\m${searchText}\\M' OR content ~* '\\m${searchText}\\M' OR all_html_content ~* '\\m${searchText}\\M' OR country ~* '\\m${searchText}\\M')
-            AND has_lab IS TRUE
+          WHERE has_lab IS TRUE
+            ${searchTextCondition}
             ${whereClause}
         ),
         total_country_count AS (
@@ -159,18 +180,17 @@ exports.countryGroup = (searchText, country, type) => {
     };
   };
   
-  
-
   exports.extractGeoQuery = (searchText, country, type) => {
     let whereClause = theWhereClause(country, type);
-  
+    let searchTextCondition = searchTextConditionFn(searchText);
+
     return {
       text: `
         WITH search_results AS (
           SELECT *
           FROM articles
-          WHERE (title ~* '\\m${searchText}\\M' OR content ~* '\\m${searchText}\\M' OR all_html_content ~* '\\m${searchText}\\M' OR country ~* '\\m${searchText}\\M')
-          AND has_lab IS TRUE
+          WHERE has_lab IS TRUE
+          ${searchTextCondition}
           ${whereClause}
         )
         SELECT

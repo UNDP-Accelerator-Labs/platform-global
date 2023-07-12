@@ -11,9 +11,9 @@
 
 <div id='statistics'>
 	<div class='statistic'>
-		<h1><% if(query?.length){ %> 
+		<h1>
 			<%- stats?.[1]?.['total_records'] || 0 %> <small> / </small>
-			<% } %>
+			
 			<small> <%- stats?.[0]?.['totalblogs'] %></small>
 		</h1>
 		<p><%- 'Articles'.capitalize() %></p>

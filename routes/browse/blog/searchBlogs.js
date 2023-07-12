@@ -8,9 +8,7 @@ exports.main = async kwargs => {
 	let { source, search, country, type } = req.query || {}
 
 	return conn.task(t => {
-		if(searchText.length){
-			return t.any(searchBlogQuery(searchText?.trim(), page, country, type)).then(async (results) => {
-				// console.log('resultsresults ', results)
+			return t.any(searchBlogQuery(searchText, page, country, type)).then(async (results) => {
 				return {
 					searchResults : results,
 					page,
@@ -18,11 +16,12 @@ exports.main = async kwargs => {
 					totalRecords : results[0]?.total_records || 0
 				}
 			  
-			}).catch(err => console.log(err))
-		}
-		else return {
-			searchResults : []
-		}
+			}).catch(err => {
+				console.log(err);
+				return {
+					searchResults : []
+				}
+			})
 		
 	})
 }
