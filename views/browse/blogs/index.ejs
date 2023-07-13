@@ -26,14 +26,14 @@
 	const display_content = Object.keys(query)?.filter(key => !['status', 'source', 'mapscale', 'display'].includes(key)).length > 0
 
 %>
-<html lang='<%- language %>'>
+<html>
 <head>
 
 <%- include ('../../partials/head.ejs') %>
 
 </head>
 
-<body>
+<body translate="no">
 
 <% include ('../../partials/translations.ejs') %>
 
@@ -47,7 +47,6 @@
 
 <% if (publicpage && object === 'pads' && space !== 'pinned' && mapscale !== 'full-screen' && locals.metadata.page.id === 1 && !display_content) { %>
 
-<% let slides = locals.sample_images %>
 <div class='public-page-header'>
 	<button class='scroll-nav' onclick='scrollToPad(this)'><label class='rotate'>&rsaquo;</label></button>
 	<script type='text/javascript'>
@@ -93,7 +92,7 @@
 	</div>
 </header>
 
-<div class='browse <%- pagedisplay %><% if (publicpage) { %> public<% } %><% if (!display_content) { %> flex<% } %>'>
+<div class='browse <%- pagedisplay %><% if (publicpage) { %> public<% } %><% if (!display_content) { %> flex<% } %>' translate="no">
 
 	<main>
 		<div class='inner'>
@@ -111,8 +110,7 @@
 			<!-- MAP -->
 			<% if (
 				display_content
-				&& (locals.metadata.page.map
-					&& locals.clusters[0]?.length)
+				&& (locals.metadata.page.map)
 			) { %>
 				<%- include ('../modules/map') %>
 			<% } %>

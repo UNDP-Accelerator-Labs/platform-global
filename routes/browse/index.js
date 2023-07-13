@@ -25,7 +25,6 @@ module.exports = async (req, res) => {
 
 	if (modules.some(d => d.type === object)) {
 		if (!xhr) {
-			console.log('object ', object)
 			if (object === 'pads') pads.render(req, res)
 			if (object === 'templates') templates.render(req, res)
 			if (object === 'files') files.render(req, res)
