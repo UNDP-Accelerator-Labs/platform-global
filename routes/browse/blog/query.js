@@ -123,7 +123,7 @@ exports.countryGroup = (searchText, country, type) => {
   let whereClause = theWhereClause(country, type);
   let searchTextCondition = searchTextConditionFn(searchText);
 
-   return {
+  return {
     text: `
       SELECT country, iso3, COUNT(*) AS recordCount
       FROM articles
