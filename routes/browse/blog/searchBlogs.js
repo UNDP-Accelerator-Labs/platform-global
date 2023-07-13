@@ -18,6 +18,7 @@ exports.main = async kwargs => {
 			  
 			}).catch(err => {
 				console.log(err);
+				// NOTE recovering from any query parse errors
 				return {
 					searchResults : []
 				}
