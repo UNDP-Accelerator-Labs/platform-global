@@ -26,7 +26,7 @@
 	const display_content = Object.keys(query)?.filter(key => !['status', 'source', 'mapscale', 'display'].includes(key)).length > 0
 
 %>
-<html >
+<html>
 <head>
 
 <%- include ('../../partials/head.ejs') %>
@@ -47,7 +47,7 @@
 
 <% if (publicpage && object === 'pads' && space !== 'pinned' && mapscale !== 'full-screen' && locals.metadata.page.id === 1 && !display_content) { %>
 
-<div class='public-page-header' >
+<div class='public-page-header'>
 	<button class='scroll-nav' onclick='scrollToPad(this)'><label class='rotate'>&rsaquo;</label></button>
 	<script type='text/javascript'>
 		function scrollToPad (node) {
