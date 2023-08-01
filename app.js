@@ -202,4 +202,4 @@ app.route('/:language/:instance')
 app.get('*', routes.notfound)
 
 // RUN THE SERVER
-const server = app.listen(process.env.PORT || 3000, _ => console.log(`the app is running on port ${process.env.PORT || 3000}`))
+const server = app.listen(process.env.PORT || 2000, _ => console.log(`the app is running on port ${process.env.PORT || 2000}`))

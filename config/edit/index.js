@@ -1,86 +1,91 @@
-//// EDIT THIS
-// GENERAL APP INFO
-exports.app_title = 'UNDP AccLabs Pads, Generic pads'
-exports.app_title_short = 'pads'
-exports.app_suite = 'acclab_platform'
-exports.app_suite_secret = process.env.APP_SUITE_SECRET || 'secret'
-exports.app_languages = ['en', 'fr', 'es', 'pt']
-exports.app_description = require('./translations.js').translations['app description']
+let { 
+	app_title, 
+	app_title_short, 
+	app_suite,
+	app_suite_secret,
+	app_languages,
+	app_description,
+	apps_in_suite,
+	modules, 
+	metafields, 
+	engagementtypes, 
+	colors, 
+	map, 
+	lazyload, 
+	page_content_limit, 
+	followup_count,
+	browse_display,
+	view_display,
+	welcome_module
+} = require('./edit/')
 
-// apps_in_suite NEED TO BE THE NAMES OF THE DIFFERENT DBs
-exports.apps_in_suite = [
-	{ name: 'Action Plans', key: process.env.NODE_ENV === 'production' ? 'action_plans_platform' : (process.env.DB_AP || 'solution_mapping_platform'), baseurl: 'https://acclabs-actionlearningplans.azurewebsites.net/' },
-	{ name: 'Solutions Mapping', key: process.env.NODE_ENV === 'production' ? 'solutions_mapping_platform' : (process.env.DB_SM || 'solution_mapping_platform'), baseurl: 'https://acclabs-solutionsmapping.azurewebsites.net/' },
-	{ name: 'Experiments', key: process.env.NODE_ENV === 'production' ? 'experiments_platform' : (process.env.DB_EXP || 'solution_mapping_platform'), baseurl: 'https://acclabs-experiments.azurewebsites.net/' }
-	// { name: 'Blogs', key: 'exp_test_02', baseurl: 'https://acclabs-blogs.azurewebsites.net/' },
-	// { name: 'Consent archive', key: 'exp_test_02', baseurl: 'https://acclabs-consent-archive.azurewebsites.net/' },
-	// { name: 'Buzz', key: 'exp_test_02', baseurl: 'https://acclabs-buzz.azurewebsites.net/' },
-	// { name: 'Bootcamps', key: 'exp_test_02', baseurl: 'https://sites.google.com/view/acclab-bootcamp/home' },
-	// { name: 'Main wesite', key: 'exp_test_02', baseurl: 'https://www.undp.org/acceleratorlabs' },
+const { translations } = require('./edit/translations.js')
+exports.translations = translations
 
-]
+exports.app_title = app_title
+exports.app_title_short = app_title_short
+exports.app_suite = app_suite
+exports.app_suite_secret = app_suite_secret
+exports.app_description = app_description
+exports.apps_in_suite = apps_in_suite
+exports.colors = colors
+
 
 // DESIRED MODULES
-exports.modules = [
-	{ type: 'pads', rights: { read: 0, write: 1 } },
-	{ type: 'pinboards', rights: { read: 0, write: 1 } },
-	// { type: 'templates', rights: { read: 2, write: 2 } },
-	// { type: 'files', rights: { read: 0, write: 1 } },
-	{ type: 'contributors', rights: { read: 2, write: 2 } },
-	{ type: 'teams', rights: { read: 2, write: 2 } },
-	{ type: 'blog', rights: { read: 0, write: 0 } }
-
-	// { type: 'analyses', rights: { read: 1, write: 2 } }
-]
-
-// NOTE: reviews IS DEPENDENT ON tags RIGHT NOW (FOR ASSIGNMENT OF REVIEWERS)
-
-// DESIRED METADATA
-// TO DO: metafields SHOULD BE ANY KIND OF MEDIA, E.G. CHECKBOX WITH VALUES, TEXT, ETC
-	// OPTIONS: ['tags', 'sdgs', 'methods', 'datasources', 'locations']
-exports.metafields = [
-	{ type: 'index', name: 'SDGs', required: true, opencode: false, limit: 5 },
-
-	{ type: 'tag', name: 'thematic areas', required: true, opencode: true, limit: 5 },
-	{ type: 'tag', name: 'methods', required: true, opencode: false },
-	{ type: 'tag', name: 'datasources', required: true, opencode: true },
-	// { type: 'location', name: 'locations', required: true }
-]
-// DESIRED ENGAGEMENT TYPES
-	// OPTIONS: ['like', 'dislike', 'comment']
-exports.engagementtypes = ['like', 'dislike', 'comment']
-
-// COLORS
-exports.colors = {
-	'dark-blue': '#005687',
-	'mid-blue': '#0468B1',
-	'mid-blue-semi': 'rgba(4,104,177,.75)',
-	'light-blue': '#32BEE1',
-
-	'dark-red': '#A51E41',
-	'mid-red': '#FA1C26',
-	'light-red': '#F03C8C',
-
-	'dark-green': '#418246',
-	'mid-green': '#61B233',
-	'light-green': '#B4DC28',
-
-	'dark-yellow': '#FA7814',
-	'mid-yellow': '#FFC10E',
-	'light-yellow': '#FFF32A',
-
-	'dark-grey': '#000000',
-	'mid-grey': '#646464',
-	'light-grey': '#969696'
+if (!modules) modules = []
+// if (!modules.includes('pads')) modules.unshift('pads') // ALWAYS INCLUDE PADS
+if (!modules.some(d => d.type === 'pads')) modules.unshift({ type: 'pads', rights: { read: 0, write: 1 } }) // ALWAYS INCLUDE PADS
+// if (modules.includes('mobilizations')) {
+// 	if (!modules.includes('templates')) modules.push('templates')
+// }
+if (modules.some(d => d.type === 'mobilizations')) {
+	const rights = modules.find(d => d.type === 'mobilizations').rights
+	
+	if (!modules.some(d => d.type === 'templates')) {
+		modules.push({ type: 'templates', rights })
+	}
+	if (!modules.some(d => d.type === 'contributors')) {
+		modules.push({ type: 'contributors', rights })
+	}
 }
+// if (modules.some(d => d.type === 'contributors')) {
+// 	if (!modules.some(d => d.type === 'mobilizations')) {
+// 		const rights = modules.find(d => d.type === 'contributors').rights
+// 		modules.push({ type: 'mobilizations', rights })
+// 	}
+// }
+// TO DO: MAKE SURE THAT mobilizations DOES NOT HAVE LOWER RIGHTS THAN templates
+// TO DO: MAKE SURE THAT mobilizations AND contributors HAVE THE SAME rights
+// TO DO: MAKE SURE THAT teams AND contributors HAVE THE SAME rights
+
+modules.forEach(d => {
+	// THIS IS TO MAKE SURE USERS WHO CAN WRITE HAVE AT LEAST THE RIGHT TO VIEW
+	const { rights } = d
+	if (rights.write < rights.read) rights.write = rights.read // TO DO: CHECK THIS DOES NOT NEED TO BE d.rights…
+})
+exports.modules = modules
+// DESIRED METADATA
+// if (metafields.includes('locations')) map = true
+if (metafields.some(d => d.type === 'location')) map = true
+metafields.forEach(d => d.label = d.name.toLowerCase().trim().replace(/\s+/g, '_'))
+exports.metafields = metafields || []
+
+exports.media_value_keys = ['txt', 'html', 'src', 'srcs', 'shapes', 'options']
+
+// DESIRED ENGAGEMENT TYPES
+exports.engagementtypes = engagementtypes || []
+
+// LANGUAGES AVAILABLE
+exports.app_languages = app_languages.sort((a, b) => a.localeCompare(b))
+
+// DB CONNECTION
+exports.DB = require('./db/').DB
 
 // DISPLAY VARIABLES
-exports.map = true
-exports.lazyload = false
-exports.page_content_limit = 25
-exports.followup_count = 1
-	// OPTIONS: 'columns', 'rows'
-exports.browse_display = 'rows'
-exports.view_display = 'page'
-	// OPTIONS: 'mosaic', 'carousel'
-exports.welcome_module = 'carousel'
+exports.map = map
+exports.lazyload = lazyload
+exports.page_content_limit = browse_display === 'columns' ? Math.floor(page_content_limit / 3) * 3 : page_content_limit
+exports.followup_count = followup_count
+exports.browse_display = browse_display
+exports.view_display = view_display
+exports.welcome_module = welcome_module
