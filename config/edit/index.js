@@ -9,9 +9,9 @@ exports.app_description = require('./translations.js').translations['app descrip
 
 // apps_in_suite NEED TO BE THE NAMES OF THE DIFFERENT DBs
 exports.apps_in_suite = [
-	{ name: 'Action Plans', key: process.env.NODE_ENV === 'production' ? 'action_plans_platform' : (process.env.DB_AP || 'ap_test_02'), baseurl: 'https://acclabs-actionlearningplans.azurewebsites.net/' },
-	{ name: 'Solutions Mapping', key: process.env.NODE_ENV === 'production' ? 'solutions_mapping_platform' : (process.env.DB_SM || 'sm_test_02'), baseurl: 'https://acclabs-solutionsmapping.azurewebsites.net/' },
-	{ name: 'Experiments', key: process.env.NODE_ENV === 'production' ? 'experiments_platform' : (process.env.DB_EXP || 'exp_test_02'), baseurl: 'https://acclabs-experiments.azurewebsites.net/' }
+	{ name: 'Action Plans', key: process.env.NODE_ENV === 'production' ? 'action_plans_platform' : (process.env.DB_AP || 'solution_mapping_platform'), baseurl: 'https://acclabs-actionlearningplans.azurewebsites.net/' },
+	{ name: 'Solutions Mapping', key: process.env.NODE_ENV === 'production' ? 'solutions_mapping_platform' : (process.env.DB_SM || 'solution_mapping_platform'), baseurl: 'https://acclabs-solutionsmapping.azurewebsites.net/' },
+	{ name: 'Experiments', key: process.env.NODE_ENV === 'production' ? 'experiments_platform' : (process.env.DB_EXP || 'solution_mapping_platform'), baseurl: 'https://acclabs-experiments.azurewebsites.net/' }
 	// { name: 'Blogs', key: 'exp_test_02', baseurl: 'https://acclabs-blogs.azurewebsites.net/' },
 	// { name: 'Consent archive', key: 'exp_test_02', baseurl: 'https://acclabs-consent-archive.azurewebsites.net/' },
 	// { name: 'Buzz', key: 'exp_test_02', baseurl: 'https://acclabs-buzz.azurewebsites.net/' },
