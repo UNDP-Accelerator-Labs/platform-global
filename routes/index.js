@@ -1,17 +1,7 @@
 const { app_title, DB } = include('config/')
 const helpers = include('routes/helpers/')
-// const request = require('request')
-const format = require('./formatting.js')
-const path = require('path')
 const fs = require('fs')
-// const mime = require('mime')
-const Jimp = require('jimp')
-const { execFile } = require('child_process')
 const fetch = require('node-fetch')
-const Pageres = require('pageres') // THIS IS FOR SCREENSHOTS
-const turf = require('@turf/turf')
-const archiver = require('archiver')
-
 
 if (!exports.redirect) { exports.redirect = {} }
 if (!exports.render) { exports.render = {} }
@@ -20,116 +10,8 @@ if (!exports.public) { exports.public = {} }
 if (!exports.private) { exports.private = {} }
 if (!exports.dispatch) { exports.dispatch = {} }
 
-
-
 exports.forwardGeocoding = require('./helpers/geo/').forwardcode.render
-// (req, res) => {
-// 	const { locations, list } = req.body || {}
-// 	const { country } = req.session || {}
-
-// 	const promises = geocode(locations, country.lnglat, list, 'forward')
-// 	Promise.all(promises)
-// 	.then(data => res.json(data))
-// 	.catch(err => {
-// 		console.log(err)
-// 		res.json({ status: 500, message: 'Oops! Something went wrong while searching for locations.' })
-// 	})
-// }
 exports.reverseGeocoding = require('./helpers/geo/').reversecode.render
-
-// (req, res) => {
-// 	const { locations, list } = req.body || {}
-// 	const { country } = req.session || {}
-
-// 	const promises = geocode(locations, country.lnglat, list, 'reverse')
-// 	Promise.all(promises)
-// 	.then(data => res.json(data))
-// 	.catch(err => {
-// 		console.log(err)
-// 		res.json({ status: 500, message: 'Oops! Something went wrong while searching for locations.' })
-// 	})
-// }
-// function geocode (locations, centerpoint, list = false, dir = 'forward') { // FOR NOW WE ONLY DO FORWARD GEOCODING
-// 	console.log('pay attention to geocode')
-// 	return locations.map(l => {
-// 		return new Promise(resolve => {
-// 			if (dir === 'forward') {
-// 				if (!l || typeof l !== 'string') {
-// 					const obj = {}
-// 					obj.input = l
-// 					obj.found = false
-// 					obj.centerpoint = centerpoint
-// 					obj.caption = `No location was found for <strong>${l}</strong>.` // TO DO: TRANSLATE
-// 					resolve(obj)
-// 				} else {
-// 					setTimeout(_ => {
-// 						l_formatted = l.removeAccents().replacePunctuation(', ').trim()
-
-// 						fetch(`https://api.opencagedata.com/geocode/v1/json?q=${l_formatted}&key=${process.env.OPENCAGE_API}`)
-// 						.then(response => response.json())
-// 						.then(data => {
-// 							const obj = {}
-// 							obj.input = l
-// 							if (data.results.length) {
-// 								if (!list) {
-// 									const location = data.results[0] // NOTE CONFIDENCE IS SOMETHING ELSE: https://opencagedata.com/api#ranking
-// 									obj.centerpoint = { lat: +location.geometry.lat, lng: +location.geometry.lng }
-// 								} else {
-// 									obj.locations = data.results
-// 								}
-// 								obj.found = true
-// 								obj.caption = `<strong>${l.trim().capitalize()}</strong> found using <a href='https://opencagedata.com/credits' target='_blank'>OpenCage Geocoder</a> | &copy; <a href='https://www.openstreetmap.org/copyright' target='_blank'>OpenStreetMap contributors</a>` // TO DO: TRANSLATE
-// 							} else {
-// 								obj.found = false
-// 								obj.centerpoint = centerpoint
-// 								obj.caption = `No location was found for <strong>${l.trim().capitalize()}</strong>.` // TO DO: TRANSLATE
-// 							}
-// 							resolve(obj)
-// 						}).catch(err => console.log(err))
-// 					}, 1000)
-// 				}
-// 			} else if (dir === 'reverse') {
-// 				if (!l || !Array.isArray(l) || l.length !== 2 || !l.every(d => !isNaN(d))) {
-// 					console.log('does not meet requirements')
-// 					const obj = {}
-// 					obj.input = l
-// 					obj.found = false
-// 					obj.caption = `No location was found for <strong>${l}</strong>.` // TO DO: TRANSLATE
-// 					resolve(obj)
-// 				} else {
-// 					setTimeout(_ => {
-// 						l_formatted = l.join('+')
-
-// 						fetch(`https://api.opencagedata.com/geocode/v1/json?q=${l_formatted}&key=${process.env.OPENCAGE_API}`)
-// 						.then(response => response.json())
-// 						.then(data => {
-// 							const obj = {}
-// 							obj.input = l
-// 							if (data.results.length) {
-// 								if (!list) {
-// 									const location = data.results[0] // NOTE CONFIDENCE IS SOMETHING ELSE: https://opencagedata.com/api#ranking
-// 									obj.formatted = location.formatted
-// 								} else {
-// 									obj.locations = data.results
-// 									obj.formatted = data.results.map(d => d.formatted)
-// 								}
-// 								obj.found = true
-// 								obj.caption = `Location name${locations.length !== 1 ? 's' : ''} found using <a href='https://opencagedata.com/credits' target='_blank'>OpenCage Geocoder</a> | &copy; <a href='https://www.openstreetmap.org/copyright' target='_blank'>OpenStreetMap contributors</a>` // TO DO: TRANSLATE
-// 							} else {
-// 								obj.found = false
-// 								obj.caption = `No location was found for <strong>${l}</strong>.` // TO DO: TRANSLATE
-// 							}
-// 							resolve(obj)
-// 						}).catch(err => console.log(err))
-// 					}, 1000)
-// 				}
-// 			}
-// 		})
-// 	})
-// }
-
-
-
 
 exports.process.callapi = (req, res) => {
 	const { uri, method, key, expect } = req.body || {}
@@ -307,13 +189,28 @@ exports.api.datasources = (req, res) => {
 	}
 }
 
-
-
 exports.notfound = (req, res) => {
 	res.send('This is not the route that you are looking for')
 }
 
-
+exports.getVersionString = (req, res) => {
+	fs.readFile('version.txt', (err, data) => {
+		if (err) {
+			return res.status(500).send({
+				'name': 'error while reading version',
+				'commit': 'unknown',
+				'app': `global`,
+			})
+		} else {
+			const lines = data.toString().split(/[\r\n]+/);
+			return res.status(200).send({
+				'name': lines[0] || 'no version available',
+				'commit': lines[1] || 'unknown',
+				'app': `global`,
+			})
+		}
+	});
+}
 
 String.prototype.simplify = function () {
 	return this.valueOf().replace(/[^\w\s]/gi, '').replace(/\s/g, '').toLowerCase()
