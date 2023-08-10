@@ -1,6 +1,6 @@
 const { page_content_limit, apps_in_suite, modules, metafields, engagementtypes, lazyload, map, browse_display, welcome_module, DB } = include('config/')
 const header_data = include('routes/header/').data
-const { array, datastructures, checklanguage, join, parsers, axios } = include('routes/helpers/')
+const { array, datastructures, checklanguage, join, parsers } = include('routes/helpers/')
 
 const load = require('./load/')
 const filter = require('./filter.js').main
@@ -12,7 +12,7 @@ exports.main = async (req, res) => {
 	const path = req.path.substring(1).split('/')
 	const activity = path[1]
 	if (instance) pinboard = res.locals.instance_vars?.pinboard
-console.log('source ', source)
+
 	if (req.session.uuid) { // USER IS LOGGED IN
 		var { uuid, rights, collaborators, public } = req.session || {}
 	} else { // PUBLIC/ NO SESSION
@@ -26,19 +26,6 @@ console.log('source ', source)
 	const module_rights = modules.find(d => d.type === object)?.rights
 	let collaborators_ids = collaborators.map(d => d.uuid) //.filter(d => d.rights >= (module_rights?.write ?? Infinity)).map(d => d.uuid)
 	if (!collaborators_ids.length) collaborators_ids = [ uuid ]
-
-	// let params = {
-	// 	url : 'http://localhost:2000/en/browse/pads/public',
-	// 	params: {
-	// 		search: 'energy'
-	// 	}
-	// }
-	// //call api
-	// axios.get(params)
-	// .then( (data )=> {
-	// 	console.log('data fetch ', data)
-	// })
-	// .catch(err=> console.log('err ', err))
 
 	// TO DO: CHECK IF THERE IS A QUERY
 	// IF NOT, THEN SIMPLY RETURN THE MENU INFO

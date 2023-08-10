@@ -1,48 +1,81 @@
-const { page_content_limit, apps_in_suite, modules, metafields, engagementtypes, lazyload, map, browse_display, welcome_module, DB } = include('config/')
-const header_data = include('routes/header/').data
-const { array, datastructures, checklanguage, join, parsers } = include('routes/helpers/')
+const { page_content_limit, apps_in_suite, map } = include("config/");
+const { datastructures } = include("routes/helpers/");
 
-const fetch = require('node-fetch')
+const fetch = require("node-fetch");
+const filterpage = require("../pads/filter.js").main;
 
-const loadAggValues = require('./loadAgg')
-const searchBlogs  = require('./searchBlogs')
-const filter = require('./filters')
-const filterpage = require('../pads/filter.js').main
+exports.main = async (req, res) => {
+  const { BLOG_API_URL, BLOG_API_SECRET } = process.env;
+  const [ f_space, order, page, full_filters ] = await filterpage(req, res)
 
-exports.main = async (req, res) => { 
-	const [ f_space, order, page, full_filters ] = await filterpage(req, res)
+  let { mscale, source, search, country, type } = req.query || {};
+  if (!source || !apps_in_suite.some((d) => d.key === source))
+    source = apps_in_suite[0].key;
 
-    let { mscale, display, pinboard, source } = req.query || {}
-	if (!source || !apps_in_suite.some(d => d.key === source)) source = apps_in_suite[0].key
+  const constructQueryString = (search, country, type) => {
+    let queryString = "";
+    if (search) {
+      queryString += "search=" + encodeURIComponent(search) + "&";
+    }
 
-	let metadata;
+    if (country) {
+      if (Array.isArray(country)) {
+        country.forEach(function (c) {
+          queryString += "country=" + encodeURIComponent(c) + "&";
+        });
+      } else {
+        queryString += "country=" + encodeURIComponent(country) + "&";
+      }
+    }
 
-	const data = await DB.blog.tx(async t => {
-		const batch = []
-		
-		// LOAD AGGREGATE VALUES
-		batch.push(loadAggValues.main({ connection: t, req, res, page }))
+    if (type) {
+      if (Array.isArray(type)) {
+        type.forEach(function (t) {
+          queryString += "type=" + encodeURIComponent(t) + "&";
+        });
+      } else {
+        queryString += "type=" + encodeURIComponent(type) + "&";
+      }
+    }
 
-		//LOAD search reasults
-		batch.push(searchBlogs.main({ connection: t, req, res,page_content_limit, page }))
+    return queryString.slice(0, -1);
+  };
 
-		//LOAD filter reasults
-		batch.push(filter.main({ connection: t, req, res }))
+  const queryString = constructQueryString(search, country, type);
+  const endpoint = `${BLOG_API_URL}/v2/api/blog/${page_content_limit}/${page}?${queryString}`;
 
-		return t.batch(batch)
-			.catch(err => console.log(err))
+  let metadata;
 
-	})
-	.then(async results => {
-		metadata = await datastructures.pagemetadata({ req, res, page, pagecount: +(results[1]['total_pages']) || 1, map, mscale, source, display: 'blog' })
-		
-		if(!metadata?.metadata?.page?.query['search']){
-			metadata.metadata.page.query.search = ""
-		}
+  const data = await fetch(endpoint, {
+    method: "get",
+    headers: {
+      "Content-Type": "application/json",
+      "token-authorization": BLOG_API_SECRET,
+    },
+  })
+    .then(async (response) => {
+      const results = await response.json();
+      metadata = await datastructures.pagemetadata({
+        req,
+        res,
+        page,
+        pagecount: +results[1]["total_pages"] || 1,
+        map,
+        mscale,
+        source,
+        display: "blog",
+      });
 
-		return results
-	})
-	.catch(err => console.log(err))
+      if (!metadata?.metadata?.page?.query["search"]) {
+        metadata.metadata.page.query.search = "";
+      }
 
-	res.render('browse/blogs/', Object.assign(metadata, { data, clusters: [data?.[2]?.['geoData']] || [] } ) )
-}
+      return results;
+    })
+    .catch((err) => console.log(err));
+
+  res.render(
+    "browse/blogs/",
+    Object.assign(metadata, { data, clusters: [data?.[2]?.["geoData"]] || [] })
+  );
+};
