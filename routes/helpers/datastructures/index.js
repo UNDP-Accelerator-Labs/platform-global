@@ -9,8 +9,6 @@ if (!exports.legacy) exports.legacy = {}
 exports.sessiondata = _data => {
 	let { uuid, name, email, team, collaborators, rights, public, language, iso3, countryname, bureau, lng, lat } = _data || {}
 
-	console.log(collaborators)
-
 	// GENERIC session INFO
 	const obj = {}
 	obj.uuid = uuid || null
@@ -40,8 +38,8 @@ exports.pagemetadata = (_kwargs) => {
 
 	let { object, space, instance } = params || {}
 	if (instance) {
-		object = res.locals.instance_vars.object
-		space = res.locals.instance_vars.space
+		object = res?.locals?.instance_vars?.object
+		space = res?.locals?.instance_vars?.space
 	}
 
 	if (session.uuid) { // USER IS LOGGED IN

@@ -14,20 +14,9 @@ exports.main = async (req, res) => {
 
     let { mscale, display, pinboard, source } = req.query || {}
 	if (!source || !apps_in_suite.some(d => d.key === source)) source = apps_in_suite[0].key
-	const { object, instance } = req.params || {}
-	const path = req.path.substring(1).split('/')
-	const activity = path[1]
-	if (instance) pinboard = res.locals.instance_vars?.pinboard
-	
-	if (req.session.uuid) { // USER IS LOGGED IN
-		var { uuid, rights, collaborators, public } = req.session || {}
-	} else { // PUBLIC/ NO SESSION
-		var { uuid, rights, collaborators, public } = datastructures.sessiondata({ public: true }) || {}
-	}
-	const language = checklanguage(req.params?.language || req.session.language)
 
 	let metadata;
-	
+
 	const data = await DB.blog.tx(async t => {
 		const batch = []
 		
@@ -45,8 +34,12 @@ exports.main = async (req, res) => {
 
 	})
 	.then(async results => {
-		metadata = await datastructures.pagemetadata({ req, res, page, pagecount: +(results[1]['total_pages']) || 1, map, mscale, source,  })
+		metadata = await datastructures.pagemetadata({ req, res, page, pagecount: +(results[1]['total_pages']) || 1, map, mscale, source, display: 'blog' })
 		
+		if(!metadata?.metadata?.page?.query['search']){
+			metadata.metadata.page.query.search = ""
+		}
+
 		return results
 	})
 	.catch(err => console.log(err))

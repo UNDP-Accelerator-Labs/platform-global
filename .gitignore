@@ -8,6 +8,7 @@ version.txt
 pads.env
 pads-distant.env
 public/*uploads/
+public/css/
 dep.*
 *.env
 tmp/

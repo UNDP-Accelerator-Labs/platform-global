@@ -22,7 +22,9 @@
 %>
 <nav id='site-title'>
 	<div class='inner'>
-		<img class='logo' src='/imgs/branding/UNDP_accelerator_labs_logo_vertical_color_RGB.png'>
+		<a href="/">
+			<img class='logo' src='/imgs/branding/UNDP_accelerator_labs_logo_vertical_color_RGB.png'>
+		</a>
 		<h1><%- (locals.metadata.site.title).replace(/\s+/g, '<br>') %></h1>
 		<% if (!publicpage) { %>
 			<h2>
