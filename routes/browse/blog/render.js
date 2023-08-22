@@ -12,36 +12,7 @@ exports.main = async (req, res) => {
   if (!source || !apps_in_suite.some((d) => d.key === source))
     source = apps_in_suite[0].key;
 
-  const constructQueryString = (search, country, type) => {
-    let queryString = "";
-    if (search) {
-      queryString += "search=" + encodeURIComponent(search) + "&";
-    }
-
-    if (country) {
-      if (Array.isArray(country)) {
-        country.forEach(function (c) {
-          queryString += "country=" + encodeURIComponent(c) + "&";
-        });
-      } else {
-        queryString += "country=" + encodeURIComponent(country) + "&";
-      }
-    }
-
-    if (type) {
-      if (Array.isArray(type)) {
-        type.forEach(function (t) {
-          queryString += "type=" + encodeURIComponent(t) + "&";
-        });
-      } else {
-        queryString += "type=" + encodeURIComponent(type) + "&";
-      }
-    }
-
-    return queryString.slice(0, -1);
-  };
-
-  const queryString = constructQueryString(search, country, type);
+  const queryString = datastructures.constructQueryString({ search, country, type });
   const endpoint = `${BLOG_API_URL}/v2/api/blog/${page_content_limit}/${page}?${queryString}`;
 
   let metadata;
