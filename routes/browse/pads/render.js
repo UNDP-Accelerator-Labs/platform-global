@@ -1,20 +1,13 @@
 const {
   page_content_limit,
   apps_in_suite,
-  modules,
-  metafields,
-  engagementtypes,
-  lazyload,
   map,
-  browse_display,
   welcome_module,
   DB,
 } = include("config/");
-const { array, datastructures, checklanguage, fetcher, join, parsers } =
-  include("routes/helpers/");
+const { array, datastructures, fetcher, checklanguage} = include("routes/helpers/");
 
 const filter = require("./filter.js").main;
-const load = require('./load/')
 
 exports.main = async (req, res) => {
   let { mscale, display, pinboard, source } = req.query || {};
@@ -24,6 +17,8 @@ exports.main = async (req, res) => {
   const path = req.path.substring(1).split("/");
   const activity = path[1];
   if (instance) pinboard = res.locals.instance_vars?.pinboard;
+
+  const language = checklanguage(req.params?.language || req.session.language)
 
   const [f_space, order, page, full_filters ] = await filter(req, res);
   const baseurl = DB.conns.find((d) => d.key === source).baseurl;
@@ -37,9 +32,18 @@ exports.main = async (req, res) => {
   let [data, filters_menu, statistics, clusters, sample_images] = responses;
 
   const { sections } = data;
+  const updatedSections = sections.map(section => {
+    const updatedData = section.data.map(dataObject => ({
+      ...dataObject,
+      link: `${baseurl}/${language}/view/pad?id=`
+    }));
+  
+    return { ...section, data: updatedData };
+  });
+
   const stats = {
     total: array.sum.call(statistics.total, 'count'),
-	filtered: array.sum.call(statistics.filtered, 'count'),
+	    filtered: array.sum.call(statistics.filtered, 'count'),
 
     private: statistics.private,
     curated: statistics.curated,
@@ -53,7 +57,7 @@ exports.main = async (req, res) => {
     contributors: statistics.contributors,
     tags: statistics.tags,
   };
-
+// console.log('sections ', sections[0].data)
   const metadata = await datastructures.pagemetadata({
     req,
     res,
@@ -64,7 +68,7 @@ exports.main = async (req, res) => {
     source,
   });
   let aggr_data = Object.assign(metadata, {
-    sections,
+    sections: updatedSections,
     clusters,
     sample_images,
     stats,
