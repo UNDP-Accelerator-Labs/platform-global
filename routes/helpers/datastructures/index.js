@@ -8,7 +8,7 @@ if (!exports.legacy) exports.legacy = {}
 
 exports.sessiondata = _data => {
 	let { uuid, name, email, team, collaborators, rights, public, language, iso3, countryname, bureau, lng, lat } = _data || {}
-
+	// const { host } = req.headers || {}
 	// GENERIC session INFO
 	const obj = {}
 	obj.uuid = uuid || null
@@ -25,6 +25,10 @@ exports.sessiondata = _data => {
 		bureau: bureau,
 		lnglat: { lng: lng ?? 0, lat: lat ?? 0 }
 	}
+
+	obj.token = jwt.sign(obj, 
+		process.env.PLATFORM_APP_SECRET,
+		{ expiresIn: '24h' })
 
 	return obj
 }

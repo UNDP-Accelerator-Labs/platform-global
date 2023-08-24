@@ -15,14 +15,12 @@ exports.main = async (req, url, method = 'GET', requestData = null) => {
         method,
         headers: {
             'Content-Type': 'application/json',
+            'Api-Access-Token': req.session.token
         },
         body: requestData ? JSON.stringify(requestData) : null,
-        session: {
-            uuid,
-            language
-        }
     };
 
     return fetch(url, fetchOptions)
-        .then(response => response.json());
+        .then(response => response.json())
+        .catch(err=> console.log(err));
 };

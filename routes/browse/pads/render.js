@@ -1,11 +1,7 @@
-const {
-  page_content_limit,
-  apps_in_suite,
-  map,
-  welcome_module,
-  DB,
-} = include("config/");
-const { array, datastructures, fetcher, checklanguage} = include("routes/helpers/");
+const { page_content_limit, apps_in_suite, map, welcome_module, DB } =
+  include("config/");
+const { array, datastructures, fetcher, checklanguage } =
+  include("routes/helpers/");
 
 const filter = require("./filter.js").main;
 
@@ -18,165 +14,189 @@ exports.main = async (req, res) => {
   const activity = path[1];
   if (instance) pinboard = res.locals.instance_vars?.pinboard;
 
-  const language = checklanguage(req.params?.language || req.session.language)
+  const language = checklanguage(req.params?.language || req.session.language);
 
-  const [f_space, order, page, full_filters ] = await filter(req, res);
+  const [f_space, order, page, full_filters] = await filter(req, res);
+
+  let aggr_data,
+    global_info,
+    pinboards_list = [],
+    uniqueboard = null;
+
   const baseurl = DB.conns.find((d) => d.key === source).baseurl;
-  const url = `${baseurl}/apis/fetch/global`
-  const responses = await fetcher(req, url, 'POST', { filters: full_filters });
+  try {
+    const url = `${baseurl}/apis/fetch/global`;
+    const responses = await fetcher(req, url, "POST", {
+      filters: full_filters,
+    });
 
-  let max = 10;
-  if (welcome_module === "mosaic") max = 46;
-  responses[4] = await responses[4].filter((d) => d.img?.length).slice(0, max);
-
-  let [data, filters_menu, statistics, clusters, sample_images] = responses;
-
-  const { sections } = data;
-  const updatedSections = sections.map(section => {
-    const updatedData = section.data.map(dataObject => ({
-      ...dataObject,
-      link: `${baseurl}/${language}/view/pad?id=`
-    }));
-  
-    return { ...section, data: updatedData };
-  });
-
-  const stats = {
-    total: array.sum.call(statistics.total, 'count'),
-	    filtered: array.sum.call(statistics.filtered, 'count'),
-
-    private: statistics.private,
-    curated: statistics.curated,
-    shared: statistics.shared,
-    reviewing: statistics.reviewing,
-    public: statistics.public,
-
-    displayed: data.count,
-    breakdown: statistics.filtered,
-    persistent_breakdown: statistics.persistent,
-    contributors: statistics.contributors,
-    tags: statistics.tags,
-  };
-// console.log('sections ', sections[0].data)
-  const metadata = await datastructures.pagemetadata({
-    req,
-    res,
-    page,
-    pagecount: Math.ceil((stats.filtered || 0) / page_content_limit),
-    map,
-    mscale,
-    source,
-  });
-  let aggr_data = Object.assign(metadata, {
-    sections: updatedSections,
-    clusters,
-    sample_images,
-    stats,
-    filters_menu,
-  });
-
-  const global_urls = DB.conns
-    .map((d) => [
-      {
-        key: d.key,
-        url: `${d.baseurl}/apis/fetch/global-data`,
-      },
-    ])
-    .flat();
-
-  const global_requests = global_urls.map((url) =>
-    fetcher(req, url.url, 'POST', { filters: full_filters })
-      .then((results) => ({
-        ...results,
-        key: url.key,
-      }))
-      .catch((err) => console.log(err))
-  );
-
-  const global_info = await Promise.all(global_requests)
-    .then((results) => {
-      const global_info = {};
-      global_info.statistics = results;
-      global_info.pads = results.map((d) => d.pads).flat();
-      global_info.filtered = array.sum.call(
-        results.map((d) => d.stats),
-        "filtered"
-      );
-      global_info.shared = array.sum.call(
-        results.map((d) => d.stats),
-        "shared"
-      );
-      global_info.public = array.sum.call(
-        results.map((d) => d.stats),
-        "public"
-      );
-
-      function mergeObjValues(arr) {
-        if (arr?.length) {
-          const allkeys = arr.map((d) => Object.keys(d)).flat();
-          const commonkeys = array.unique
-            .call(allkeys)
-            .reduce((accumulator, value) => {
-              if (allkeys.filter((d) => d === value).length >= 2)
-                accumulator.push(value);
-              return accumulator;
-            }, []);
-          const uniquekeys = array.unique
-            .call(allkeys)
-            .reduce((accumulator, value) => {
-              if (allkeys.filter((d) => d === value).length === 1)
-                accumulator.push(value);
-              return accumulator;
-            }, []);
-
-          const obj = {};
-          commonkeys.forEach((d) => {
-            const values = arr
-              .map((c) => c[d])
-              .filter((c) => c)
-              .flat();
-
-            const usekey = values.every(
-              (c) => ![null, undefined].includes(c.key)
-            );
-            obj[d] = [];
-            values.forEach((c) => {
-              const preventry = obj[d].find((b) =>
-                usekey ? b.key === c.key : b.id === c.id
-              );
-              if (preventry) preventry.count += c.count;
-              else obj[d].push(c);
-            });
-            if (usekey) obj[d].sort((a, b) => a.key - b.key);
-            else obj[d].sort((a, b) => a.name.localeCompare(b.name));
-          });
-
-          uniquekeys.forEach((d) => {
-            obj[d] = arr.find((c) => c[d])[d];
-          });
-
-          return obj;
-        } else return null;
+    let max = 10;
+    if (welcome_module === "mosaic") max = 46;
+    if (responses) {
+      if (Array.isArray(responses[4])) {
+        responses[4] = responses[4].filter((d) => d?.img?.length).slice(0, max);
       }
-      global_info.filters_menu = new Array(
-        Math.max(...results.map((d) => d.filters_menu.length))
-      )
-        .fill(0)
-        .map((d, i) =>
-          mergeObjValues(results.map((c) => c.filters_menu[i]).filter((c) => c))
+    }
+
+    let [data, filters_menu, statistics, clusters, sample_images] = responses;
+
+    const { sections } = data;
+    const updatedSections = sections?.map((section) => {
+      const updatedData = section?.data?.map((dataObject) => ({
+        ...dataObject,
+        link: `${baseurl}/${language}/view/pad?id=${dataObject?.id}`,
+      }));
+
+      return { ...section, data: updatedData };
+    });
+
+    const stats = {
+      total: array.sum.call(statistics.total, "count"),
+      filtered: array.sum.call(statistics.filtered, "count"),
+
+      private: statistics.private,
+      curated: statistics.curated,
+      shared: statistics.shared,
+      reviewing: statistics.reviewing,
+      public: statistics.public,
+
+      displayed: data.count,
+      breakdown: statistics.filtered,
+      persistent_breakdown: statistics.persistent,
+      contributors: statistics.contributors,
+      tags: statistics.tags,
+    };
+
+    const metadata = await datastructures.pagemetadata({
+      req,
+      res,
+      page,
+      pagecount: Math.ceil((stats.filtered || 0) / page_content_limit),
+      map,
+      mscale,
+      source,
+    });
+
+    aggr_data = Object.assign(metadata, {
+      sections: updatedSections,
+      clusters,
+      sample_images,
+      stats,
+      filters_menu,
+    });
+  } catch (err) {
+    console.log("An error occoured ", err);
+  }
+
+  try {
+    const global_urls = DB.conns
+      .map((d) => [
+        {
+          key: d.key,
+          url: `${d.baseurl}/apis/fetch/global-data`,
+        },
+      ])
+      .flat();
+
+    const global_requests = global_urls.map((url) =>
+      fetcher(req, url.url, "POST", { filters: full_filters })
+        .then((results) => ({
+          ...results,
+          key: url.key,
+        }))
+        .catch((err) => console.log(err))
+    );
+
+    global_info = await Promise.all(global_requests)
+      .then((results) => {
+        const global_info = {};
+        global_info.statistics = results;
+        global_info.pads = results.map((d) => d.pads).flat();
+        global_info.filtered = array.sum.call(
+          results.map((d) => d.stats),
+          "filtered"
+        );
+        global_info.shared = array.sum.call(
+          results.map((d) => d.stats),
+          "shared"
+        );
+        global_info.public = array.sum.call(
+          results.map((d) => d.stats),
+          "public"
         );
 
-      return global_info;
-    })
-    .catch((err) => console.log(err));
+        function mergeObjValues(arr) {
+          if (arr?.length) {
+            const allkeys = arr.map((d) => Object.keys(d)).flat();
+            const commonkeys = array.unique
+              .call(allkeys)
+              .reduce((accumulator, value) => {
+                if (allkeys.filter((d) => d === value).length >= 2)
+                  accumulator.push(value);
+                return accumulator;
+              }, []);
+            const uniquekeys = array.unique
+              .call(allkeys)
+              .reduce((accumulator, value) => {
+                if (allkeys.filter((d) => d === value).length === 1)
+                  accumulator.push(value);
+                return accumulator;
+              }, []);
 
-  const pinboards_list = [];
-  const uniqueboard = null;
+            const obj = {};
+            commonkeys.forEach((d) => {
+              const values = arr
+                .map((c) => c[d])
+                .filter((c) => c)
+                .flat();
 
-  aggr_data.metadata.page.display =
-    uniqueboard?.slideshow && (!uniqueboard?.editable || activity === "preview")
-      ? "slideshow"
-      : display;
+              const usekey = values.every(
+                (c) => ![null, undefined].includes(c.key)
+              );
+              obj[d] = [];
+              values.forEach((c) => {
+                const preventry = obj[d].find((b) =>
+                  usekey ? b.key === c.key : b.id === c.id
+                );
+                if (preventry) preventry.count += c.count;
+                else obj[d].push(c);
+              });
+              if (usekey) obj[d].sort((a, b) => a.key - b.key);
+              else obj[d].sort((a, b) => a.name.localeCompare(b.name));
+            });
+
+            uniquekeys.forEach((d) => {
+              obj[d] = arr.find((c) => c[d])[d];
+            });
+
+            return obj;
+          } else return null;
+        }
+        global_info.filters_menu = new Array(
+          Math.max(...results.map((d) => d.filters_menu.length))
+        )
+          .fill(0)
+          .map((d, i) =>
+            mergeObjValues(
+              results.map((c) => c.filters_menu[i]).filter((c) => c)
+            )
+          );
+
+        return global_info;
+      })
+      .catch((err) => {
+        console.log(err);
+        return null;
+      });
+
+    aggr_data.metadata.page.display =
+      uniqueboard?.slideshow &&
+      (!uniqueboard?.editable || activity === "preview")
+        ? "slideshow"
+        : display;
+  } catch (err) {
+    console.log("An error occurred ", err);
+  }
 
   res.render(
     "browse/",

@@ -17,7 +17,7 @@ exports.main = (req, res) => {
 	} else if (object === 'contributor') {
 		if (modules.some(d => d.type === 'teams' && rights >= d.rights.write)) {
 			if (action === 'insert') contributor.pin(req, res)
-			else if (action === 'delete') contributor.unpin(req, res)
+			else if (action === 'delete') contributor.pin(req, res)
 			else res.redirect('/module-error')
 		} else res.redirect(referer)
 	} else res.redirect('/module-error')
