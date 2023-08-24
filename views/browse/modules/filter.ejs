@@ -245,7 +245,9 @@
 					pinAll(existingBoard.node().previousElementSibling)							
 				} else { // CREATE A NEW BOARD AND ADD THE OBJECT TO IT
 					const { board_id } = await POST('/pin', { board_title: node.value.trim(), object_id: <%- JSON.stringify(locals?.global_info?.pads) %>, action: 'insert', object: '<%- object.slice(0, -1) %>' })
-					window.location = `./pinned?pinboard=${board_id}`
+					if(board_id){
+						window.location = `./pinned?pinboard=${board_id}`
+					}
 				}
 				// RESET DROPDOWN
 				this.value = ''

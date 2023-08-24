@@ -3,7 +3,7 @@ const { page_content_limit, apps_in_suite, map, welcome_module, DB } =
 const { array, datastructures, fetcher, checklanguage } =
   include("routes/helpers/");
 
-const filter = require("./filter.js").main;
+const filter = require("./filter.js");
 
 exports.main = async (req, res) => {
   let { mscale, display, pinboard, source } = req.query || {};
@@ -16,7 +16,8 @@ exports.main = async (req, res) => {
 
   const language = checklanguage(req.params?.language || req.session.language);
 
-  const [f_space, order, page, full_filters] = await filter(req, res);
+  const filters = await filter.body(req, res);
+  const [f_space, order, page, full_filters] = await filter.main(req, res);
 
   let aggr_data,
     global_info,
@@ -27,7 +28,7 @@ exports.main = async (req, res) => {
   try {
     const url = `${baseurl}/apis/fetch/global`;
     const responses = await fetcher(req, url, "POST", {
-      filters: full_filters,
+      filters,
     });
 
     let max = 10;
@@ -99,7 +100,7 @@ exports.main = async (req, res) => {
       .flat();
 
     const global_requests = global_urls.map((url) =>
-      fetcher(req, url.url, "POST", { filters: full_filters })
+      fetcher(req, url.url, "POST", { filters })
         .then((results) => ({
           ...results,
           key: url.key,
