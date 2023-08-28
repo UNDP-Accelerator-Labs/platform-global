@@ -10,12 +10,12 @@ exports.main = async (req, url, method = 'GET', requestData = null) => {
     } else { // PUBLIC/ NO SESSION
         ({ uuid, rights, collaborators, public } = datastructures.sessiondata({ public: true }) || {});
     }
-
+// req.session.destroy()
     const fetchOptions = {
         method,
         headers: {
             'Content-Type': 'application/json',
-            'Api-Access-Token': req.session.token
+            'x-access-token-global': req.session.token
         },
         body: requestData ? JSON.stringify(requestData) : null,
     };

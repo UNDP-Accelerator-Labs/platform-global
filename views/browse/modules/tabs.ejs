@@ -10,94 +10,7 @@
 %>
 
 <menu>
-	<% if (object === 'reviews') { %>
-		<li class='<% if (space === "pending") { %>active<% } %>'>
-			<a href='./pending'>
-				<button><%- vocabulary['space'][language](object, 'pending') %><div class='count'><%- locals.stats?.pending %></div></button>
-			</a>
-		</li>
-		<li class='<% if (space === "ongoing") { %>active<% } %>'>
-			<a href='./ongoing'>
-				<button><%- vocabulary['space'][language](object, 'ongoing') %><div class='count'><%- locals.stats?.ongoing %></div></button>
-			</a>
-		</li>
-		<li class='<% if (space === "past") { %>active<% } %>'>
-			<a href='./past'>
-				<button><%- vocabulary['space'][language](object, 'past') %><div class='count'><%- locals.stats?.past %></div></button>
-			</a>	
-		</li>
-	<% } else if (object === 'mobilizations') { %>
-		<li class='<% if (space === "scheduled") { %>active<% } %>'>
-			<a href='./scheduled'>
-				<button><%- vocabulary['space'][language](object, 'scheduled') %><div class='count'><%- locals.stats?.scheduled %></div></button>
-			</a>
-		</li>
-		<li class='<% if (space === "ongoing") { %>active<% } %>'>
-			<a href='./ongoing'>
-				<button><%- vocabulary['space'][language](object, 'ongoing') %><div class='count'><%- locals.stats?.ongoing %></div></button>
-			</a>
-		</li>
-		<li class='<% if (space === "past") { %>active<% } %>'>
-			<a href='./past'>
-				<button><%- vocabulary['space'][language](object, 'past') %><div class='count'><%- locals.stats?.past %></div></button>
-			</a>	
-		</li>
-	<% } else if (object === 'contributors') { %>
-		<li class='<% if (space === "invited") { %>active<% } %>'>
-			<a href='./invited'>
-				<button><%- vocabulary['space'][language](object, 'invited') %>
-					<div class='count'><%- locals.stats?.invited %></div>
-				</button>
-			</a>
-		</li>
-		<% if (modules.some(d => d.type === 'teams' && rights >= d.rights.read) 
-			&& locals.pinboards_list?.length) 
-		{ %>
-			<li class='filter <% if (space === "pinned") { %>active<% } %>'>
-				<div class='inner'>
-					<input type='text' id='pinboards' onblur='fixLabel(this)'>
-					<label for='pindboards'><%- vocabulary['space'][language](object, 'pinned') %></label>
-				</div>
-
-				<div id='pinboards-list' class='dropdown'>
-					<menu>
-						<% locals.pinboards_list.filter(d => d.id !== locals.pinboard?.id)
-						.forEach(d => { %>
-							<li>
-								<a href='./pinned?pinboard=<%- d.id %>'><%- d.title %></a>
-							</li>
-						<% }) %>
-					</menu>
-				</div>
-			</li>
-		<% } %>
-		<li class='<% if (space === "all") { %>active<% } %>'>
-			<a href='./all'>
-				<button><%- vocabulary['space'][language](object, 'all') %>
-					<div class='count'><%- locals.stats?.all %></div>
-				</button>
-			</a>
-		</li>
-	<% } else { %>
-		<!-- <li class='<% if (space === "private") { %>active<% } %>'>
-			<a href='./private'>
-				<button><%- vocabulary['space'][language](object, 'private') %>
-					<div class='count'><%- locals.stats?.private %></div>
-				</button>
-			</a>
-		</li> -->
-		<!-- <% if (['pads', 'templates'].includes(object)
-			&& modules.some(d => d.type === 'mobilizations' && rights >= d.rights.write) 
-			&& locals.stats?.curated > 0
-		) { %>
-			<li class='<% if (space === "curated") { %>active<% } %>'>
-				<a href='./curated'>
-					<button><%- vocabulary['space'][language](object, 'curated') %>
-						<div class='count'><%- locals.stats?.curated %></div>
-					</button>
-				</a>
-			</li>
-		<% } %>	 -->
+		
 		<% if (modules.some(d => d.type === 'pinboards' && rights >= d.rights.read) 
 			&& locals.pinboards_list?.length) 
 		{ %>
@@ -126,17 +39,7 @@
 				</button>
 			</a>
 		</li>
-		<% if (object === 'pads' && modules.some(d => d.type === 'reviews' && rights >= d.rights.read) 
-			&& locals.stats?.reviewing > 0) 
-		{ %>
-			<li class='<% if (space === "reviewing") { %>active<% } %>'>
-				<a href='./reviewing'>
-					<button><%- vocabulary['space'][language](object, 'reviewing') %>
-						<div class='count'><%- locals.stats?.reviewing %></div>
-					</button>
-				</a>
-			</li>
-		<% } %>
+		
 		<% if (!['reviews', 'templates'].includes(object)) { %>
 			<li class='<% if (space === "public") { %>active<% } %>'>
 				<a onclick='redirect("./public")'>
@@ -146,19 +49,6 @@
 				</a>
 			</li>
 		<% } %>
-		<% if (object === 'templates' && modules.some(d => d.type === 'reviews' && rights >= d.rights.read) 
-			&& locals.metadata.menu.review_templates?.length > 0) 
-		{ %>
-			<li class='<% if (space === "reviews") { %>active<% } %>'>
-				<a href='./reviews'>
-					<button><%- vocabulary['space'][language](object, 'reviews') %>
-						<div class='count'><%- locals.metadata.menu.review_templates.filter(function (d, i, self) { return self.findIndex(c => c.template === d.template) === i }).length %></div>
-						<!-- ABOVE IS A METHOD FOR EXTRACTING UNIQUE VALUES INSPIRED BY https://stackoverflow.com/questions/1960473/get-all-unique-values-in-a-javascript-array-remove-duplicates -->
-					</button>
-				</a>
-			</li>
-		<% } %>
-	<% } %>
 </menu>
 
 <% if (space === 'pinned' && locals.pinboard) { %>

@@ -6,14 +6,13 @@ const { array, datastructures, fetcher, checklanguage } =
 const filter = require("./filter.js");
 
 exports.main = async (req, res) => {
+  
   let { mscale, display, pinboard, source } = req.query || {};
   if (!source || !apps_in_suite.some((d) => d.key === source))
     source = apps_in_suite[0].key;
-  const { object, instance } = req.params || {};
+  
   const path = req.path.substring(1).split("/");
   const activity = path[1];
-  if (instance) pinboard = res.locals.instance_vars?.pinboard;
-
   const language = checklanguage(req.params?.language || req.session.language);
 
   const filters = await filter.body(req, res);

@@ -17,9 +17,6 @@
 
 <div class='screen <% if (locals.errormessage) { %>error<% } else { %>blue<% } %>'>
 	<div class='modal login-module'>
-		<button id='global-login'>
-			<a>Use global login</a>
-		</button>
 		<form action='/login' method='POST'>
 			<input type='hidden' name='originalUrl' value='<%- locals.originalUrl %>'>
 			<ul>
@@ -85,12 +82,6 @@
 		})
 		inputs.each(function () { fixLabel(this) })
 	})
-</script>
-
-<script type='text/javascript'>
-	d3.select('#global-login a')
-		// .attr('href', `http://localhost:4000?origin=${encodeURIComponent(window.location)}&platform=${encodeURIComponent('action plans')}`)
-		.attr('href', `https://acclabs.azurewebsites.net/?origin=${encodeURIComponent(window.location)}`)
 </script>
 </main>
 

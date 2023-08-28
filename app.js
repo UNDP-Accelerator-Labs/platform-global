@@ -8,13 +8,7 @@ const path = require('path')
 const bodyparser = require('body-parser')
 const session = require('express-session')
 const pgSession = require('connect-pg-simple')(session)
-
-const multer = require('multer')
-const upload = multer({ dest: './tmp' })
-const fs = require('fs')
 const cors = require('cors');
-
-const { spawn } = require('child_process')
 
 const app = express()
 
@@ -42,9 +36,8 @@ const sessionMiddleware = session({
 	cookie: {
 		httpOnly: true, // THIS IS ACTUALLY DEFAULT
 		secure: process.env.NODE_ENV === 'production',
-		maxAge: 1000 * 60 * 60 * 24 * 1, // 1 DAY
+		maxAge: 1000 * 60 * 60 * 24 * 5, // 5 DAY
 		sameSite: 'lax',
-		// domain: process.env.NODE_ENV === 'production' ? '.azurewebsites.net' : 'localhost'
 	}
 })
 
@@ -76,13 +69,6 @@ app.route('/reset-password')
 	.get(routes.redirect.browse, routes.render.login)
 	.post(routes.process.updatePassword)
 
-app.route('/:language/contribute/:object')
-	.get(routes.render.login, routes.dispatch.contribute)
-app.route('/:language/edit/:object')
-	.get(routes.render.login, routes.dispatch.edit)
-app.route('/:language/view/:object')
-	.get(routes.render.login, routes.dispatch.view)
-
 app.route('/:language/browse/:object/:space')
 	.get(routes.render.login, routes.dispatch.browse)
 	.post(routes.render.login, routes.dispatch.browse)
@@ -93,47 +79,18 @@ app.route('/:language/preview/:object/:space')
 app.route('/:language/print/:object/:space')
 	.get(routes.render.login, routes.dispatch.print)
 
-app.get('/:language/analyse/:object', routes.dispatch.analyse) // TO DO
+app.post('/check/:object', routes.process.check) 
 
-app.post('/check/:object', routes.process.check)
-
-app.post('/save/:object', routes.process.save)
-app.post('/generate/:format', routes.process.generate)
-app.post('/pin', routes.process.pin)
-app.post('/engage', routes.process.engage)
-app.post('/comment', routes.process.comment)
-
-app.route('/publish/:object')
-	.get(routes.process.publish)
-	.post(routes.process.publish)
-app.get('/unpublish/:object', routes.process.unpublish)
-app.post('/share/:object', routes.process.share)
-app.get('/forward/:object', routes.process.forward)
-app.get('/delete/:object', routes.process.delete)
-
-app.route('/request/:object')
-	.get(routes.process.request)
-	.post(routes.process.request)
-app.get('/accept/:object', routes.process.accept)
-app.get('/decline/:object', routes.process.decline)
-
-app.post('/call/api', routes.process.callapi)
-
-
-// TO DO: UPDATE SCHEMA BELOW
-app.post('/forwardGeocoding', routes.forwardGeocoding) // UPDATE TO geocode/forward
-app.post('/reverseGeocoding', routes.reverseGeocoding) // UPDATE TO geocode/forward
-
+app.post('/save/:object', routes.process.save) 
+app.post('/pin', routes.process.pin) 
+app.post('/engage', routes.process.engage) 
 
 // API
 app.route('/apis/:action/:object')
 	.get(routes.dispatch.apis)
 	.post(routes.dispatch.apis)
 
-// INSTANCES
-app.route('/:language/:instance')
-	.get(routes.render.login, routes.dispatch.browse)
-
+app.get('/module-error', routes.error)
 app.get('*', routes.notfound)
 
 // RUN THE SERVER
