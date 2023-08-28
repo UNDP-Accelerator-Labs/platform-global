@@ -20,7 +20,6 @@ exports.redirect.browse = require('./redirect/').browse
 
 exports.redirect.public = (req, res) => res.redirect('/public')
 exports.dispatch.public = require('./login/').public
-exports.dispatch.session = require('./login/').setSession
 
 exports.process.forgetPassword = require('./login/').forgetPassword
 exports.process.getResetToken = require('./login/').getResetToken
@@ -40,6 +39,8 @@ exports.process.save = require('./save/').main
 
 exports.process.pin = require('./engage/').pin
 exports.process.engage = require('./engage/').engage
+
+exports.dispatch.edit = require('./edit/').main
 
 
 /* =============================================================== */

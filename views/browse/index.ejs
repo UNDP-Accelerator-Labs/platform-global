@@ -311,7 +311,6 @@
 
 						const res = await POST('/save/pinboard', Object.assign(displayopts, { id: <%- locals.pinboard.id %>, title, description }))
 						if (res.status === 200) {
-							console.log('saved')
 							const { datum } = res
 							updateTab(datum.title)
 

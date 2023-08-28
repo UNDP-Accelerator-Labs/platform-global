@@ -73,6 +73,9 @@ app.route('/:language/browse/:object/:space')
 	.get(routes.render.login, routes.dispatch.browse)
 	.post(routes.render.login, routes.dispatch.browse)
 
+app.route('/:language/edit/:object')
+	.get(routes.render.login, routes.dispatch.edit)
+
 app.route('/:language/preview/:object/:space')
 	.get(routes.render.login, routes.dispatch.browse)
 
