@@ -40,7 +40,7 @@ exports.main = async (req, res) => {
       if (!metadata?.metadata?.page?.query["search"]) {
         metadata.metadata.page.query.search = "";
       }
-
+      
       return results;
     })
     .catch((err) => console.log(err));

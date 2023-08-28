@@ -82,10 +82,6 @@ app.route('/:language/edit/:object')
 	.get(routes.render.login, routes.dispatch.edit)
 app.route('/:language/view/:object')
 	.get(routes.render.login, routes.dispatch.view)
-// app.route('/:language/import/:object')
-// 	.get(routes.render.login, routes.dispatch.import)
-// app.route('/:language/mobilize/:object')
-// 	.get(routes.render.login, routes.dispatch.mobilize)
 
 app.route('/:language/browse/:object/:space')
 	.get(routes.render.login, routes.dispatch.browse)
@@ -121,25 +117,10 @@ app.route('/request/:object')
 app.get('/accept/:object', routes.process.accept)
 app.get('/decline/:object', routes.process.decline)
 
-
-// app.post('/deploy', routes.process.deploy)
-// app.get('/demobilize', routes.process.demobilize)
-
-// app.post('/intercept/:method', routes.process.intercept)
 app.post('/call/api', routes.process.callapi)
-
-// app.post('/:language/:activity/:object/save', routes.process.save) // THIS PATH SHOULD NOT BE SO COMPLEX
-
-
-// app.post('/upload/img', upload.array('img'), routes.process.upload)
-// app.post('/upload/video', upload.array('video'), routes.process.upload)
-// app.post('/upload/pdf', upload.array('pdf'), routes.process.upload)
-
-// app.post('/screenshot', routes.process.screenshot)
 
 
 // TO DO: UPDATE SCHEMA BELOW
-// app.post('/storeImport', routes.render.login, routes.storeImport) // UPDATE DO save/import
 app.post('/forwardGeocoding', routes.forwardGeocoding) // UPDATE TO geocode/forward
 app.post('/reverseGeocoding', routes.reverseGeocoding) // UPDATE TO geocode/forward
 
@@ -149,12 +130,6 @@ app.route('/apis/:action/:object')
 	.get(routes.dispatch.apis)
 	.post(routes.dispatch.apis)
 
-app.get('/api/skills', routes.api.skills) // TO DO: THIS SHOULD BE DEPRECATED
-app.get('/api/methods', routes.api.methods) // TO DO: THIS SHOULD BE DEPRECATED
-app.route('/api/datasources')
-	.get(routes.api.datasources)
-	.post(routes.api.datasources)
-
 // INSTANCES
 app.route('/:language/:instance')
 	.get(routes.render.login, routes.dispatch.browse)
@@ -162,4 +137,4 @@ app.route('/:language/:instance')
 app.get('*', routes.notfound)
 
 // RUN THE SERVER
-const server = app.listen(process.env.PORT || 2000, _ => console.log(`the app is running on port ${process.env.PORT || 2000}`))
+const server = app.listen(process.env.PORT || 4000, _ => console.log(`the app is running on port ${process.env.PORT || 3000}`))

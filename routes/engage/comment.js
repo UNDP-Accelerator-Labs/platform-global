@@ -1,5 +1,6 @@
 const { DB } = include('config/')
 
+//TODO: covert to API
 exports.main = (req, res) => {
 	const { uuid } = req.session || {}
 	const { referer } = req.headers || {}

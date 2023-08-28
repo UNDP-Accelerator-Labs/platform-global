@@ -152,42 +152,6 @@ exports.process.decline = require('./accept/').decline
 exports.dispatch.apis = require('./apis/')
 
 if (!exports.api) exports.api = {}
-// THE TAGS APIS SHOULD BE DEPRECATED FOR NOW
-exports.api.skills = (req, res) => {
-	DB.general.any(`
-		SELECT id, category, name FROM skills ORDER BY category, name
-	;`).then(results => res.status(200).json(results))
-	.catch(err => res.status(500).send(err))
-}
-exports.api.methods = (req, res) => {
-	DB.general.any(`
-		SELECT id, name FROM methods ORDER BY name
-	;`).then(results => res.status(200).json(results))
-	.catch(err => res.status(500).send(err))
-}
-exports.api.datasources = (req, res) => {
-	if (req.method === 'GET') {
-		DB.general.any(`
-			SELECT d.id, d.name, d.description, u.iso3 FROM datasources d
-			LEFT JOIN users u
-				ON u.uuid = d.contributor
-		;`).then(results => res.status(200).json(results))
-		.catch(err => res.status(500).send(err))
-	} else if (req.method === 'POST') {
-		const { uuid } = req.session || {}
-		const { tag } = req.body || {}
-
-		DB.general.one(`
-			INSERT INTO datasources (name, contributor)
-			VALUES ($1, $2)
-				ON CONFLICT ON CONSTRAINT datasources_name_key
-				DO NOTHING
-			RETURNING uuid, name
-		;`, [ tag.toLowerCase(), uuid || null ])
-		.then(result => res.status(200).json(result))
-		.catch(err => res.status(500).send(err))
-	}
-}
 
 exports.notfound = (req, res) => {
 	res.send('This is not the route that you are looking for')
