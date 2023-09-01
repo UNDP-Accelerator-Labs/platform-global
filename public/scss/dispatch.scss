@@ -1,13 +1,14 @@
 /* https://www.freecodecamp.org/news/css-media-queries-breakpoints-media-types-standard-resolutions-and-more/ */
 
 @import '_base';
+@import 'google-translate';
 
 /* Small devices (landscape phones, 480px and up) */
 @media (max-width: 480px) {
 /*@media (max-width: 480px) and (orientation: portrait) {*/
 	@import '_base.xs';
 	@import '_navigate.xs';
-	@import '_filter.lg';
+	@import '_filter.lg';	
 	@import '_map.lg';
 
 	@import '_pad.xs';

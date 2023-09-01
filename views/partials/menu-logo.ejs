@@ -26,12 +26,6 @@
 			<img class='logo' src='/imgs/branding/UNDP_accelerator_labs_logo_vertical_color_RGB.png'>
 		</a>
 		<h1><%- (locals.metadata.site.title).replace(/\s+/g, '<br>') %></h1>
-		<% if (!publicpage) { %>
-			<h2>
-				<% if (locals.metadata.user.country.iso3 === 'NUL') { %>Global
-				<% } else { %><%- locals.metadata.user.country.name %><% } %>
-			</h2>
-		<% } %>
 		
 		<% if (['contribute', 'edit'].includes(activity)) { %>
 			<div class='save lg hide'>

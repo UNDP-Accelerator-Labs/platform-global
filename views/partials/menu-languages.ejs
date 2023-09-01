@@ -12,7 +12,7 @@
 	<menu>
 		<!-- TO DO: PASS THIS FROM CONFIG FILE (THERE MIGHT NOT ALWAYS BE A SUITE) -->
 		<li class='home-btn lg'>
-			<a href='https://acclabs.azurewebsites.net/'>Accelerator Labs Suite</a>
+			<a href='/'>Accelerator Labs - Global Suite</a>
 		</li>
 		<li class='options'>
 			<ul>
@@ -21,6 +21,7 @@
 						<a class='<% if (language === d.language) { %>active<% } %>'><%- d.language.toUpperCase() %></a>
 					</li>
 				<% }) %>
+				<li  class='googletranslator' id="google_translate_element"></li >
 			</ul>
 		</li>
 		<li class='user-id'>
