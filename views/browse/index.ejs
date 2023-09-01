@@ -542,11 +542,6 @@
 					_sel.addElems('div', 'btn-group')
 					.addElems('form', 'actions', d => {
 						const opts = []
-
-						<% if (object === 'pads') { %>
-							opts.push({ node: 'button', type: 'button', classname: 'download', label: '<%- vocabulary["download"][language] %>', name: 'pads', value: d.id, disabled: d.status < 2, fn: setDownloadOptions })
-						<% } %>
-
 						return opts
 					}).attrs({
 						'action': d => d.action,
