@@ -49,6 +49,8 @@ app.get('/version/', routes.getVersionString )
 
 app.get('/', routes.redirect.home, routes.redirect.public)
 
+app.get('/home', routes.dispatch.home)
+
 // PUBLIC VIEWS
 app.get('/public/', routes.dispatch.public) // THIS COULD BE DEPRECATED
 app.get('/:language/public/', routes.dispatch.public) // THIS COULD BE DEPRECATED

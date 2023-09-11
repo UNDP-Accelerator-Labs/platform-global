@@ -1,0 +1,172 @@
+:root {
+  --gray-dark: #252f4a;
+  --gray-100: #f9f9f9;
+  --gray-200: #f1f1f2;
+  --gray-300: #dbdfe9;
+  --gray-400: #b5b5c3;
+  --gray-500: #99a1b7;
+  --gray-600: #78829d;
+  --gray-700: #4b5675;
+  --gray-800: #252f4a;
+  --gray-900: #071437;
+  --light: #f9f9f9;
+  --primary: #3e97ff;
+  --secondary: #dbdfe9;
+  --success: #50cd89;
+  --info: #7239ea;
+  --warning: #ffc700;
+  --danger: #f1416c;
+  --dark: #071437;
+  --native: #005687;
+  --mid-native: #0468b1;
+  --native-secondry: #57648c;
+  --light-rgb: 249, 249, 249;
+  --primary-rgb: 62, 151, 255;
+  --secondary-rgb: 219, 223, 233;
+  --success-rgb: 80, 205, 137;
+  --info-rgb: 114, 57, 234;
+  --warning-rgb: 255, 199, 0;
+  --danger-rgb: 241, 65, 108;
+  --dark-rgb: 7, 20, 55;
+  --white-rgb: 255, 255, 255;
+  --black-rgb: 0, 0, 0;
+  --gradient: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.15),
+    rgba(255, 255, 255, 0)
+  );
+  --body-font-size: 1rem;
+  --body-font-weight: 400;
+  --body-line-height: 1.5;
+  --body-color: #071437;
+  --body-color-rgb: 7, 20, 55;
+  --body-bg: #ffffff;
+  --body-bg-rgb: 255, 255, 255;
+  --secondary-color: rgba(7, 20, 55, 0.75);
+  --secondary-color-rgb: 7, 20, 55;
+  --secondary-bg: #f1f1f2;
+  --secondary-bg-rgb: 241, 241, 242;
+  --heading-color: #071437;
+  --link-color: #3e97ff;
+  --link-color-rgb: 62, 151, 255;
+  --link-decoration: none;
+  --link-hover-color: #0095e8;
+  --link-hover-color-rgb: 0, 149, 232;
+  --link-hover-decoration: none;
+  --code-color: #252f4a;
+  --highlight-bg: #fff3cd;
+  --border-color: #f1f1f2;
+  --border-radius: 0.475rem;
+  --box-shadow: 0 0.5rem 1.5rem 0.5rem rgba(0, 0, 0, 0.075);
+}
+
+$widths: (
+  unset: unset,
+  25: 25%,
+  50: 50%,
+  75: 75%,
+  100: 100%,
+  auto: auto,
+  1px: 1px,
+  2px: 2px,
+  3px: 3px,
+  4px: 4px,
+  5px: 5px,
+  6px: 6px,
+  7px: 7px,
+  8px: 8px,
+  9px: 9px,
+  10px: 10px,
+  15px: 15px,
+  20px: 20px,
+  25px: 25px,
+  30px: 30px,
+  35px: 35px,
+  40px: 40px,
+  45px: 45px,
+  50px: 50px,
+  55px: 55px,
+  60px: 60px,
+  65px: 65px,
+  70px: 70px,
+  75px: 75px,
+  80px: 80px,
+  85px: 85px,
+  90px: 90px,
+  95px: 95px,
+  100px: 100px,
+  125px: 125px,
+  150px: 150px,
+  175px: 175px,
+  200px: 200px,
+  225px: 225px,
+  250px: 250px,
+  275px: 275px,
+  300px: 300px,
+  325px: 325px,
+  350px: 350px,
+  375px: 375px,
+  400px: 400px,
+  425px: 425px,
+  450px: 450px,
+  475px: 475px,
+  500px: 500px,
+  550px: 550px,
+  600px: 600px,
+  650px: 650px,
+  700px: 700px,
+  750px: 750px,
+  800px: 800px,
+  850px: 850px,
+  900px: 900px,
+  950px: 950px,
+  1000px: 1000px,
+);
+$text-colors: (
+  "light": var(--light-rgb),
+  "primary": var(--primary-rgb),
+  "secondary": var(--secondary-rgb),
+  "success": var(--success-rgb),
+  "info": var(--info-rgb),
+  "warning": var(--warning-rgb),
+  "danger": var(--danger-rgb),
+  "dark": var(--dark-rgb),
+  "black": var(--black-rgb),
+  "white": var(--white-rgb),
+  "body": var(--body-color-rgb),
+);
+
+$background-opacities: (
+  10: 0.1,
+  25: 0.25,
+  50: 0.5,
+  75: 0.75,
+  100: 1,
+);
+
+$background-colors: (
+  "light": var(--light-rgb),
+  "primary": var(--primary-rgb),
+  "secondary": var(--secondary-rgb),
+  "success": var(--success-rgb),
+  "info": var(--info-rgb),
+  "warning": var(--warning-rgb),
+  "danger": var(--danger-rgb),
+  "dark": var(--dark-rgb),
+  "black": var(--black-rgb),
+  "white": var(--white-rgb),
+  "body": var(--body-bg-rgb),
+  "transparent": transparent,
+);
+
+$font-weights: (
+  lighter: lighter,
+  light: 300,
+  normal: 400,
+  medium: 500,
+  semibold: 500,
+  bold: 600,
+  bolder: 700,
+);
+
+$positions: (static, relative, absolute, fixed, sticky);

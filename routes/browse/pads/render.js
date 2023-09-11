@@ -86,6 +86,7 @@ exports.main = async (req, res) => {
     });
   } catch (err) {
     console.log("An error occoured ", err);
+    return res.redirect('/module-error')
   }
 
   try {
@@ -196,6 +197,7 @@ exports.main = async (req, res) => {
         : display;
   } catch (err) {
     console.log("An error occurred ", err);
+    return res.redirect('/module-error')
   }
 
   res.render(

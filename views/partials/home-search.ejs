@@ -1,0 +1,44 @@
+<div class="b-card mb-12">
+    <div class="b-card-body flex-column p-5">
+        <div class="d-flex align-items-center h-lg-300px p-5 p-15">
+            <div class="d-flex flex-column align-items-start justify-content-center flex-equal me-5">
+                <h1 class="h1 fw-bold fs-4 fs-lg-1 text-gray-800 mb-5 mb-10">Looking for something?</h1>
+                <div class="position-relative w-100">
+                    <i class="fa fa-search fs-2 text-primary position-absolute top-50 translate-middle ms-8"><span class="path1"></span><span class="path2"></span></i>
+                    <input type="text" class="form-control fs-4 py-4 ps-14 text-gray-700 placeholder-gray-400 mw-500px" name="search" value="" placeholder="Search...">
+                </div>
+            </div>
+            <div class="flex-equal d-flex justify-content-center align-items-end ms-5">
+                <img src="/imgs/branding/20.png" alt="" class="mw-100 mh-125px mh-lg-275px mb-lg-n12">                 
+            </div>
+        </div>
+        <div class="b-card-rounded bg-light d-flex flex-stack flex-wrap p-5">
+            <ul class="nav flex-wrap border-transparent fw-bold">
+                <li class="nav-item my-1">
+                    <a class="btn fw-bolder fs-8 fs-lg-base nav-link px-3 px-8 mx-1 text-uppercase active" href="#">
+                        Overview           
+                    </a>
+                </li>
+                <% locals.metadata.site.apps_in_suite.forEach(d => { %>
+                    <li class="nav-item my-1">
+                        <a class="btn btn-native-secondary fw-bolder fs-8 fs-lg-base nav-link px-3 px-8 mx-1 text-uppercase" 
+                        href='<%- d.forwardURL %>' target='_blank'>
+                        <%- d.name %>
+                        </a>
+                    </li>
+                <% }) %>
+                <li class="nav-item my-1">
+                    <a class="btn btn-native-secondary fw-bolder fs-8 fs-lg-base nav-link px-3 px-8 mx-1 text-uppercase " href="/en/browse/blog/preview"> 
+                        Blogs
+                    </a>
+                </li>
+                <li class="nav-item my-1">
+                    <a target="_blank" class="btn btn-native-secondary fw-bolder fs-8 fs-lg-base nav-link px-3 px-8 mx-1 text-uppercase " href="https://github.com/UNDP-Accelerator-Labs/platform-global/issues">
+                        Submit requests                        
+                    </a>
+                </li>
+            </ul>
+            <a href="/login" class="btn btn-native fw-bold fs-8 fs-lg-base">Login</a>
+        </div>
+    </div>
+</div>

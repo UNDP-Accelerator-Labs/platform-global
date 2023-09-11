@@ -43,7 +43,10 @@ exports.main = async (req, res) => {
       
       return results;
     })
-    .catch((err) => console.log(err));
+    .catch((err) => { 
+      console.log(err)
+      return res.redirect('/module-error')
+    });
 
   res.render(
     "browse/blogs/",

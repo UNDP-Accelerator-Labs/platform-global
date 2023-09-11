@@ -14,11 +14,11 @@ if (!exports.dispatch) { exports.dispatch = {} }
 exports.render.login = require('./login/').render
 exports.process.login = require('./login/').process
 exports.process.logout = require('./login/').logout
-// exports.redirect.home = require('./redirect/').home
+exports.dispatch.home = require('./login/').home
 exports.redirect.home = require('./login/').redirect
 exports.redirect.browse = require('./redirect/').browse
 
-exports.redirect.public = (req, res) => res.redirect('/public')
+exports.redirect.public = (req, res) => res.redirect('/home')
 exports.dispatch.public = require('./login/').public
 
 exports.process.forgetPassword = require('./login/').forgetPassword
