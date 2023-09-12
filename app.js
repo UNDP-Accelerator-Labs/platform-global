@@ -47,9 +47,9 @@ const routes = require('./routes/')
 
 app.get('/version/', routes.getVersionString )
 
-app.get('/', routes.redirect.home, routes.redirect.public)
+app.get('/', routes.dispatch.home )
 
-app.get('/home', routes.dispatch.home)
+app.get('/:language/home', routes.dispatch.home)
 
 // PUBLIC VIEWS
 app.get('/public/', routes.dispatch.public) // THIS COULD BE DEPRECATED

@@ -1,0 +1,96 @@
+<%
+    // CREATE ALIASES
+    const pinboards = locals.pinboards;
+    console.log('JSON.stringify ', JSON.parse(pinboards))
+%>
+
+<div class="card-body py-4">
+    <div class="table-responsive">
+        <table id="kt_table_users" class="table align-middle table-row-dashed fs-6 gy-5 no-footer" role="table">
+            <thead>
+                <!-- Your table header here -->
+                <tr>
+                    <th>Collection</th>
+                    <th>No. of pads</th>
+                    <th>Date</th>
+                    <th>Curated by</th>
+                    <th>View</th>
+                    <!-- Add more table headers as needed -->
+                </tr>
+            </thead>
+            <tbody class="text-gray-600 fw-bold" role="rowgroup">
+                <!-- Your table rows here -->
+                <tr>
+                </tr>
+                <!-- Add more rows as needed -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // Sample data for the table
+    const pinboard_data = ('<%= JSON.parse(pinboards) %>').split(',');
+
+    // Number of rows to display per page
+    const rowsPerPage = 5;
+
+    // Initialize page and total pages
+    let currentPage = 1;
+    let totalPages = Math.ceil(pinboard_data.length / rowsPerPage);
+
+    // Function to render the table
+    function renderTable(page) {
+        const tableBody = d3.select("#kt_table_users tbody");
+        tableBody.html(""); // Clear existing rows
+
+        const startIndex = (page - 1) * rowsPerPage;
+        const endIndex = startIndex + rowsPerPage;
+
+        const rowsToDisplay = pinboard_data.slice(startIndex, endIndex);
+
+        // Append rows to the table
+        const rows = tableBody.selectAll("tr")
+            .data(rowsToDisplay)
+            .enter()
+            .append("tr");
+
+        // Append cells and populate data
+        rows.each(function (d) {
+            d3.select(this).append("td").text(d.collection);
+            d3.select(this).append("td").text(d.no_of_pads);
+            d3.select(this).append("td").text(d.date);
+            d3.select(this).append("td").text(d.curated_by);
+            d3.select(this).append("td").text(d.view);
+        });
+    }
+
+    // Function to update pagination UI
+    function updatePagination() {
+        d3.select(".page-numbers").text(`Page ${currentPage} of ${totalPages}`);
+
+        d3.select(".prev")
+            .attr("disabled", currentPage === 1)
+            .on("click", () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderTable(currentPage);
+                    updatePagination();
+                }
+            });
+
+        d3.select(".next")
+            .attr("disabled", currentPage === totalPages)
+            .on("click", () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderTable(currentPage);
+                    updatePagination();
+                }
+            });
+    }
+
+    // Initial rendering
+    renderTable(currentPage);
+    updatePagination();
+</script>

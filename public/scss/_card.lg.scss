@@ -75,6 +75,13 @@
 .b-card-rounded {
   border-radius: 0.625rem;
 }
+.b-card.b-card-flush>.b-card-footer {
+    border-top: 0!important
+}
+.b-card.b-card-flush>.b-card-header {
+    border-bottom: 0!important
+}
+
 .p-lg-17 {
   padding: 4.25rem !important;
 }

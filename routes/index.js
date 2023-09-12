@@ -14,7 +14,7 @@ if (!exports.dispatch) { exports.dispatch = {} }
 exports.render.login = require('./login/').render
 exports.process.login = require('./login/').process
 exports.process.logout = require('./login/').logout
-exports.dispatch.home = require('./login/').home
+exports.dispatch.home = require('./home/').main
 exports.redirect.home = require('./login/').redirect
 exports.redirect.browse = require('./redirect/').browse
 

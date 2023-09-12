@@ -1,3 +1,10 @@
+<%
+	// CREATE ALIASES
+	const lab_count = locals.stats.lab_count
+	const pinboard_count = locals.stats.pinboard_count
+    const country_count = locals.stats.country_count
+    const total_contributions = locals.platform_stats.total
+%>
 <div class="card">
     <div class="card-body p-17">
         <div class="mb-18">
@@ -5,7 +12,7 @@
                 <div class="text-center mb-15">
                     <h2 class="h2 fs-2hx text-dark mb-5">Thematic areas</h2>
                     <div class="fs-5 text-muted fw-semibold">
-                        Explore the thematic areas across the Accelerator Labs network of 60 labs serving 78 countries aiming to find
+                        Explore the thematic areas across the Accelerator Labs network of <%= lab_count %> labs serving <%= country_count %> countries aiming to find
                         <br/> radically new approaches to address the Sustainable Development Goals (SDGs).
                     </div>
                 </div>
@@ -33,7 +40,7 @@
                                 <i class="ki-duotone ki-element-11 fs-2tx text-primary"><span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span></i>
                                 <div class="mt-1">
                                     <div class="fs-lg-2hx fs-2x fw-bold text-gray-800 d-flex align-items-center">
-                                        <div class="min-w-70px counted">60</div>
+                                        <div class="min-w-70px counted"><%= lab_count %></div>
                                     </div>
                                     <span class="text-gray-600 fw-semibold fs-5 lh-0">Labs</span>
                                 </div>
@@ -44,9 +51,20 @@
                                 <i class="ki-duotone ki-chart-pie-4 fs-2tx text-success"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
                                 <div class="mt-1">
                                     <div class="fs-lg-2hx fs-2x fw-bold text-gray-800 d-flex align-items-center">
-                                        <div class="min-w-50px counted">3K+</div>
+                                        <div class="min-w-50px counted"><%= total_contributions %></div>
                                     </div>
-                                    <span class="text-gray-600 fw-semibold fs-5 lh-0">Articles</span>
+                                    <span class="text-gray-600 fw-semibold fs-5 lh-0">Pads</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="octagon d-flex flex-center h-200px w-200px bg-body mx-10">
+                            <div class="text-center">
+                                <i class="ki-duotone ki-chart-pie-4 fs-2tx text-success"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+                                <div class="mt-1">
+                                    <div class="fs-lg-2hx fs-2x fw-bold text-gray-800 d-flex align-items-center">
+                                        <div class="min-w-50px counted"><%= pinboard_count %></div>
+                                    </div>
+                                    <span class="text-gray-600 fw-semibold fs-5 lh-0">Collections</span>
                                 </div>
                             </div>
                         </div>
@@ -55,9 +73,9 @@
                                 <i class="ki-duotone ki-basket fs-2tx text-info"><span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span></i>
                                 <div class="mt-1">
                                     <div class="fs-lg-2hx fs-2x fw-bold text-gray-800 d-flex align-items-center">
-                                        <div class="min-w-50px counted">5K+</div>
+                                        <div class="min-w-50px counted">3K+</div>
                                     </div>
-                                    <span class="text-gray-600 fw-semibold fs-5 lh-0">Solutions</span>
+                                    <span class="text-gray-600 fw-semibold fs-5 lh-0">Articles</span>
                                 </div>
                             </div>
                         </div>

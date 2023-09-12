@@ -275,11 +275,6 @@ exports.public = (req, res) => {
 	else res.redirect(`/${req.params.language}/browse/pads/public`)
 }
 
-exports.home = async (req, res) => {
-	const metadata = await datastructures.pagemetadata({ req, res })
-	res.render(`home`, metadata)
-}
-
 exports.logout = (req, res) => {
 	req.session.destroy()
 	res.redirect('/')
