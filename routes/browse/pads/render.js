@@ -26,9 +26,7 @@ exports.main = async (req, res) => {
   const baseurl = DB.conns.find((d) => d.key === source).baseurl;
   try {
     const url = `${baseurl}/apis/fetch/global`;
-    const responses = await fetcher(req, url, "POST", {
-      filters,
-    });
+    const responses = await fetcher(req, url, "POST", {...filters });
 
     let max = 10;
     if (welcome_module === "mosaic") max = 46;
@@ -100,7 +98,7 @@ exports.main = async (req, res) => {
       .flat();
 
     const global_requests = global_urls.map((url) =>
-      fetcher(req, url.url, "POST", { filters })
+      fetcher(req, url.url, "POST", { ...filters })
         .then((results) => ({
           ...results,
           key: url.key,

@@ -166,11 +166,6 @@ exports.main = async (req, res, kwargs = {}) => {
 
 
 exports.body = async (req, res, kwargs = {}) => {
-	if (req.session.uuid) { 
-		var { uuid, country, rights, collaborators } = req.session || {}
-	} else { 
-		var { uuid, country, rights, collaborators } = datastructures.sessiondata({ public: true }) || {}
-	}
 
 	let { space, object, instance } = req.params || {}
 	if (!space) space = req.body?.space 
@@ -178,17 +173,11 @@ exports.body = async (req, res, kwargs = {}) => {
 	let { search, status, contributors, countries, teams, pads, templates, mobilizations, pinboard, methods, page } = Object.keys(req.query)?.length ? req.query : Object.keys(req.body)?.length ? req.body : {}
 	let source = kwargs.source || req.query.source || req.body.source
 	if (!source || !apps_in_suite.some(d => d.key === source)) source = apps_in_suite[0].key
-	
-	const language = checklanguage(req.params?.language || req.session.language)
 
 	if (!page) page = 1
 	else page = +page
 
 	return ({
-		uuid,
-		country,
-		rights,
-		collaborators,
 		space, 
 		object, 
 		instance,
@@ -202,7 +191,5 @@ exports.body = async (req, res, kwargs = {}) => {
 		pinboard, 
 		methods, 
 		page,
-		// source,
-		language,
 	})
 }
