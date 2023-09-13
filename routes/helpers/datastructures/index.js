@@ -1,4 +1,4 @@
-const { app_title: title, app_description: description, app_languages, apps_in_suite, modules, metafields, media_value_keys, engagementtypes, lazyload, browse_display, welcome_module, page_content_limit, DB } = include('config/')
+const { app_title: title, app_description: description, app_languages, apps_in_suite, modules, metafields, media_value_keys, engagementtypes, lazyload, browse_display, welcome_module, page_content_limit, colors, DB } = include('config/')
 const checklanguage = require('../language').main
 const join = require('../joins')
 const array = require('../array')
@@ -175,7 +175,8 @@ exports.pagemetadata = (_kwargs) => {
 				metafields,
 				media_value_keys,
 				engagementtypes,
-				welcome_module
+				welcome_module,
+				colors
 			},
 			user: {
 				uuid,

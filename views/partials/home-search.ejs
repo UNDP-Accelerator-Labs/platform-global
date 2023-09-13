@@ -4,6 +4,7 @@
     const chat_data = locals.platform_stats.data
     const uuid = locals.metadata.user.uuid
     const publicpage = locals.metadata.page.public
+    const language = locals.metadata.page.language
 %>
 <div class="b-card mb-12">
   <div class="b-card-body flex-column p-5">
@@ -111,8 +112,8 @@ new Chart(ctx, {
     searchInput.on('keydown', function () {
     if (d3.event.key === 'Enter') {
         const searchValue = d3.select(this).property('value');
-        if('<% uuid %>' === 'null') window.location.href = `${window.location.origin}/en/browse/pads/public?search=${encodeURIComponent(searchValue)}`;
-        else  window.location.href = `${window.location.origin}/en/browse/pads/shared?search=${encodeURIComponent(searchValue)}`;
+        if('<%= publicpage %>' === 'true') window.location.href = `${window.location.origin}/<%= language %>/browse/pads/public?search=${encodeURIComponent(searchValue)}`;
+        else  window.location.href = `${window.location.origin}/<%= language %>/browse/pads/shared?search=${encodeURIComponent(searchValue)}`;
     }
     });
 </script>

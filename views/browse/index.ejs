@@ -38,289 +38,17 @@
 <% include ('../partials/translations.ejs') %>
 
 <%- include ('../partials/menu-languages.ejs') %>
-<%- include ('../partials/modals.ejs') %>
 
 <%- include ('./modules/download.ejs') %>
 
-
 <% const welcome_module = locals.metadata.site.welcome_module %>
 
-<% if (publicpage && object === 'pads' && space !== 'pinned' && mapscale !== 'full-screen' && locals.metadata.page.id === 1 && !display_content) { %>
-
 <% let slides = locals.sample_images %>
-<div class='public-page-header'>
-	<button class='scroll-nav' onclick='scrollToPad(this)'><label class='rotate'>&rsaquo;</label></button>
-	<script type='text/javascript'>
-		function scrollToPad (node) {
-			let next = d3.select('div.public-page-header h1.site-title').node()
-			window.scrollTo({
-				top: next.offsetTop - 60,
-				left: 0,
-				behavior: 'smooth'
-			})
-		}
-		window.addEventListener('scroll', function (e) {
-			d3.select('button.scroll-nav').classed('hide', document.documentElement.scrollTop > 60)
-		})
-	</script>
 
-	<h1 class='site-title'><%- locals.metadata.site.title %></h1>
-	<% if (true) { // FIXME find a good condition to show it up here  %>
-	<div class="toppage">
-		<h4>Contribute to:</h4>
-		<!-- TO DO: TRANSLATE -->
-		<menu>
-			<% locals.metadata.site.apps_in_suite.forEach(d => { %>
-				<a href='<%- d.forwardURL %>' target='_blank'>
-					<li><h3><%- d.name %></h3></li>
-				</a>
-			<% }) %>
-
-			<a href='/en/browse/blog/preview' >
-				<li><h3>Blog</h3></li>
-			</a>
-		</menu>
-	</div>
-	<% } // page links %>
-	<% if (publicpage) { %>
-	<div class="toppage">
-		<h4>Have an Account?</h4>
-		<a href='/login' class='login'><h3><%- vocabulary['log in'][language] %></h3></a>
-	</div>
-	<% } // publicpage %>
-	<% if (locals.metadata.page.instance_title) { %><h2><%- locals.metadata.page.instance_title %></h2><% } %>
-	<% if (locals.metadata.site.description?.[language]) { %><p class='lead'><%- locals.metadata.site.description[language] %></p><% } %>
-</div>
-<% } %>
-
-<header <% if (!display_content) { %>class='center'<% } %>>
-	<div class='inner'>
-		<%- include ('../partials/menu-logo.ejs') %>
-	</div>
-</header>
-
-<div class='browse <%- pagedisplay %><% if (publicpage) { %> public<% } %><% if (!display_content) { %> flex<% } %>'>
-	<% if (!publicpage
-		&& rights >= (modules.find(d => d.type === object)?.rights.read ?? infinity)
-		&& pagedisplay !== 'slideshow'
-		&& !(locals.metadata.page.map && mapscale === 'full-screen')
-	) { %>
-		<nav class='tabs <% if (mapscale === "full-screen") { %>no-bg<% } %>'>
-			<div class='inner'>
-				<div class='xs sm m'>
-					<button class='space'><%- vocabulary['spaces'][language] %></button>
-					<div class='dropdown'>
-						<%- include('./modules/tabs.ejs') %>
-					</div>
-					<% if (object === 'pads') { %>
-						<div class='btn-group map-scale'>
-							<a class='mscale<% if (mapscale === "full-screen") { %> active<% } %>' href='?mscale=<% if (mapscale === "full-screen") { %>contain<% } else { %>full-screen<% } %>'>
-								<i class='material-icons'>public</i>
-							</a>
-						</div>
-					<% } %>
-				</div>
-				<div class='lg'><%- include('./modules/tabs.ejs') %></div>
-			</div>
-			<script type='text/javascript'>
-				if (!mediaSize) var mediaSize = getMediaSize()
-				if (['xs', 'sm', 'm'].includes(mediaSize)) {
-					const tabs = d3.select(`nav.tabs .inner .${mediaSize}`)
-					let activetab = d3.select('.dropdown menu li.active')
-					const button = d3.select(`nav.tabs .inner .${mediaSize} button.space`)
-
-					if (activetab.select('input')?.node()) {
-						button.html(activetab.select('input').node().value)
-					} else {
-						button.html(activetab.select('a button').html())
-						activetab.remove()
-					}
-
-					button.on('touchend', function () { this.focus() })
-					.on('focus', function () {
-						const dropdown = d3.select(this.nextElementSibling)
-						if (dropdown.node()) {
-							if (dropdown.node().style.maxHeight) {
-								dropdown.node().style.maxHeight = null
-								dropdown.node().style.overflow = null
-							} else {
-								dropdown.node().style.maxHeight = `${Math.min(dropdown.node().scrollHeight, 300)}px`
-								setTimeout(_ => {
-									dropdown.node().style.overflow = 'visible'
-								}, 250)
-							}
-						}
-					}).on('blur', function () {
-						if (!d3.event.relatedTarget || !d3.select(d3.event.relatedTarget).hasAncestor(this.nextElementSibling)) {
-							const dropdown = d3.select(this.nextElementSibling)
-							if (dropdown.node()) {
-								dropdown.node().style.maxHeight = null
-								dropdown.node().style.overflow = null
-							}
-						}
-					})
-				}
-			</script>
-		</nav>
-	<% } %>
-
-	<main>
+<div class="px-lg-5">
+<div class='browse' style="padding: 0px !important;">
+	<main class="p-8">
 		<div class='inner'>
-			<!-- (IF PINBOARD SPACE) PINBOARD TITLE -->
-			<% if (space === 'pinned' && locals.pinboard && pagedisplay !== 'slideshow') { %>
-				<% if (activity !== 'preview' && object === 'pads' && locals.pinboard.editable) { %>
-					<div class='meta-status status-<%- locals.pinboard.status || 0 %>'>
-						<form id='pinboard-display-opts' method='GET' action='/publish/pinboards'>
-							<input type='hidden' name='id' value='<%- locals.pinboard.id %>'>
-							<menu class='opts'>
-								<li>
-									<p class='<% if (locals.pinboard.display_map) { %>disabled<% } %>'><%- vocabulary['slideshow'][language] %>: </p>
-									<input type='checkbox' class='toggle' id='display-slideshow' value='true' name='slideshow' onchange='toggleOptions(this)' <% if (locals.pinboard.slideshow) { %>checked<% } %> <% if (locals.pinboard.display_map) { %>disabled<% } %>>
-									<label for='display-slideshow' data-content='<% if (locals.pinboard.slideshow) { %><%- vocabulary["yes"][language] %><% } else { %><%- vocabulary["no"][language] %><% } %>'></label>
-								</li>
-								<li>
-									<p class='<% if (locals.pinboard.slideshow) { %>disabled<% } %>'><%- vocabulary['display filters'][language] %>: </p>
-									<input type='checkbox' class='toggle' id='display-filters' value='true' name='display_filters' onchange='toggleOptions(this)' <% if (locals.pinboard.display_filters) { %>checked<% } %> <% if (locals.pinboard.slideshow) { %>disabled<% } %>>
-									<label for='display-filters' data-content='<% if (locals.pinboard.display_filters) { %><%- vocabulary["yes"][language] %><% } else { %><%- vocabulary["no"][language] %><% } %>'></label>
-								</li>
-								<li>
-									<ul>
-										<li>
-											<p class='<% if (locals.pinboard.slideshow) { %>disabled<% } %>'><%- vocabulary['display map'][language] %>: </p>
-											<input type='checkbox' class='toggle' id='display-map' value='true' name='display_map' onchange='toggleOptions(this)' <% if (locals.pinboard.display_map) { %>checked<% } %> <% if (locals.pinboard.slideshow) { %>disabled<% } %>>
-											<label for='display-map' data-content='<% if (locals.pinboard.display_map) { %><%- vocabulary["yes"][language] %><% } else { %><%- vocabulary["no"][language] %><% } %>'></label>
-										</li>
-										<li>
-											<p class='<% if (locals.pinboard.slideshow || !locals.pinboard.display_map) { %>disabled<% } %>'><%- vocabulary['full screen'][language] %>: </p>
-											<input type='checkbox' class='toggle' id='display-fullscreen' value='true' name='display_fullscreen' onchange='toggleOptions(this)' <% if (locals.pinboard.display_fullscreen) { %>checked<% } %> <% if ((locals.pinboard.slideshow) || !locals.pinboard.display_map) { %>disabled<% } %>>
-											<label for='display-fullscreen' data-content='<% if (locals.pinboard.display_fullscreen) { %><%- vocabulary["yes"][language] %><% } else { %><%- vocabulary["no"][language] %><% } %>'></label>
-										</li>
-									</ul>
-								</li>
-							</menu>
-							<div class='btn-group'>
-								<button type='button' onclick='openPreview()'><%- vocabulary['preview'][language] %></button>
-
-								<button type='button' onclick='setShareOptions()'>Share</button>
-								<!-- TO DO: TRANSLATE -->
-
-								<% if (locals.pinboard.status === 1) { %><button type='submit' class='publish' name='status' value='3'><%- vocabulary['publish'][language] %></button>
-								<% } else { %><button type='submit' class='publish' disabled><%- vocabulary['publish'][language] %></button>
-								<% } %>
-							</div>
-
-							<script type='text/javascript'>
-								function openPreview () {
-									const url = new URL(window.location)
-									const href = url.href.replace('/browse/', '/preview/')
-									window.open(href, '_blank')
-								}
-
-								async function setShareOptions () {
-									const contributors = await POST('/<%- language %>/browse/contributors/invited', { limit: null })
-
-									const formdata = { action: '/share/pinboard',  method: 'POST' }
-									const message = 'Share with contributors'
-									const opts = []
-
-									contributors.data.forEach(d => {
-										opts.push({ node: 'input', type: 'checkbox', name: 'contributor', value: d.id, placeholder: d.name, checked: (<%- JSON.stringify(locals.pinboard.contributors) %>).includes(d.id), default: true })
-									})
-
-									const foot = { node: 'button', type: 'submit', name: 'pinboard', value: <%- locals.pinboard.id %>, label: 'Share' } // TO DO: TRANSLATE
-
-									const new_constraint = await renderLonglistFormModal({ message, formdata, opts, foot })
-								}
-
-								function toggleOptions (node) {
-									for (const label of node.labels) {
-										d3.select(label).attr('data-content', node.checked ? '<%- vocabulary["yes"][language] %>' : '<%- vocabulary["no"][language] %>')
-									}
-									// IF slideshow THEN PREVENT OTHERS
-									const sel = d3.select(node)
-									const menu = sel.findAncestor('menu')
-									const parent = sel.findAncestor('li')
-									if (node.name === 'slideshow') {
-										menu.selectAll('li')
-										.each(function () {
-											const sel = d3.select(this)
-											sel.select('p').classed('disabled', function () {
-												return this.parentNode !== parent.node() && node.checked
-											})
-											sel.selectAll('input[type=checkbox]').each(function () {
-												this.disabled = this.parentNode !== parent.node() && node.checked
-											})
-										})
-									}
-									// IF map THEN ENABLE fullscreen OPTION
-									if (node.name === 'display_map') {
-										menu.selectAll('li')
-										.each(function () {
-											const sel = d3.select(this)
-											sel.select('p').classed('disabled', function () {
-												return this.parentNode !== parent.node() && this.nextElementSibling.name !== 'display_filters' && node.checked
-											})
-											sel.selectAll('input[type=checkbox]').each(function () {
-												this.disabled = this.parentNode !== parent.node() && this.name !== 'display_filters' && node.checked
-											})
-										})
-										const subnode = d3.select('input#display-fullscreen').node()
-										subnode.disabled = !node.checked
-										d3.select(subnode).findAncestor('li').select('p').classed('disabled', !node.checked)
-									}
-									partialSave()
-								}
-							</script>
-						</form>
-					</div>
-				<% } %>
-
-				<div class='head'>
-					<% if (activity !== 'preview' && locals.pinboard.editable) { %>
-						<div class='title' data-placeholder='<%- vocabulary["untitled pad"][language] %>' onfocus='this.classList.add("focus")' onkeydown='checkForEnter(event, this)' onblur='partialSave()' contenteditable><%- locals.pinboard.title %></div>
-						<div class='description' data-placeholder='Provide a short description for this pinboard.' onblur='partialSave()' contenteditable><%- (locals.pinboard.description) %></div>
-					<% } else { %>
-						<div class='title' data-placeholder='<%- vocabulary["untitled pad"][language] %>'><%- locals.pinboard.title %></div>
-						<div class='contributor'><%- vocabulary['curation credit'][language](locals.pinboard.owner, locals.pinboard.ownername, 'contributors') %></div>
-						<% if (locals.pinboard.description) { %>
-							<!-- <div class='description' onblur='partialSave()'><%- (locals.pinboard.description) %></div> -->
-							<div class='description'><%- (locals.pinboard.description) %></div>
-						<% } %>
-					<% } %>
-				</div>
-
-
-				<script type='text/javascript'>
-					function checkForEnter (evt, node) {
-						if (evt.code === 'Enter' || evt.keyCode === 13) {
-							evt.preventDefault()
-							node.blur()
-						}
-					}
-
-					async function partialSave () {
-						let title = d3.select('main .inner .head .title').node().innerText.trim()
-						if (title.length > 99) title = `${title.slice(0, 98)}…`
-						const description = d3.select('main .inner .head .description').node().innerHTML.trim()
-						const displayopts = {}
-
-						d3.selectAll('#pinboard-display-opts input[type=checkbox]')
-						.each(function () {
-							displayopts[this.name] = this.checked
-						})
-
-						const res = await POST('/save/pinboard', Object.assign(displayopts, { id: <%- locals.pinboard.id %>, title, description }))
-						if (res.status === 200) {
-							const { datum } = res
-							updateTab(datum.title)
-
-							// TO DO: UPDATE THIS TO USE THE RENDER FUNCTIONS BELOW
-							// d3.selectAll('.pin, .pinboard').html(d => d.title = datum.title)
-							d3.selectAll('.pin label.name').html(d => d.title = datum.title)
-						}
-					}
-				</script>
-			<% } %>
 
 			<!-- SEARCH AND FILTER MENU -->
 			<% if (
@@ -351,35 +79,14 @@
 				<% } %>
 			<% } %>
 
-			<!-- STATISTICS IN MOBILE VIEW -->
-			<% if (display_content && mapscale !== 'full-screen') { %>
-				<div class='xs'>
-					<%- include ('./modules/statistics.ejs') %>
-				</div>
-				<% if (locals.stats.filtered === 0) { %>
-					<small class='no-results xs'>
-						<%- vocabulary['pads to display'][language](0) %>
-					</small>
-				<% } %>
-			<% } %>
+			
 		</div>
 		<div class='lds-ellipsis hide'><div></div><div></div><div></div><div></div></div>
 	</main>
 </div>
-
-<% if (display_content && pagedisplay !== 'slideshow' && mapscale !== 'full-screen') { %>
-	<div class='sidebar lg'>
-		<div class='inner'>
-			<%- include ('./modules/statistics.ejs') %>
-			<%- include ('../partials/filters.ejs') %>
-		</div>
-	</div>
-<% } %>
+</div>
 
 <footer>
-	<nav class='pagination xs sm m'>
-		<% if (activity === 'browse') { %><%- include('./modules/pagination') %><% } %>
-	</nav>
 	<h4>Contribute to:</h4>
 	<!-- TO DO: TRANSLATE -->
 	<menu>
@@ -393,6 +100,9 @@
 			<li><h3>Blog</h3></li>
 		</a>
 	</menu>
+	<nav class='pagination d-flex'>
+		<% if (activity === 'browse') { %><%- include('./modules/pagination') %><% } %>
+	</nav>
 	<% if (pagedisplay === 'slideshow') { %>
 		<div class='inner'>
 			<div class='dots'></div>
@@ -404,6 +114,8 @@
 		</div>
 	<% } %>
 </footer>
+
+<%- include ('../partials/footer.ejs') %>
 
 <script type='text/javascript'>
 	if (!mediaSize) var mediaSize = getMediaSize()

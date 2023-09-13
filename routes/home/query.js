@@ -12,7 +12,7 @@ exports.pinboad_list =`
         distinct_contributions.count
     FROM pinboards pb
     INNER JOIN (
-        SELECT pc.pinboard, pc.db, COUNT(*) AS count
+        SELECT pc.pinboard, pc.db, COUNT(DISTINCT pad) AS count
         FROM pinboard_contributions pc
         GROUP BY pc.pinboard, pc.db
     ) AS distinct_contributions

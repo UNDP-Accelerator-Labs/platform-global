@@ -1,96 +1,105 @@
 <%
     // CREATE ALIASES
     const pinboards = locals.pinboards;
-    console.log('JSON.stringify ', JSON.parse(pinboards))
+    const countries =  [];
+    const language = locals.metadata.page.language
 %>
 
-<div class="card-body py-4">
-    <div class="table-responsive">
-        <table id="kt_table_users" class="table align-middle table-row-dashed fs-6 gy-5 no-footer" role="table">
-            <thead>
-                <!-- Your table header here -->
-                <tr>
-                    <th>Collection</th>
-                    <th>No. of pads</th>
-                    <th>Date</th>
-                    <th>Curated by</th>
-                    <th>View</th>
-                    <!-- Add more table headers as needed -->
-                </tr>
-            </thead>
-            <tbody class="text-gray-600 fw-bold" role="rowgroup">
-                <!-- Your table rows here -->
-                <tr>
-                </tr>
-                <!-- Add more rows as needed -->
-            </tbody>
-        </table>
+<div class="p-5 flex-wrap border-transparent fw-bold text-dark">
+    <h3 class="ps-3 h3 justify-content-start">Browse by categories</h3>
+    <ul class="nav justify-content-end gap-5 mt-n8">
+        <li class="nav-item my-1">
+            <a id="collectionsButton" class="btn fw-bolder fs-8 fs-lg-base nav-link px-3 px-8 mx-1 text-uppercase active" aria-current="page" onclick="showCollections()">Collections</a>
+        </li>
+        <li class="nav-item my-1">
+            <a id="countriesButton" class="btn btn-native-secondary fw-bolder fs-8 fs-lg-base nav-link px-3 px-8 mx-1 text-uppercase"  onclick="showCountries()">Countries</a>
+        </li>
+    </ul>
+</div>
+<div class="p-8">
+    <div class="container">
+        <div class="row" id="collectionsData">
+            <% for (let i = 0; i < pinboards.length; i += 3) { %>
+            <div class="col-md-4">
+                <div class="d-flex border border-dashed border-gray-300 rounded min-w-750px px-lg-7 mb-5 gap-2">
+                    <a target="_blank" href="<%= pinboards[i].url_prefix %>/<%= language %>/browse/pads/pinned?pinboard=<%= pinboards[i + 2]?.id %>" class="fs-3 text-dark text-hover-primary fw-semibold w-375px">
+                        <%= pinboards[i].title %>
+                    </a>
+                    <div class="badge badge-light"><%= pinboards[i].count %> PADS</div>
+                </div>
+            </div>
+            <% if (i + 1 < pinboards.length) { %>
+            <div class="col-md-4">
+                <div class="d-flex border border-dashed border-gray-300 rounded min-w-750px px-lg-7 mb-5 gap-2">
+                    <a target="_blank" href="<%= pinboards[i + 1].url_prefix %>/<%= language %>/browse/pads/pinned?pinboard=<%= pinboards[i + 1]?.id %>" class="fs-3 text-dark text-hover-primary fw-semibold w-375px">
+                        <%= pinboards[i + 1].title %>
+                    </a>
+                    <div class="badge badge-light"><%= pinboards[i + 1].count %> PADS</div>
+                </div>
+            </div>
+            <% } %>
+            <% if (i + 2 < pinboards.length) { %>
+            <div class="col-md-4">
+                <div class="d-flex border border-dashed border-gray-300 rounded min-w-750px px-lg-7 mb-5 gap-2">
+                    <a target="_blank" href="<%= pinboards[i + 2].url_prefix %>/<%= language %>/browse/pads/pinned?pinboard=<%= pinboards[i + 2]?.id %>" class="fs-3 text-dark text-hover-primary fw-semibold w-375px">
+                        <%= pinboards[i + 2].title %>
+                    </a>
+                    <div class="badge badge-light"><%= pinboards[i + 2].count %> PADS</div>
+                </div>
+            </div>
+            <% } %>
+            <% } %>
+        </div>
+        <div class="row" id="countriesData" style="display: none;">
+            <% for (let i = 0; i < countries.length; i += 3) { %>
+            <div class="col-md-4">
+                <div class="d-flex border border-dashed border-gray-300 rounded min-w-750px px-lg-7 mb-5 gap-2">
+                    <a target="_blank" href="<%= countries[i].url_prefix %>/<%= language %>/browse/pads/pinned?pinboard=<%= countries[i + 2]?.id %>" class="fs-3 text-dark text-hover-primary fw-semibold w-375px">
+                        <%= countries[i].title %>
+                    </a>
+                    <div class="badge badge-light"><%= countries[i].count %> PADS</div>
+                </div>
+            </div>
+            <% if (i + 1 < countries.length) { %>
+            <div class="col-md-4">
+                <div class="d-flex border border-dashed border-gray-300 rounded min-w-750px px-lg-7 mb-5 gap-2">
+                    <a target="_blank" href="<%= countries[i + 1].url_prefix %>/<%= language %>/browse/pads/pinned?pinboard=<%= countries[i + 1]?.id %>" class="fs-3 text-dark text-hover-primary fw-semibold w-375px">
+                        <%= countries[i + 1].title %>
+                    </a>
+                    <div class="badge badge-light"><%= countries[i + 1].count %> PADS</div>
+                </div>
+            </div>
+            <% } %>
+            <% if (i + 2 < countries.length) { %>
+            <div class="col-md-4">
+                <div class="d-flex border border-dashed border-gray-300 rounded min-w-750px px-lg-7 mb-5 gap-2">
+                    <a target="_blank" href="<%= countries[i + 2].url_prefix %>/<%= language %>/browse/pads/pinned?pinboard=<%= countries[i + 2]?.id %>" class="fs-3 text-dark text-hover-primary fw-semibold w-375px">
+                        <%= countries[i + 2].title %>
+                    </a>
+                    <div class="badge badge-light"><%= countries[i + 2].count %> PADS</div>
+                </div>
+            </div>
+            <% } %>
+            <% } %>
+        </div>
     </div>
 </div>
 
 <script>
-    // Sample data for the table
-    const pinboard_data = ('<%= JSON.parse(pinboards) %>').split(',');
+    function showCollections() {
+        document.getElementById('collectionsData').style.display = 'block';
+        document.getElementById('countriesData').style.display = 'none';
 
-    // Number of rows to display per page
-    const rowsPerPage = 5;
-
-    // Initialize page and total pages
-    let currentPage = 1;
-    let totalPages = Math.ceil(pinboard_data.length / rowsPerPage);
-
-    // Function to render the table
-    function renderTable(page) {
-        const tableBody = d3.select("#kt_table_users tbody");
-        tableBody.html(""); // Clear existing rows
-
-        const startIndex = (page - 1) * rowsPerPage;
-        const endIndex = startIndex + rowsPerPage;
-
-        const rowsToDisplay = pinboard_data.slice(startIndex, endIndex);
-
-        // Append rows to the table
-        const rows = tableBody.selectAll("tr")
-            .data(rowsToDisplay)
-            .enter()
-            .append("tr");
-
-        // Append cells and populate data
-        rows.each(function (d) {
-            d3.select(this).append("td").text(d.collection);
-            d3.select(this).append("td").text(d.no_of_pads);
-            d3.select(this).append("td").text(d.date);
-            d3.select(this).append("td").text(d.curated_by);
-            d3.select(this).append("td").text(d.view);
-        });
+        document.getElementById('collectionsButton').classList.add('active');
+        document.getElementById('countriesButton').classList.remove('active');
     }
 
-    // Function to update pagination UI
-    function updatePagination() {
-        d3.select(".page-numbers").text(`Page ${currentPage} of ${totalPages}`);
+    function showCountries() {
+        document.getElementById('collectionsData').style.display = 'none';
+        document.getElementById('countriesData').style.display = 'block';
 
-        d3.select(".prev")
-            .attr("disabled", currentPage === 1)
-            .on("click", () => {
-                if (currentPage > 1) {
-                    currentPage--;
-                    renderTable(currentPage);
-                    updatePagination();
-                }
-            });
-
-        d3.select(".next")
-            .attr("disabled", currentPage === totalPages)
-            .on("click", () => {
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    renderTable(currentPage);
-                    updatePagination();
-                }
-            });
+        document.getElementById('collectionsButton').classList.remove('active');
+        document.getElementById('countriesButton').classList.add('active');
     }
 
-    // Initial rendering
-    renderTable(currentPage);
-    updatePagination();
 </script>

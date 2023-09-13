@@ -8,8 +8,15 @@
 	const display_content = Object.keys(query)?.filter(key => !['status', 'source', 'mapscale']?.includes(key)).length > 0
 %>
 
+<div class="b-card">
+  <div class="b-card-body flex-column">
+    <div class="d-flex align-items-center h-lg-300px">
+		<div
+        class="min-w-800 d-flex flex-column flex-equal"
+		style="min-width: 800px !important;"
+      >
 
-<nav id='search-and-filter' class='lg'>
+<nav id='search-and-filter' class='lg columns'>
 	<form autocomplete='off'>
 		<!-- ADD ALL EXISTING HEADER QUERIES THAT ARE NOT IN THE MENU (THIS IS FOR PERSISTENCE OF VIEW PARAMETERS) -->
 		<% 
@@ -144,6 +151,18 @@
 		<% } %>
 	</form>
 </nav>
+
+</div>
+
+<div
+        class="columns flex-equal d-flex justify-content-end align-items-end ms-1"
+      >
+      <%- include ('./stats.ejs') %>
+      </div>
+</div>
+</div>
+</div>
+
 
 
 <script type='text/javascript'>

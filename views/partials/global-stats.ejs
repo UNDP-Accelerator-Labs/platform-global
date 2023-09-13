@@ -1,14 +1,14 @@
 <%
 	// CREATE ALIASES
-	const total_contributions = locals.platform_stats.total
-    const chat_data = locals.platform_stats.data
+	const total_contributions = locals?.platform_stats?.total || 0
+    const chat_data = locals?.platform_stats?.data || []
 %>
 <div class="b-card b-card-flush h-md-50 mb-5 mb-xl-10 p-5 bg-light">
     <div class="b-card-header pt-5">
         <div class="b-card-title d-flex flex-column">
             <div class="d-flex align-items-center">
                 <span class="fs-2hx fw-bold text-dark me-2 lh-1 ls-n2"><%= total_contributions %></span>
-                <span class="badge badge-light-success fs-base">
+                <span class="badge fs-base text-dark">
                     Contributions
                 </span>
             </div>

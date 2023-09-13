@@ -24,7 +24,7 @@
 	}
 
 	const display_content = Object.keys(query)?.filter(key => !['status', 'source', 'mapscale', 'display'].includes(key)).length > 0
-
+	const welcome_module = locals.metadata.site.welcome_module 
 %>
 <html>
 <head>
@@ -36,14 +36,8 @@
 <body translate="no">
 
 <% include ('../../partials/translations.ejs') %>
-
 <%- include ('../../partials/menu-languages.ejs') %>
-<%- include ('../../partials/modals.ejs') %>
-
 <%- include ('../modules/download.ejs') %>
-
-
-<% const welcome_module = locals.metadata.site.welcome_module %>
 
 <% if (publicpage && object === 'pads' && space !== 'pinned' && mapscale !== 'full-screen' && locals.metadata.page.id === 1 && !display_content) { %>
 
@@ -86,15 +80,10 @@
 </div>
 <% } %>
 
-<header <% if (!display_content) { %>class='center'<% } %>>
-	<div class='inner'>
-		<%- include ('../../partials/menu-logo.ejs') %>
-	</div>
-</header>
+<div >
+	<div class='browse' style="padding: 0px !important;" >
 
-<div class='browse <%- pagedisplay %><% if (publicpage) { %> public<% } %><% if (!display_content) { %> flex<% } %>' translate="no">
-
-	<main>
+	<main class="px-lg-5 px-10 mx-lg-10">
 		<div class='inner'>
 
 			<!-- SEARCH AND FILTER MENU -->
@@ -152,31 +141,7 @@
 								  </div>
 								  <div class="media media-txt" style="margin-top: 20px; white-space: inherit !important;">
 									<a class="pad-link" target="_blank" style="width: 100% !important; ">
-										<%
-										  function findMatchingText(largeText) {
-
-											largeText.trim().replace(/^\n+|\n+$/g, '');
-
-											var searchText = locals?.metadata?.page?.query?.['search'] || ""
-
-											var escapedSearchText = searchText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-											var pattern = new RegExp(`[^.!?]*${escapedSearchText}[^.!?]*[.!?]`, 'g');
-											var matches = largeText.match(pattern);
-
-											if (matches && matches.length > 0) {
-											  var firstSentence = matches[0];
-											  var secondSentence = matches[1];
-											  var lastSentence = matches[matches.length - 1];
-											  return firstSentence + " " + `${secondSentence || ''}`;
-											} else {
-											  return largeText?.split(' ')?.slice(0, 100)?.join(' ') || null;
-											}
-										  }
-
-										  var extractedText = findMatchingText(result?.content || result?.all_html_content || '');
-										%>
-
-										<%= extractedText || 'We are unable to extract content from the original website. Please click to read content on the original website.' %> ... <a target="_blank" href="<%= result.url %>" style="cursor: pointer; color: cornflowerblue;">read more</a>
+										<%= result.matched_texts || 'We are unable to extract content from the original website. Please click to read content on the original website.' %> ... <a target="_blank" href="<%= result.url %>" style="cursor: pointer; color: cornflowerblue;">read more</a>
 									  </a>
 								  </div>
 								  <div class="meta tag-group">
@@ -196,31 +161,12 @@
 					</div>
 				</section>
 
-			<!-- STATISTICS IN MOBILE VIEW -->
-
-			<div class='xs'>
-				<%- include ('./statistics.ejs') %>
-			</div>
-
 		</div>
 		<div class='lds-ellipsis hide'><div></div><div></div><div></div><div></div></div>
 	</main>
 </div>
 
-<% if (display_content && pagedisplay !== 'slideshow' && mapscale !== 'full-screen') { %>
-	<div class='sidebar lg'>
-		<div class='inner'>
-			<%- include ('./statistics.ejs') %>
-			<%- include ('../../partials/filters.ejs') %>
-		</div>
-	</div>
-<% } %>
-
-
 <footer>
-	<nav class='pagination xs sm m'>
-		<% if (activity === 'browse') { %><%- include('../modules/pagination') %><% } %>
-	</nav>
 	<h4>Contribute to:</h4>
 	<!-- TO DO: TRANSLATE -->
 	<menu>
@@ -240,13 +186,17 @@
 		</div>
 	<% } %>
 	<% if (display_content && pages > 1) { %>
+
+	<nav class='pagination d-flex'>
+		<% if (activity === 'browse') { %><%- include('../modules/pagination') %><% } %>
+	</nav>
 		<div class='outer'>
 				<p class='nav-info'>&larr; <%- vocabulary['navigate here'][language] %></p>
 		</div>
 	<% } %>
 
 </footer>
-
+<%- include ('../../partials/footer.ejs') %>
 
 <script type='text/javascript'>
 	if (!mediaSize) var mediaSize = getMediaSize()
