@@ -1,4 +1,4 @@
-const { page_content_limit, apps_in_suite, map, welcome_module, DB } =
+const { page_content_limit, apps_in_suite, map, welcome_module } =
   include("config/");
 const { array, datastructures, fetcher, checklanguage } =
   include("routes/helpers/");
@@ -23,7 +23,7 @@ exports.main = async (req, res) => {
     pinboards_list = [],
     uniqueboard = null;
 
-  const baseurl = DB.conns.find((d) => d.key === source).baseurl;
+  const baseurl = apps_in_suite.find((d) => d.key === source).baseurl;
   try {
     const url = `${baseurl}/apis/fetch/global`;
     const responses = await fetcher(req, url, "POST", {...filters });
@@ -88,7 +88,7 @@ exports.main = async (req, res) => {
   }
 
   try {
-    const global_urls = DB.conns
+    const global_urls = apps_in_suite
       .map((d) => [
         {
           key: d.key,
