@@ -308,32 +308,3 @@ input.toggle:disabled + label::after {
 	color: $c-light-2;
 	background-color: $c-mid-blue;
 }
-
-
-.btn-1 {
-    display: inline-block;
-    line-height: initial;
-	font-size: .875rem;
-    font-weight: 700;
-    height: 2.5rem;
-    padding: 0 0.8rem;
-    border-radius: 4px;
-    text-align: center;
-    text-decoration: none;
-    transition-duration: 50ms;
-    transition-timing-function: ease-in;
-    white-space: nowrap;
-	letter-spacing: 0;
-    cursor: pointer;
-}
-.btn-1-secondary {
-    background-color: transparent;
-    border-width: 2px;
-    border-style: solid;
-    border-color: #005687 !important;
-    color: #005687 !important;
-}
-
-.btn-1 a {
-	color: #005687 !important;
-}

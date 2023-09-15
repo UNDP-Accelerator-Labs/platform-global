@@ -1,4 +1,4 @@
-const logSQL = false
+const logSQL = true
 const initOptions = {
 	query(e) {
 		if (logSQL) console.log(e.query)
