@@ -5,7 +5,7 @@
  (SELECT COUNT(*) FROM pinboards) AS pinboard_count;
 `
 exports.pinboad_list =`
-    SELECT pb.id, pb.title, pb.date, pb.owner, db.url_prefix,
+    SELECT pb.id, pb.title, pb.date, pb.owner, db.url_prefix, us.name,
         CASE WHEN EXISTS (
             SELECT 1 FROM exploration WHERE linked_pinboard = pb.id
         ) THEN TRUE ELSE FALSE END AS is_exploration,
@@ -17,6 +17,8 @@ exports.pinboad_list =`
         GROUP BY pc.pinboard, pc.db
     ) AS distinct_contributions
     ON distinct_contributions.pinboard = pb.id
+    INNER JOIN users us
+    ON us.uuid = pb.owner
     INNER JOIN extern_db db
     ON distinct_contributions.db = db.id
     WHERE pb.status > 2;

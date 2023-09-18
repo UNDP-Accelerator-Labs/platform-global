@@ -1,8 +1,7 @@
-const { page_content_limit, apps_in_suite, map, welcome_module } =
+const { page_content_limit, apps_in_suite, map, welcome_module, DB } =
   include("config/");
-const { array, datastructures, fetcher, checklanguage } =
+const { array, datastructures, fetcher, checklanguage, join, parsers } =
   include("routes/helpers/");
-
 const filter = require("./filter.js");
 
 exports.main = async (req, res) => {
@@ -17,6 +16,12 @@ exports.main = async (req, res) => {
 
   const filters = await filter.body(req, res);
   const [f_space, order, page, full_filters] = await filter.main(req, res);
+
+  if (req.session.uuid) { 
+		var { public } = req.session || {}
+	} else {
+		var { public } = datastructures.sessiondata({ public: true }) || {}
+	}
 
   let aggr_data,
     global_info,
@@ -82,6 +87,7 @@ exports.main = async (req, res) => {
       stats,
       filters_menu,
     });
+    
   } catch (err) {
     console.log("An error occoured ", err);
     return res.redirect('/module-error')
@@ -196,6 +202,21 @@ exports.main = async (req, res) => {
   } catch (err) {
     console.log("An error occurred ", err);
     return res.redirect('/module-error')
+  }
+
+  if (public && !pinboard) {
+   pinboards_list = await DB.conn.any(`
+      SELECT id, title, owner FROM pinboards
+      WHERE status = 3
+      ORDER BY random()
+      LIMIT 72
+    ;`).then(async results => {
+      results.forEach(d => {
+        d.img = parsers.getImg(d)
+        d.txt = parsers.getTxt(d)
+      })
+      return results
+    })
   }
 
   res.render(

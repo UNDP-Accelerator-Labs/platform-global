@@ -16,7 +16,7 @@
     unescape("<%= escape(JSON.stringify(locals.pinboards)) %>")
   ).map((item) => ({
     Title: item.title,
-    "Curated by": item.owner,
+    "Curated by": 'Curated by ' + item.name,
     Pads: item.count + " pads",
     View:
       item.url_prefix +
@@ -95,3 +95,4 @@
 
   renderTable();
 </script>
+  
