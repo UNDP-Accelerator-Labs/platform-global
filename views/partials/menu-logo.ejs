@@ -22,16 +22,10 @@
 %>
 <nav id='site-title'>
 	<div class='inner'>
-		<a href="/">
+		<a href='/<%= language %>/home'>
 			<img class='logo' src='/imgs/branding/UNDP_accelerator_labs_logo_vertical_color_RGB.png'>
 		</a>
 		<h1><%- (locals.metadata.site.title).replace(/\s+/g, '<br>') %></h1>
-		<% if (!publicpage) { %>
-			<h2>
-				<% if (locals.metadata.user.country.iso3 === 'NUL') { %>Global
-				<% } else { %><%- locals.metadata.user.country.name %><% } %>
-			</h2>
-		<% } %>
 		
 		<% if (['contribute', 'edit'].includes(activity)) { %>
 			<div class='save lg hide'>
@@ -40,32 +34,7 @@
 		<% } %>
 	</div>
 </nav>
-<!-- <nav id='modules'>
-	<menu>
-	<% modules.filter(d => {
-		if (rights < d.rights.write) return false
-		else return !['pinboards', 'teams'].includes(d.type)
-	}).forEach(d => { %>		
-		<% if (['browse', 'view', 'contribute', 'edit', 'import'].includes(activity) 
-			&& [d.type, d.type.slice(0, -1)].includes(object)) 
-		{ %>
-			<li class='active'>
-		<% } else { %>
-			<li>
-		<% } %>
-			<% if (d.type === 'mobilizations') { %>
-				<a href='/<%- language %>/browse/<%- d.type %>/ongoing'><%- vocabulary[d.type.slice(0, -1)]?.[language](true)?.capitalize() || d.type.capitalize() %></a>
-			<% } else if (d.type === 'contributors') { %>
-				<a href='/<%- language %>/browse/<%- d.type %>/invited'><%- vocabulary[d.type.slice(0, -1)]?.[language](true)?.capitalize() || d.type.capitalize() %></a>
-			<% } else if (d.type === 'reviews') { %>
-				<a href='/<%- language %>/browse/<%- d.type %>/pending'><%- vocabulary[d.type.slice(0, -1)]?.[language](false, true)?.capitalize() || d.type.capitalize() %></a>
-			<% } else { %>
-				<a href='/<%- language %>/browse/<%- d.type %>/private'><%- vocabulary[d.type.slice(0, -1)]?.[language](true)?.capitalize() || d.type.capitalize() %></a>
-			<% } %>
-		</li>
-	<% }) %>
-	</menu> 
-</nav> -->
+
 <% if (display_content) { %>
 <nav class='pagination lg'>
 	<% if ((activity === 'browse' || locals.instance_vars?.activity === 'browse') && mapscale !== 'full-screen') { %>

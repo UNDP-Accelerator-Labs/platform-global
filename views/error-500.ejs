@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<head>
+<%- include ('partials/head.ejs') %>
+</head>
+<body>
+
+<%- include ('partials/translations.ejs') %>
+<%- include ('partials/menu-languages.ejs') %>
+
+<div class='screen'>
+	<div class='login-module' style="text-align: center!important;">
+        <h1 style="padding-bottom: 10px;">System Error</h1>
+        <p>Something went wrong! Please try again later.</p>
+		<img src='/imgs/branding/500-error.png' width="400" height="400">
+        <div>
+			<hr/>
+			<button class='btn btn-native' style="margin-top: 10px;" > <a href="/"> Return home </a></button>
+		</div>
+	</div>
+</div>
+
+<header>
+	<div class='inner'>
+		<%- include ('partials/menu-logo.ejs') %>
+	</div>
+</header>
+
+</main>
+
+</body>
+</html>

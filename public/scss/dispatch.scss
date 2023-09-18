@@ -1,13 +1,16 @@
 /* https://www.freecodecamp.org/news/css-media-queries-breakpoints-media-types-standard-resolutions-and-more/ */
 
 @import '_base';
+@import 'google-translate';
+@import '_home';
+@import '_orgfooter.lg';
 
 /* Small devices (landscape phones, 480px and up) */
 @media (max-width: 480px) {
 /*@media (max-width: 480px) and (orientation: portrait) {*/
 	@import '_base.xs';
 	@import '_navigate.xs';
-	@import '_filter.lg';
+	@import '_filter.lg';	
 	@import '_map.lg';
 
 	@import '_pad.xs';
@@ -32,20 +35,18 @@
 }
 
 /* Large devices (desktops, 1024px and up) */
-// @media (max-width: 1024px) {
-// 	@import '_base.m';
-// 	@import '_navigate.m';
-// 	@import '_filter.lg';
-// 	@import '_map.lg';
+@media (max-width: 1024px) {
+	@import '_base.m';
+	@import '_navigate.m';
+	@import '_filter.lg';
+	@import '_map.lg';
 
-// 	@import '_pad.xs';
-// 	@import '_profile.xs';
-// 	@import '_browse.m';
-// 	@import '_mobilize.lg';
-//  @import '_login.lg';
-// }
-
-
+	@import '_pad.xs';
+	@import '_profile.xs';
+	@import '_browse.m';
+	@import '_mobilize.lg';
+ 	@import '_login.lg';
+}
 
 /* Large devices (desktops) */
 @media only screen and (min-width: 992px) and (max-width: 1199.98px) {

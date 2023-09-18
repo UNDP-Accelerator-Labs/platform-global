@@ -1,4 +1,4 @@
-const { app_title: title, app_description: description, app_languages, apps_in_suite, modules, metafields, media_value_keys, engagementtypes, lazyload, browse_display, welcome_module, page_content_limit, DB } = include('config/')
+const { app_title: title, app_description: description, app_languages, apps_in_suite, modules, metafields, media_value_keys, engagementtypes, lazyload, browse_display, welcome_module, page_content_limit, colors, DB } = include('config/')
 const checklanguage = require('../language').main
 const join = require('../joins')
 const array = require('../array')
@@ -8,7 +8,6 @@ if (!exports.legacy) exports.legacy = {}
 
 exports.sessiondata = _data => {
 	let { uuid, name, email, team, collaborators, rights, public, language, iso3, countryname, bureau, lng, lat } = _data || {}
-
 	// GENERIC session INFO
 	const obj = {}
 	obj.uuid = uuid || null
@@ -25,6 +24,11 @@ exports.sessiondata = _data => {
 		bureau: bureau,
 		lnglat: { lng: lng ?? 0, lat: lat ?? 0 }
 	}
+
+	obj.token = jwt.sign(obj, 
+		process.env.APP_SECRET,
+		{ audience: 'global:user' },
+		{ expiresIn: '24h' })
 
 	return obj
 }
@@ -48,7 +52,8 @@ exports.pagemetadata = (_kwargs) => {
 		var { uuid, username: name, country, rights, collaborators, public } = this.sessiondata({ public: true }) || {}
 	}
 	const language = checklanguage(params?.language || session.language || this.sessiondata())
-
+	const page_language = params?.language;
+	
 	const parsedQuery = {}
 	for (let key in query) {
 		if (key === 'search') {
@@ -170,7 +175,8 @@ exports.pagemetadata = (_kwargs) => {
 				metafields,
 				media_value_keys,
 				engagementtypes,
-				welcome_module
+				welcome_module,
+				colors
 			},
 			user: {
 				uuid,
@@ -184,6 +190,7 @@ exports.pagemetadata = (_kwargs) => {
 				id: page ?? undefined,
 				count: pagecount ?? null,
 				language,
+				page_language,
 				public,
 
 				path,
@@ -313,3 +320,38 @@ exports.pagedata = (_req, _data) => {
 	} // TO DO: THIS IS A NEW SCHEMA (NOT USED NOW BUT CLEANER)
 	return obj
 }
+
+
+exports.constructQueryString = (params) => {
+	const { search, country, type, full_filters } = params;
+    let queryString = "";
+    if (search) {
+      queryString += "search=" + encodeURIComponent(search) + "&";
+    }
+
+    if (country) {
+      if (Array.isArray(country)) {
+        country.forEach(function (c) {
+          queryString += "country=" + encodeURIComponent(c) + "&";
+        });
+      } else {
+        queryString += "country=" + encodeURIComponent(country) + "&";
+      }
+    }
+
+    if (type) {
+      if (Array.isArray(type)) {
+        type.forEach(function (t) {
+          queryString += "type=" + encodeURIComponent(t) + "&";
+        });
+      } else {
+        queryString += "type=" + encodeURIComponent(type) + "&";
+      }
+    }
+
+	if(full_filters && typeof full_filters === 'string'){
+		queryString += "full_filters=" + encodeURIComponent(full_filters) + "&"
+	}
+
+    return queryString.slice(0, -1);
+};

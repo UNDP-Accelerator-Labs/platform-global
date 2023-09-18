@@ -1,0 +1,77 @@
+<%
+	// CREATE ALIASES
+    const colors = locals.metadata.site.colors
+	const [ totalblogs, filter_data] = locals.data?.[0]?.['stats'] || [{}, {}]
+    const [ stats, search_data ] = locals.data
+    const chat_data = [
+        {
+            value: filter_data.distinct_country_count|| 0,
+            label: 'Countries',
+            color: colors['dark-blue'],
+        },
+        {
+            value: filter_data.distinct_article_type_count|| 0,
+            label: 'Article types',
+            color: colors['light-blue'],
+        },
+    ]
+
+    const page = locals.metadata.page.id
+	const object = locals.metadata.page.object
+	const language = locals.metadata.page.language
+%>
+<div class="b-card b-card-flush h-md-50 mb-5 mb-xl-10 p-5 bg-light">
+    <div class="b-card-header pt-3">
+        <div class="b-card-title d-flex flex-column">
+            <div class="d-flex align-items-center">
+                <span class="fs-2hx fw-bold text-dark me-2 lh-1 ls-n2"><%- filter_data?.total_records || search_data?.totalRecords %></span><span class="fst-italic" style="font-size: 10px;">/<%- totalblogs?.totalblogs || search_data?.totalRecords %> </span>
+                <span class="badge fs-base text-dark">
+                    Articles
+                </span>
+            </div>
+            <span class="text-gray-400 pt-1 fw-semibold fs-6">Page Statistics</span>
+            <span class="badge fs-base text-dark">
+                Page <%- page || 0 %>
+            </span>
+        </div>
+    </div>
+    <%if(stats) {%>
+    <div class="card-body pt-2 pb-4 d-flex flex-wrap align-items-center">
+        <div class="d-flex flex-center me-5 pt-2">
+             <canvas id="pieChart" height="70" width="70"></canvas>    
+        </div>
+        <div class="d-flex flex-column content-justify-center flex-row-fluid">
+            <% chat_data.forEach(item => { %>
+            <div class="d-flex fw-semibold align-items-center">
+                <div class="bullet w-8px h-3px rounded-2 me-3" style="background-color: <%= item.color %>"></div>
+                <div class="text-gray-500 flex-grow-1 me-4"><%= item.label %></div>
+                <div class=" fw-bolder text-gray-700 text-xxl-end"><%= item.value %></div>
+            </div>
+            <% }); %>
+        </div>
+    </div>
+    <%}%>
+</div>
+<script>
+    const chartData = ('<%= chat_data.map(p=> p.language) %>').split(',');
+    const data = {
+      labels: ('<%= chat_data.map(p=> p.label) %>').split(','),
+      datasets: [{
+        data: ('<%= chat_data.map(p=> p.value) %>').split(','),
+        backgroundColor: ('<%= chat_data.map(p=> p.color) %>').split(','), 
+      }],
+    };
+    
+    const ctx = document.getElementById('pieChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'doughnut',
+      data: data,
+      options: {
+            plugins: {
+                legend: {
+                    display: false,
+                }
+            }
+        }
+    });
+    </script>

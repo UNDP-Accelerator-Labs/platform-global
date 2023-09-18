@@ -1,0 +1,98 @@
+<% 
+    // CREATE ALIASES 
+    const pinboards = locals.pinboards; const language =
+    locals.metadata.page.language 
+%>
+
+<div class="p-10">
+  <div class="b-card bg-white p-5 rounded border-dashed">
+    <h3 class="h3 py-5 pb-5">Browse by collection</h3>
+    <div id="collection"></div>
+  </div>
+</div>
+
+<script>
+  var tableData = JSON.parse(
+    unescape("<%= escape(JSON.stringify(locals.pinboards)) %>")
+  ).map((item) => ({
+    Title: item.title,
+    "Curated by": 'Curated by ' + item.name,
+    Pads: item.count + " pads",
+    View:
+      item.url_prefix +
+      "<%= language %>/" +
+      "browse/pads/pinned?pinboard=" +
+      item.id,
+  }));
+  var table = d3.select("#collection").append("table");
+  var thead = table.append("thead");
+  var tbody = table.append("tbody");
+  var pagination = d3
+    .select("#collection")
+    .append("div")
+    .attr("class", "b-pagination"); 
+  var itemsPerPage = 5;
+  var currentPage = 0;
+  var totalPages = Math.ceil(tableData.length / itemsPerPage);
+  var renderedH = false;
+
+  var links;
+
+  function renderTable() {
+    tbody.html("");
+
+    var startIndex = currentPage * itemsPerPage;
+    var endIndex = startIndex + itemsPerPage;
+    var currentPageData = tableData.slice(startIndex, endIndex);
+
+    if (currentPage === 0 && !renderedH) {
+      renderedH = true;
+      thead
+        .append("tr")
+        .selectAll("th")
+        // .data(Object.keys(currentPageData[0]))
+        .enter()
+        .append("th")
+        .text(function (d) {
+          return d;
+        });
+    }
+
+    var rows = tbody.selectAll("tr").data(currentPageData).enter().append("tr");
+
+    rows
+      .selectAll("td")
+      .data(function (d) {
+        return Object.values(d);
+      })
+      .enter()
+      .append("td")
+      .html(function (d) {
+        if (d.includes("https://")) {
+          return `<a class='btn btn-sm-native' href="${d}" target="_blank">View</a>`;
+        } else {
+          return d;
+        }
+      });
+
+    links = pagination
+      .selectAll("a")
+      .data(d3.range(totalPages))
+      .enter()
+      .append("a")
+      .text(function (d) {
+        return d + 1;
+      })
+      .on("click", function (v) {
+        currentPage = v;
+        renderTable();
+      });
+
+    links.classed("active", function (d) {
+      return d === currentPage;
+    });
+  }
+
+  renderTable();
+</script>
+  

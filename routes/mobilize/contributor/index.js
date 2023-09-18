@@ -1,5 +1,4 @@
-const { modules, engagementtypes, metafields, app_languages, DB } = include('config/')
-// const header_data = include('routes/header/').data
+const { app_languages, DB } = include('config/')
 const { checklanguage, datastructures } = include('routes/helpers/')
 
 exports.main = async (req, res) => {	
@@ -79,14 +78,8 @@ exports.main = async (req, res) => {
 							ON l.language = u.language
 						WHERE uuid = $3
 					;`, [ uuid, rights, id ])
-					.then(result => {
-						return DB.conn.one(`
-							SELECT COUNT (id)::INT FROM pads
-							WHERE owner = $1
-						;`, result.uuid, d => d.count)
-						.then(pads => Object.assign(result, { pads }))
-						.catch(err => console.log(err))
-					}).catch(err => console.log(err)))
+					.then(result => result)
+                    .catch(err => console.log(err)))
 				} else batch.push(null)
 
 

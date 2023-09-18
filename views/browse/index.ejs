@@ -38,290 +38,17 @@
 <% include ('../partials/translations.ejs') %>
 
 <%- include ('../partials/menu-languages.ejs') %>
-<%- include ('../partials/modals.ejs') %>
 
 <%- include ('./modules/download.ejs') %>
 
-
 <% const welcome_module = locals.metadata.site.welcome_module %>
 
-<% if (publicpage && object === 'pads' && space !== 'pinned' && mapscale !== 'full-screen' && locals.metadata.page.id === 1 && !display_content) { %>
-
 <% let slides = locals.sample_images %>
-<div class='public-page-header'>
-	<button class='scroll-nav' onclick='scrollToPad(this)'><label class='rotate'>&rsaquo;</label></button>
-	<script type='text/javascript'>
-		function scrollToPad (node) {
-			let next = d3.select('div.public-page-header h1.site-title').node()
-			window.scrollTo({
-				top: next.offsetTop - 60,
-				left: 0,
-				behavior: 'smooth'
-			})
-		}
-		window.addEventListener('scroll', function (e) {
-			d3.select('button.scroll-nav').classed('hide', document.documentElement.scrollTop > 60)
-		})
-	</script>
 
-	<h1 class='site-title'><%- locals.metadata.site.title %></h1>
-	<% if (true) { // FIXME find a good condition to show it up here  %>
-	<div class="toppage">
-		<h4>Contribute to:</h4>
-		<!-- TO DO: TRANSLATE -->
-		<menu>
-			<% locals.metadata.site.apps_in_suite.forEach(d => { %>
-				<a href='<%- d.forwardURL %>' target='_blank'>
-					<li><h3><%- d.name %></h3></li>
-				</a>
-			<% }) %>
-
-			<a href='/en/browse/blog/preview' >
-				<li><h3>Blog</h3></li>
-			</a>
-		</menu>
-	</div>
-	<% } // page links %>
-	<% if (publicpage) { %>
-	<div class="toppage">
-		<h4>Have an Account?</h4>
-		<a href='/login' class='login'><h3><%- vocabulary['log in'][language] %></h3></a>
-	</div>
-	<% } // publicpage %>
-	<% if (locals.metadata.page.instance_title) { %><h2><%- locals.metadata.page.instance_title %></h2><% } %>
-	<% if (locals.metadata.site.description?.[language]) { %><p class='lead'><%- locals.metadata.site.description[language] %></p><% } %>
-</div>
-<% } %>
-
-<header <% if (!display_content) { %>class='center'<% } %>>
-	<div class='inner'>
-		<%- include ('../partials/menu-logo.ejs') %>
-	</div>
-</header>
-
-<div class='browse <%- pagedisplay %><% if (publicpage) { %> public<% } %><% if (!display_content) { %> flex<% } %>'>
-	<% if (!publicpage
-		&& rights >= (modules.find(d => d.type === object)?.rights.read ?? infinity)
-		&& pagedisplay !== 'slideshow'
-		&& !(locals.metadata.page.map && mapscale === 'full-screen')
-	) { %>
-		<nav class='tabs <% if (mapscale === "full-screen") { %>no-bg<% } %>'>
-			<div class='inner'>
-				<div class='xs sm m'>
-					<button class='space'><%- vocabulary['spaces'][language] %></button>
-					<div class='dropdown'>
-						<%- include('./modules/tabs.ejs') %>
-					</div>
-					<% if (object === 'pads') { %>
-						<div class='btn-group map-scale'>
-							<a class='mscale<% if (mapscale === "full-screen") { %> active<% } %>' href='?mscale=<% if (mapscale === "full-screen") { %>contain<% } else { %>full-screen<% } %>'>
-								<i class='material-icons'>public</i>
-							</a>
-						</div>
-					<% } %>
-				</div>
-				<div class='lg'><%- include('./modules/tabs.ejs') %></div>
-			</div>
-			<script type='text/javascript'>
-				if (!mediaSize) var mediaSize = getMediaSize()
-				if (['xs', 'sm', 'm'].includes(mediaSize)) {
-					const tabs = d3.select(`nav.tabs .inner .${mediaSize}`)
-					let activetab = d3.select('.dropdown menu li.active')
-					const button = d3.select(`nav.tabs .inner .${mediaSize} button.space`)
-
-					if (activetab.select('input')?.node()) {
-						button.html(activetab.select('input').node().value)
-					} else {
-						button.html(activetab.select('a button').html())
-						activetab.remove()
-					}
-
-					button.on('touchend', function () { this.focus() })
-					.on('focus', function () {
-						const dropdown = d3.select(this.nextElementSibling)
-						if (dropdown.node()) {
-							if (dropdown.node().style.maxHeight) {
-								dropdown.node().style.maxHeight = null
-								dropdown.node().style.overflow = null
-							} else {
-								dropdown.node().style.maxHeight = `${Math.min(dropdown.node().scrollHeight, 300)}px`
-								setTimeout(_ => {
-									dropdown.node().style.overflow = 'visible'
-								}, 250)
-							}
-						}
-					}).on('blur', function () {
-						if (!d3.event.relatedTarget || !d3.select(d3.event.relatedTarget).hasAncestor(this.nextElementSibling)) {
-							const dropdown = d3.select(this.nextElementSibling)
-							if (dropdown.node()) {
-								dropdown.node().style.maxHeight = null
-								dropdown.node().style.overflow = null
-							}
-						}
-					})
-				}
-			</script>
-		</nav>
-	<% } %>
-
-	<main>
+<div class="px-lg-5">
+<div class='browse' style="padding: 0px !important;">
+	<main class="p-8">
 		<div class='inner'>
-			<!-- (IF PINBOARD SPACE) PINBOARD TITLE -->
-			<% if (space === 'pinned' && locals.pinboard && pagedisplay !== 'slideshow') { %>
-				<% if (activity !== 'preview' && object === 'pads' && locals.pinboard.editable) { %>
-					<div class='meta-status status-<%- locals.pinboard.status || 0 %>'>
-						<form id='pinboard-display-opts' method='GET' action='/publish/pinboards'>
-							<input type='hidden' name='id' value='<%- locals.pinboard.id %>'>
-							<menu class='opts'>
-								<li>
-									<p class='<% if (locals.pinboard.display_map) { %>disabled<% } %>'><%- vocabulary['slideshow'][language] %>: </p>
-									<input type='checkbox' class='toggle' id='display-slideshow' value='true' name='slideshow' onchange='toggleOptions(this)' <% if (locals.pinboard.slideshow) { %>checked<% } %> <% if (locals.pinboard.display_map) { %>disabled<% } %>>
-									<label for='display-slideshow' data-content='<% if (locals.pinboard.slideshow) { %><%- vocabulary["yes"][language] %><% } else { %><%- vocabulary["no"][language] %><% } %>'></label>
-								</li>
-								<li>
-									<p class='<% if (locals.pinboard.slideshow) { %>disabled<% } %>'><%- vocabulary['display filters'][language] %>: </p>
-									<input type='checkbox' class='toggle' id='display-filters' value='true' name='display_filters' onchange='toggleOptions(this)' <% if (locals.pinboard.display_filters) { %>checked<% } %> <% if (locals.pinboard.slideshow) { %>disabled<% } %>>
-									<label for='display-filters' data-content='<% if (locals.pinboard.display_filters) { %><%- vocabulary["yes"][language] %><% } else { %><%- vocabulary["no"][language] %><% } %>'></label>
-								</li>
-								<li>
-									<ul>
-										<li>
-											<p class='<% if (locals.pinboard.slideshow) { %>disabled<% } %>'><%- vocabulary['display map'][language] %>: </p>
-											<input type='checkbox' class='toggle' id='display-map' value='true' name='display_map' onchange='toggleOptions(this)' <% if (locals.pinboard.display_map) { %>checked<% } %> <% if (locals.pinboard.slideshow) { %>disabled<% } %>>
-											<label for='display-map' data-content='<% if (locals.pinboard.display_map) { %><%- vocabulary["yes"][language] %><% } else { %><%- vocabulary["no"][language] %><% } %>'></label>
-										</li>
-										<li>
-											<p class='<% if (locals.pinboard.slideshow || !locals.pinboard.display_map) { %>disabled<% } %>'><%- vocabulary['full screen'][language] %>: </p>
-											<input type='checkbox' class='toggle' id='display-fullscreen' value='true' name='display_fullscreen' onchange='toggleOptions(this)' <% if (locals.pinboard.display_fullscreen) { %>checked<% } %> <% if ((locals.pinboard.slideshow) || !locals.pinboard.display_map) { %>disabled<% } %>>
-											<label for='display-fullscreen' data-content='<% if (locals.pinboard.display_fullscreen) { %><%- vocabulary["yes"][language] %><% } else { %><%- vocabulary["no"][language] %><% } %>'></label>
-										</li>
-									</ul>
-								</li>
-							</menu>
-							<div class='btn-group'>
-								<button type='button' onclick='openPreview()'><%- vocabulary['preview'][language] %></button>
-
-								<button type='button' onclick='setShareOptions()'>Share</button>
-								<!-- TO DO: TRANSLATE -->
-
-								<% if (locals.pinboard.status === 1) { %><button type='submit' class='publish' name='status' value='3'><%- vocabulary['publish'][language] %></button>
-								<% } else { %><button type='submit' class='publish' disabled><%- vocabulary['publish'][language] %></button>
-								<% } %>
-							</div>
-
-							<script type='text/javascript'>
-								function openPreview () {
-									const url = new URL(window.location)
-									const href = url.href.replace('/browse/', '/preview/')
-									window.open(href, '_blank')
-								}
-
-								async function setShareOptions () {
-									const contributors = await POST('/<%- language %>/browse/contributors/invited', { limit: null })
-
-									const formdata = { action: '/share/pinboard',  method: 'POST' }
-									const message = 'Share with contributors'
-									const opts = []
-
-									contributors.data.forEach(d => {
-										opts.push({ node: 'input', type: 'checkbox', name: 'contributor', value: d.id, placeholder: d.name, checked: (<%- JSON.stringify(locals.pinboard.contributors) %>).includes(d.id), default: true })
-									})
-
-									const foot = { node: 'button', type: 'submit', name: 'pinboard', value: <%- locals.pinboard.id %>, label: 'Share' } // TO DO: TRANSLATE
-
-									const new_constraint = await renderLonglistFormModal({ message, formdata, opts, foot })
-								}
-
-								function toggleOptions (node) {
-									for (const label of node.labels) {
-										d3.select(label).attr('data-content', node.checked ? '<%- vocabulary["yes"][language] %>' : '<%- vocabulary["no"][language] %>')
-									}
-									// IF slideshow THEN PREVENT OTHERS
-									const sel = d3.select(node)
-									const menu = sel.findAncestor('menu')
-									const parent = sel.findAncestor('li')
-									if (node.name === 'slideshow') {
-										menu.selectAll('li')
-										.each(function () {
-											const sel = d3.select(this)
-											sel.select('p').classed('disabled', function () {
-												return this.parentNode !== parent.node() && node.checked
-											})
-											sel.selectAll('input[type=checkbox]').each(function () {
-												this.disabled = this.parentNode !== parent.node() && node.checked
-											})
-										})
-									}
-									// IF map THEN ENABLE fullscreen OPTION
-									if (node.name === 'display_map') {
-										menu.selectAll('li')
-										.each(function () {
-											const sel = d3.select(this)
-											sel.select('p').classed('disabled', function () {
-												return this.parentNode !== parent.node() && this.nextElementSibling.name !== 'display_filters' && node.checked
-											})
-											sel.selectAll('input[type=checkbox]').each(function () {
-												this.disabled = this.parentNode !== parent.node() && this.name !== 'display_filters' && node.checked
-											})
-										})
-										const subnode = d3.select('input#display-fullscreen').node()
-										subnode.disabled = !node.checked
-										d3.select(subnode).findAncestor('li').select('p').classed('disabled', !node.checked)
-									}
-									partialSave()
-								}
-							</script>
-						</form>
-					</div>
-				<% } %>
-
-				<div class='head'>
-					<% if (activity !== 'preview' && locals.pinboard.editable) { %>
-						<div class='title' data-placeholder='<%- vocabulary["untitled pad"][language] %>' onfocus='this.classList.add("focus")' onkeydown='checkForEnter(event, this)' onblur='partialSave()' contenteditable><%- locals.pinboard.title %></div>
-						<div class='description' data-placeholder='Provide a short description for this pinboard.' onblur='partialSave()' contenteditable><%- (locals.pinboard.description) %></div>
-					<% } else { %>
-						<div class='title' data-placeholder='<%- vocabulary["untitled pad"][language] %>'><%- locals.pinboard.title %></div>
-						<div class='contributor'><%- vocabulary['curation credit'][language](locals.pinboard.owner, locals.pinboard.ownername, 'contributors') %></div>
-						<% if (locals.pinboard.description) { %>
-							<!-- <div class='description' onblur='partialSave()'><%- (locals.pinboard.description) %></div> -->
-							<div class='description'><%- (locals.pinboard.description) %></div>
-						<% } %>
-					<% } %>
-				</div>
-
-
-				<script type='text/javascript'>
-					function checkForEnter (evt, node) {
-						if (evt.code === 'Enter' || evt.keyCode === 13) {
-							evt.preventDefault()
-							node.blur()
-						}
-					}
-
-					async function partialSave () {
-						let title = d3.select('main .inner .head .title').node().innerText.trim()
-						if (title.length > 99) title = `${title.slice(0, 98)}…`
-						const description = d3.select('main .inner .head .description').node().innerHTML.trim()
-						const displayopts = {}
-
-						d3.selectAll('#pinboard-display-opts input[type=checkbox]')
-						.each(function () {
-							displayopts[this.name] = this.checked
-						})
-
-						const res = await POST('/save/pinboard', Object.assign(displayopts, { id: <%- locals.pinboard.id %>, title, description }))
-						if (res.status === 200) {
-							console.log('saved')
-							const { datum } = res
-							updateTab(datum.title)
-
-							// TO DO: UPDATE THIS TO USE THE RENDER FUNCTIONS BELOW
-							// d3.selectAll('.pin, .pinboard').html(d => d.title = datum.title)
-							d3.selectAll('.pin label.name').html(d => d.title = datum.title)
-						}
-					}
-				</script>
-			<% } %>
 
 			<!-- SEARCH AND FILTER MENU -->
 			<% if (
@@ -352,35 +79,14 @@
 				<% } %>
 			<% } %>
 
-			<!-- STATISTICS IN MOBILE VIEW -->
-			<% if (display_content && mapscale !== 'full-screen') { %>
-				<div class='xs'>
-					<%- include ('./modules/statistics.ejs') %>
-				</div>
-				<% if (locals.stats.filtered === 0) { %>
-					<small class='no-results xs'>
-						<%- vocabulary['pads to display'][language](0) %>
-					</small>
-				<% } %>
-			<% } %>
+			
 		</div>
 		<div class='lds-ellipsis hide'><div></div><div></div><div></div><div></div></div>
 	</main>
 </div>
-
-<% if (display_content && pagedisplay !== 'slideshow' && mapscale !== 'full-screen') { %>
-	<div class='sidebar lg'>
-		<div class='inner'>
-			<%- include ('./modules/statistics.ejs') %>
-			<%- include ('../partials/filters.ejs') %>
-		</div>
-	</div>
-<% } %>
+</div>
 
 <footer>
-	<nav class='pagination xs sm m'>
-		<% if (activity === 'browse') { %><%- include('./modules/pagination') %><% } %>
-	</nav>
 	<h4>Contribute to:</h4>
 	<!-- TO DO: TRANSLATE -->
 	<menu>
@@ -394,6 +100,9 @@
 			<li><h3>Blog</h3></li>
 		</a>
 	</menu>
+	<nav class='pagination d-flex'>
+		<% if (activity === 'browse') { %><%- include('./modules/pagination') %><% } %>
+	</nav>
 	<% if (pagedisplay === 'slideshow') { %>
 		<div class='inner'>
 			<div class='dots'></div>
@@ -406,27 +115,7 @@
 	<% } %>
 </footer>
 
-<script type="text/javascript" >
-	function extractRelevantText(largeText){
-		var searchText = "waste market";
-
-		// Escape any special characters in the search text
-		var escapedSearchText = searchText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-		// Create a regular expression pattern to find the sentences containing the search text
-		var pattern = new RegExp(`[^.!?]*${escapedSearchText}[^.!?]*[.!?]`, 'g');
-
-		// Find all matches
-		var matches = largeText.match(pattern);
-
-		// Extract the first and last sentences containing the search text
-		var firstSentence = matches[0];
-		var lastSentence = matches[matches.length - 1];
-
-		return `${firstSentence || ''} ${lastSentence || ''}`
-
-	}
-</script>
+<%- include ('../partials/footer.ejs') %>
 
 <script type='text/javascript'>
 	if (!mediaSize) var mediaSize = getMediaSize()
@@ -565,90 +254,6 @@
 					_sel.addElems('div', 'btn-group')
 					.addElems('form', 'actions', d => {
 						const opts = []
-
-						<% if (['private', 'pinned'].includes(space) && object !== 'reviews') { %>
-							if (d.editable) opts.push({ node: 'button', type: 'button', classname: 'delete', label: '<%- vocabulary["delete"][language] %>', fn: deleteArticles })
-						<% } else if (space === 'curated') { %>
-							if (d.editable && !d.owner) opts.push({ node: 'button', type: 'button', classname: 'delete', label: '<%- vocabulary["delete"][language] %>', fn: deleteArticles })
-						<% } %>
-						<% if (object === 'pads') { %>
-							opts.push({ node: 'button', type: 'button', classname: 'download', label: '<%- vocabulary["download"][language] %>', name: 'pads', value: d.id, disabled: d.status < 2, fn: setDownloadOptions })
-						<% } %>
-						// CHANGED THE LOGIC HERE FOR THE PUBLICATION LIMIT
-						<% if (['files', 'pads'].includes(object)) { %>
-							if (d.editable) {
-								const publish_dropdown = []
-								<% if (modules.some(d => d.type === 'reviews')) { %>
-									if (d.status === 1) publish_dropdown.push({ name: 'status', value: 2, classname: 'preprint', label: '<%- vocabulary["object status"][language](object, 2) %>' })
-									if (d.status <= 2 && d.review_status === 0) publish_dropdown.push({ name: 'review_status', value: 1, classname: 'review',label: '<%- vocabulary["submit for review"][language] %>', fn: selectReviewLanguage })
-								<% } else { %>
-									if (d.status === 1) publish_dropdown.push({ name: 'status', value: 2, classname: 'internally', label: '<%- vocabulary["internally"][language] %>' })
-									// TO DO: MAKE SURE THIS IS ONLY POSSIBLE WHEN ALL META FIELDS ARE FILLED OUT
-									if (d.status <= 2 && d.publishable) publish_dropdown.push({ name: 'status', value: 3, classname: 'externally', label: '<%- vocabulary["externally"][language] %>' })
-								<% } %>
-
-								if (publish_dropdown.length > 0) opts.push({ action: '/publish/<%- object %>', method: 'GET', node: 'button', type: 'button', value: d.id, disabled: !(d.editable && [1, 2].includes(d.status) && (d.available_publications === undefined || d.available_publications > 0)), classname: 'publish', label: '<%- vocabulary["publish"][language] %>', dropdown: publish_dropdown, inputs: [{ name: 'id', value: d.id }, { name: 'title', value: d.title }] })
-
-								// if (d.status > 1) opts.push({ action: '/publish/<%- object %>', method: 'GET', node: 'button', type: 'submit', value: d.id, disabled: !d.editable, classname: 'unpublish', label: '<%- vocabulary["unpublish"][language] %>', inputs: [{ name: 'status', value: 1 }] })
-
-								if (d.status > 1) opts.push({ node: 'button', type: 'button', value: d.id, disabled: !d.editable, classname: 'unpublish', label: '<%- vocabulary["unpublish"][language] %>', fn: unpublishArticles })
-							}
-						<% } else if (object === 'templates') { %>
-							if (d.editable) {
-								if (d.status === 1) opts.push({ action: '/publish/<%- object %>', method: 'GET', node: 'button', type: 'submit', value: d.id, disabled: !d.editable, classname: 'publish', label: '<%- vocabulary["publish"][language] %>', inputs: [{ name: 'status', value: 2 }] })
-
-								<% if (space !== 'reviews') { %>
-									// if (d.status > 1 && d.retractable) opts.push({ action: '/publish/<%- object %>', method: 'GET', node: 'button', type: 'submit', value: d.id, disabled: !d.editable, classname: 'unpublish', label: '<%- vocabulary["unpublish"][language] %>', inputs: [{ name: 'status', value: 1 }] })
-
-									if (d.status > 1 && d.retractable) opts.push({ node: 'button', type: 'button', value: d.id, disabled: !d.editable, classname: 'unpublish', label: '<%- vocabulary["unpublish"][language] %>', fn: unpublishArticles })
-								<% } %>
-							}
-						<% } else if (object === 'reviews') { %>
-							<% if (space === 'pending') { %>
-								if (!d.is_review) {
-									if (d.reviewers < <%- modules.find(d => d.type === 'reviews')?.reviewers %>) {
-										opts.push({
-											action: '/accept/review',
-											method: 'GET',
-											node: 'button',
-											type: 'submit',
-											classname: 'accept',
-											label: '<%- vocabulary["accept"][language] %>',
-											value: d.id,
-											inputs: [{ name: 'template', value: d.review_template }]
-										})
-										if (!d.required) {
-											opts.push({
-												action: '/decline/review',
-												method: 'GET',
-												node: 'button',
-												type: 'submit',
-												classname: 'decline',
-												label: '<%- vocabulary["decline"][language] %>',
-												value: d.id
-											})
-										}
-									}
-								} else {
-									if (d.editable) {
-										if (d.status === 1) opts.push({ action: '/publish/<%- object %>', method: 'GET', node: 'button', type: 'submit', value: d.id, disabled: !(d.editable && [1, 2].includes(d.status) && d.is_review), classname: 'publish', label: '<%- vocabulary["publish"][language] %>', inputs: [{ name: 'status', value: 2 }, { name: 'source', value: d.source }] })
-									}
-								}
-							<% } %>
-						<% } else if (object === 'mobilizations') { %>
-							if (d.status === 1) {
-								opts.push({ node: 'button', type: 'button', classname: 'copy', label: '<%- vocabulary["copy link"][language] %>', value: d.id, inputs: [{ name: 'template', value: d.template }, { name: 'language', value: d.language }], fn: copyLink })
-							}
-							opts.push({ node: 'button', type: 'button', disabled: d.pads === 0, classname: 'download', label: '<%- vocabulary["download"][language] %>', name: 'mobilizations', value: d.id, fn: setDownloadOptions }) // TO DO: CHECK IF THIS WORKS
-							if (d.status === 1) opts.push({ action: '/unpublish/<%- object %>', method: 'GET', node: 'button', type: 'submit', disabled: !(d.editable && d.status === 1), classname: 'demobilize', label: '<%- vocabulary["demobilize"][language] %>', value: d.id })
-							if (d.status === 2) opts.push({ action: `../../mobilize/cohort`, method: 'GET', node: 'button', type: 'submit', disabled: !(d.editable && d.status === 2 && d.pads !== 0 && !d.target_id), classname: 'followup', label: '<%- vocabulary["follow up"][language](true) %>', value: d.id })
-							if (d.status === 2) opts.push({ action: `../../mobilize/cohort`, method: 'GET', node: 'button', type: 'submit', disabled: !(d.editable && d.status === 2), classname: 'copy', label: '<%- vocabulary["copy"][language](true) %>', value: d.id, inputs: [{ name: 'copy', value: true }] })
-						<% } else if (object === 'contributors') { %>
-							<% if (space === 'invited') { %>
-								opts.push({ node: 'button', type: 'button', classname: 'revoke', label: '<%- vocabulary["revoke"][language] %>', name: 'contributor', value: d.id, disabled: ![null, undefined].includes(d.end_date), fn: revoke })
-							<% } %>
-						<% } %>
-
 						return opts
 					}).attrs({
 						'action': d => d.action,
@@ -702,99 +307,6 @@
 						}
 					})
 
-					async function selectReviewLanguage (datum) {
-						const { inputs } = datum
-						const { name, value } = d3.select(this).datum()
-
-						// const target_opts = <%- JSON.stringify(languages.filter(d => locals.metadata.menu.review_templates?.some(c => c.language === d.language))?.map(d => { return { label: d.name, value: d.language, type: 'radio', required: true } })) %>
-						const target_opts = <%- JSON.stringify(locals.metadata.menu.review_templates.map(d => { return { label: d.name, value: d.language, count: d.count, disabled: { value: d.disabled, label: vocabulary["missing reviewers"][language] }, type: 'radio', required: true } })) %>
-
-						// TO DO: FILTER THIS BASED ON USER RIGHTS > review.rights.write
-						const reviewers = await POST('/<%- language %>/browse/contributors/all', { limit: null })
-						const reviewer_opts = reviewers.data.map(d => {
-							d.secondary_languages.push(d.language)
-							return { label: d.name, value: d.id, type: 'checkbox', classname: d.secondary_languages.join(' ') }
-						}) // TO DO: IMPROVE THIS
-						const formdata = { action: '/request/review',  method: 'POST' }
-						const message = '<%- vocabulary["select review language"][language] %>'
-
-						const opts = []
-						opts.push({ node: 'select', name: 'language', label: '<%- vocabulary["select language"][language](false) %>', options: target_opts, fn: updateReviewerList })
-						opts.push({ node: 'select', name: 'reviewers', label: 'Select specific reviewers', options: reviewer_opts, classname: 'reviewer-list' }) // TO DO: TRANSLATE
-
-						inputs.forEach(d => {
-							opts.push({ node: 'input', type: 'hidden', name: d.name, value: d.value })
-						})
-
-						opts.push({ node: 'button', type: 'submit', name: name, value: value, label: '<%- vocabulary["submit for review"][language] %>' })
-						const new_constraint = await renderFormModal({ message, formdata, opts })
-					}
-
-					function updateReviewerList (d) {
-						const { value: language } = d
-						const menu = d3.select(this).findAncestor('opts')
-						const reviewer_list = menu.select('.reviewer-list .dropdown menu li')
-						reviewer_list
-						// .classed('hide', function () {
-						// 	return !d3.select(this).classed(language)
-						// }) // THIS CONFLICTS WITH THE SEARCH OPERATIONS (BECAUSE BOTH USE THE class='hide')
-						.select('input')
-						.each(function () {
-							this.disabled = !d3.select(this.parentNode).classed(language)
-						})
-
-
-					}
-
-					function copyLink (datum) {
-						// INSPIRED BY: https://www.w3schools.com/howto/howto_js_copy_clipboard.asp
-						const sel = d3.select(this)
-						const { value, inputs } = sel.datum()
-						const template = inputs.find(d => d.name === 'template').value
-						const language = inputs.find(d => d.name === 'language').value
-
-						const url = new URL(window.location)
-						const queryparams = new URLSearchParams()
-						queryparams.set('mobilization', value)
-						queryparams.set('template', template)
-
-						const link = `${url.origin}/${language}/contribute/pad?${queryparams.toString()}`
-						navigator.clipboard.writeText(link)
-
-						sel.classed('active', true)
-						.html('<%- vocabulary["copied"][language] %>')
-						setTimeout(_ => {
-							sel.classed('active', false)
-							.html('<%- vocabulary["copy link"][language] %>')
-						}, 1000)
-					}
-					async function revoke () {
-						const sel = d3.select(this)
-						const { value } = sel.datum()
-
-						// SET END DATE
-						const formdata = { action: '/delete/<%- object %>',  method: 'GET' }
-						const message = '<%- vocabulary["set user end date"][language] %>'
-						const opts = []
-
-						const today = new Date()
-						const dd = String(today.getDate()).padStart(2, '0')
-						const mm = String(today.getMonth() + 1).padStart(2, '0')
-						const yyyy = today.getFullYear()
-
-						// opts.push({ node: 'input', type: 'date', name: 'invite', value: `${yyyy}-${mm}-${dd}` })
-						opts.push({ node: 'input', type: 'date', name: 'date', value: `${yyyy}-${mm}-${dd}` })
-						// opts.push({ node: 'input', type: 'email', name: 'email' })
-
-						// SET WHETHER TO EXCLUDE OR TO REMOVE RIGHTS
-						// opts.push({ node: 'input', type: 'radio', name: 'type', value: 'revoke', placeholder: 'Remove user rights', checked: true, default: true }) // TO DO: TRANSLATE
-						// opts.push({ node: 'input', type: 'radio', name: 'type', value: 'delete', placeholder: 'Exclude from platform and suite', checked: false, default: true }) // TO DO: TRANSLATE
-
-						opts.push({ node: 'input', type: 'hidden', name: 'id', value: value })
-
-						opts.push({ node: 'button', type: 'submit', label: '<%- vocabulary["revoke"][language] %>' })
-						const new_constraint = await renderFormModal({ message, formdata, opts })
-					}
 				<% } %>
 			}.bind(this),
 			img: function (_sel) {
@@ -808,15 +320,6 @@
 							if (d.is_followup || d.is_review) queryparams.set('display', 'adjacent-source')
 							if ((d.is_review) && d.review_template) queryparams.set('template', d.review_template)
 
-							<% if (object === 'reviews') { %>
-								if (!d.is_review && d.reviews?.length > 0) {
-									queryparams.set('display', 'adjacent-reviews')
-									return `../../view/pad?${queryparams.toString()}`
-								}
-							<% } %>
-							// if (d.editable) return `../../edit/<%- object.slice(0, -1) %>?${queryparams.toString()}`
-							// else return `../../view/<%- object.slice(0, -1) %>?${queryparams.toString()}`
-
 							return d.link
 						}, 'target': '_blank'
 					})
@@ -829,23 +332,6 @@
 					if (display === 'slideshow') img.src = `<%- sourceurl %>/${d.img[0].replace('uploads/sm/', 'uploads/')}`
 					else img.src = `<%- sourceurl %>/${d.img[0]}`
 
-
-					// BELOW IS IN CASE WE MAKE A CALL FOR THE IMAGES VIA API
-					// POST('/call/api', { uri: encodeURI(`https://undphqexoacclabsapp01.azurewebsites.net/api/file?filepath=${d}`), method: 'GET', key: 'SM_PLATFORM_TOKEN', expect: 'image' }, false)
-					// .then(res => res.blob())
-					// .then(data => {
-					// 	// const node = this
-					// 	// const imgdata = URL.createObjectURL(data)
-
-					// 	// const img = new Image()
-					// 	// img.onload = function () {
-					// 	// 	node.src = this.src
-					// 	// }
-					// 	// img.onerror = function (err) {
-					// 	// 	if (err) console.log(err)
-					// 	// }
-					// 	// img.src = imgdata
-					// }).catch(err => console.log(err))
 				})
 			}.bind(this),
 			stats: function (_sel) {
@@ -858,7 +344,6 @@
 					if (d.items !== undefined) {
 						const obj = {}
 						obj.type = 'item'
-						// obj.label = vocabulary['item']['<%- language %>'](d.items !== 1)
 						obj.label = Function(`"use strict";return (<%- vocabulary["item"][language] %>)`)()(d.items !== 1)
 						obj.count = d.items
 						data.push(obj)
@@ -872,15 +357,6 @@
 						obj.text = `${d.contributors} <small class='total'>/ ${d.participants}</small>`
 						data.push(obj)
 					}
-					if (d.private_associated_pads !== undefined) {
-						const obj = {}
-						obj.type = 'pad'
-						// obj.label = `${vocabulary['status']['<%- language %>'](0, d.count !== 1)} ${vocabulary['pad']['<%- language %>'](d.count !== 1).toLowerCase()}`
-						obj.label = `${Function(`"use strict";return (<%- vocabulary["object status"][language] %>)`)()('pad', 0, d.private_associated_pads !== 1)} ${Function(`"use strict";return (<%- vocabulary["pad"][language] %>)`)()(d.private_associated_pads !== 1).toLowerCase()}`
-						obj.count = d.private_associated_pads
-						obj.href = `../../browse/pads/curated?<%- object %>=${d.id}&status=0&status=1`
-						data.push(obj)
-					}
 					if (d.associated_pads !== undefined) {
 						const obj = {}
 						obj.type = 'pad'
@@ -888,24 +364,6 @@
 						obj.label = `${Function(`"use strict";return (<%- vocabulary["object status"][language] %>)`)()('pad', 2, d.associated_pads !== 1)} ${Function(`"use strict";return (<%- vocabulary["pad"][language] %>)`)()(d.associated_pads !== 1).toLowerCase()}`
 						obj.count = d.associated_pads
 						obj.href = `../../browse/pads/shared?<%- object %>=${d.id}`
-						data.push(obj)
-					}
-					if (d.ongoing_associated_mobilizations !== undefined) {
-						const obj = {}
-						obj.type = 'mobilization'
-						// obj.label = vocabulary['mobilization']['<%- language %>'](d.count !== 1).toLowerCase()
-						obj.label = Function(`"use strict";return (<%- vocabulary["mobilization"][language] %>)`)()(d.count !== 1).toLowerCase()
-						obj.count = d.ongoing_associated_mobilizations
-						obj.href = `../../browse/mobilizations/ongoing?<%- object %>=${d.id}`
-						data.push(obj)
-					}
-					if (d.past_associated_mobilizations !== undefined) {
-						const obj = {}
-						obj.type = 'mobilization'
-						// obj.label = vocabulary['mobilization']['<%- language %>'](d.count !== 1).toLowerCase()
-						obj.label = Function(`"use strict";return (<%- vocabulary["mobilization"][language] %>)`)()(d.count !== 1).toLowerCase()
-						obj.count = d.past_associated_mobilizations
-						obj.href = `../../browse/mobilizations/ongoing?<%- object %>=${d.id}`
 						data.push(obj)
 					}
 					return data
@@ -934,9 +392,7 @@
 									return `../../view/pad?${queryparams.toString()}`
 								}
 							<% } %>
-							// if (d.editable) return `../../edit/<%- object.slice(0, -1) %>?${queryparams.toString()}`
-							// else return `../../view/<%- object.slice(0, -1) %>?${queryparams.toString()}`
-
+							
 							return d.link
 						}, 'target': '_blank'
 					}).addElems('h1')
@@ -978,18 +434,6 @@
 							if (d.id) queryparams.set('id', d.id)
 							if (d.source) queryparams.set('source', d.source)
 							if (d.is_followup || d.is_review) queryparams.set('display', 'adjacent-source')
-							if ((d.is_review) && d.review_template) queryparams.set('template', d.review_template)
-
-							<% if (object === 'reviews') { %>
-								if (!d.is_review && d.reviews?.length > 0) {
-									queryparams.set('display', 'adjacent-reviews')
-									return `../../view/pad?${queryparams.toString()}`
-								}
-							<% } %>
-
-							// if (d.editable) return `../../edit/<%- object.slice(0, -1) %>?${queryparams.toString()}`
-							// else return `../../view/<%- object.slice(0, -1) %>?${queryparams.toString()}`
-
 							return d.link
 						}, 'target': '_blank'
 					}).html(d => {
@@ -1020,9 +464,8 @@
 				.addElems('a')
 					.attrs({
 						'href': d => {
-							if (d.editable) return `../../edit/<%- object.slice(0, -1) %>?id=${d.source}`
-							else return `../../view/<%- object.slice(0, -1) %>?id=${d.source}`
-						}//, 'target': '_blank'
+							return `../../view/<%- object.slice(0, -1) %>?id=${d.source}`
+						}
 					}).html(d => d.source_title)
 
 				_sel.addElems('div', 'meta meta-forward', d => d.source && d.is_forward ? [d] : [])
@@ -1031,9 +474,8 @@
 				.addElems('a')
 					.attrs({
 						'href': d => {
-							if (d.editable) return `../../edit/<%- object.slice(0, -1) %>?id=${d.source}`
-							else return `../../view/<%- object.slice(0, -1) %>?id=${d.source}`
-						}//, 'target': '_blank'
+							 return `../../view/<%- object.slice(0, -1) %>?id=${d.source}`
+						}
 					}).html(d => d.source_title)
 
 				_sel.addElems('div', 'meta meta-copy', d => d.source && d.is_copy ? [d] : [])
@@ -1042,8 +484,7 @@
 				.addElems('a')
 					.attrs({
 						'href': d => {
-							if (d.editable) return `../../edit/<%- object.slice(0, -1) %>?id=${d.source}`
-							else return `../../view/<%- object.slice(0, -1) %>?id=${d.source}`
+							return `../../view/<%- object.slice(0, -1) %>?id=${d.source}`
 						}//, 'target': '_blank'
 					}).html(d => d.source_title)
 
@@ -1053,39 +494,10 @@
 				.addElems('a')
 					.attrs({
 						'href': d => {
-							if (d.editable) return `../../edit/<%- object.slice(0, -1) %>?id=${d.source}`
-							else return `../../view/<%- object.slice(0, -1) %>?id=${d.source}`
+							return `../../view/<%- object.slice(0, -1) %>?id=${d.source}`
 						}//, 'target': '_blank'
 					}).html(d => d.source_title)
 
-				_sel.addElems('div', 'meta meta-mobilization', d => d.mobilization ? [d] : [])
-					.attr('title', d => d.mobilization_title)
-					.html('<i><%- vocabulary["mobilization"][language](false) %>:</i> ')
-				.addElems('a')
-					.attr('href', d => `?mobilizations=${d.mobilization}`)
-					.html(d => d.mobilization_title?.length > 25 ? `${d.mobilization_title.slice(0, 25)}…` : d.mobilization_title)
-
-				<% if (object === 'mobilizations') { %>
-					_sel.addElems('div', 'meta meta-public', d => d.public ? [d] : [])
-						.html('<i><%- vocabulary["public mobilization"][language] %></i> ')
-				<% } %>
-
-				_sel.addElems('div', 'meta meta-template', d => d.template ? [d] : [])
-					.attr('title', d => d.template_title)
-					.html('<i><%- vocabulary["template"][language](false, false) %>:</i> ')
-				.addElems('a')
-					.attrs({
-						'href': d => `../../view/template?id=${d.template}`
-						//'target': '_blank'
-					}).html(d => d.template_title?.length > 25 ? `${d.template_title.slice(0, 25)}…` : d.template_title)
-
-				<% if (object === 'reviews' && space === 'private') { %>
-					_sel.addElems('div', 'meta meta-reviewers', d => {
-						return !d.reviewer_pooled && ![null, undefined].includes(d.reviewers) ? [d] : []
-					}).html(d => {
-						return Function(`"use strict";return (<%- vocabulary["reviewers accepted"][language] %>)`)()(d.reviewers, <%- modules.find(d => d.type === 'reviews').reviewers %>)
-					})
-				<% } %>
 			}.bind(this),
 			followup: function (_sel) {
 				if (this.data.editable && (this.data.followups?.length > 0 || this.data.forwards?.length > 0)) {
@@ -1107,116 +519,13 @@
 							const dropdown = btn.select('.dropdown')
 							if (dropdown.node()) dropdown.node().style.maxHeight = null
 						})
-
-						btn.addElems('div', 'dropdown')
-							.addElems('menu')
-						.addElems('li', 'follow-up-option', d => d.followups)
-						.addElems('a')
-							.attrs({ 'href': d => `../../contribute/<%- object.slice(0, -1) %>?source=${d.source}&template=${d.template}&mobilization=${d.id}&display=adjacent-source` })
-							.addElems('button')
-							.html(d => d.title.length > 40 ? `${d.title.slice(0, 40)}…` : d.title)
-						.on('click', function (d) {
-							const sel = d3.select(this)
-							const li = sel.findAncestor('follow-up-option')
-							const button = li.findAncestor('follow-up')
-							if (d.count + 1 >= d.max) li.remove()
-							if (button.selectAll('li').size() === 0) button.remove()
-						})
-					}
-
-					if (this.data.forwards?.length) {
-						const btn = group.addElems('div', 'create forward')
-							btn.addElems('button')
-								.html('<%- vocabulary["forward"][language] %>')
-							.on('click', function () { this.focus() })
-							.on('focus', _ => {
-								const dropdown = btn.select('.dropdown')
-								if (dropdown.node()) {
-									if (dropdown.node().style.maxHeight) dropdown.node().style.maxHeight = null
-									else dropdown.node().style.maxHeight = `${Math.min(dropdown.node().scrollHeight, 300)}px`
-									dropdown.selectAll('button').on('mousedown', _ => d3.event.preventDefault())
-								}
-							}).on('blur', _ => {
-								const dropdown = btn.select('.dropdown')
-								if (dropdown.node()) dropdown.node().style.maxHeight = null
-							})
-							btn.addElems('div', 'dropdown')
-								.addElems('menu')
-							.addElems('li', 'forward-option', d => d.forwards)
-							.addElems('a')
-								.attrs({ 'href': d => `/forward/<%- object.slice(0, -1) %>?id=${d.source}&mobilization=${d.id}` }) // TO DO: CHECK THIS WORKS
-								.addElems('button')
-								.html(d => d.title)
-							.on('click', function (d) {
-								const sel = d3.select(this)
-								const li = sel.findAncestor('forward-option')
-								const button = li.findAncestor('forward')
-								if (d.count + 1 >= d.max) li.remove()
-								if (button.selectAll('li').size() === 0) button.remove()
-							})
 					}
 				}
-			}.bind(this),
-			engagement: function (_sel) {
-				<% if (!['mobilizations', 'contributors', 'reviews'].includes(object)
-					&& !publicpage
-					&& locals.metadata.site.engagementtypes?.length)
-				{ %>
-					const engagementgroup = _sel.addElems('div', 'engagement-group', d => d.status > 1 ? [d] : [])
-
-					<% locals.metadata.site.engagementtypes.forEach(e => { %>
-
-						engagementgroup.addElems('button', 'engagement engagement-<%- e %>')
-						.each(function (d) {
-							<% if (e === 'like') { %>
-								this.disabled = d.disliked
-							<% } else if (e === 'dislike') { %>
-								this.disabled = d.liked
-							<% } %>
-							const sel = d3.select(this)
-							sel.classed('active', d['<%- e.charAt(e.length - 1) !== "e" ? `${e}ed` : `${e}d` %>'])
-
-							sel.addElems('img')
-							.attr('src', d => {
-								if (!sel.classed('active')) return `/imgs/icons/i-<%- e %>-outline${mediaSize === 'xs' ? '-sm' : ''}.svg`
-								else return `/imgs/icons/i-<%- e %>${mediaSize === 'xs' ? '-sm' : ''}.svg`
-							})
-							sel.addElems('span', 'count')
-							.html(d => d['<%- `${e}s` %>'])
-
-						}).on('click', async function (d) {
-							const sel = d3.select(this)
-
-							const res = await POST('/engage', { object: '<%- object.slice(0, -1) %>', id: d.id, type: '<%- e %>', action: !sel.classed('active') ? 'insert' : 'delete', source: '<%- source %>' })
-
-							if (res.status === 200) {
-								sel.toggleClass('active')
-								sel.select('img').attr('src', c => {
-									if (!sel.classed('active')) return `/imgs/icons/i-<%- e %>-outline${mediaSize === 'xs' ? '-sm' : ''}.svg`
-									else return `/imgs/icons/i-<%- e %>${mediaSize === 'xs' ? '-sm' : ''}.svg`
-								})
-								let count = +sel.select('span').node().innerText
-								if (res.active === true) count ++
-								else count --
-								sel.select('span').html(count)
-
-								<% if (e === 'like') { %>
-									engagementgroup.select('button.engagement-dislike').attr('disabled', res.active)
-								<% } else if (e === 'dislike') { %>
-									engagementgroup.select('button.engagement-like').attr('disabled', res.active)
-								<% } %>
-							}
-						})
-					<% }) %>
-				<% } %>
 			}.bind(this),
 			pin: function (_sel) {
 				<% if ((object === 'pads'
 					&& modules.some(d => d.type === 'pinboards' && rights >= d.rights.write)
-					) || (
-					object === 'contributors'
-					&& modules.some(d => d.type === 'teams' && rights >= d.rights.write)
-					)
+					) 
 				) { %>
 					const pinboards = <%- JSON.stringify(locals.pinboards_list || []) %>
 					const source = '<%- source %>'
@@ -1403,18 +712,6 @@
 								} else { // CREATE A NEW BOARD AND ADD THE OBJECT TO IT
 									const res = await POST('/pin', { board_title: node.value.trim(), object_id: { id: d.id, source }, action: 'insert', object: '<%- object.slice(0, -1) %>' })
 									if (res.status === 200) {
-										// d.pinboards = res.pins
-										// // ADD THE NEW PIN TO THE OBJECT
-										// pins.call(renderPins, res.pins)
-										// // ADD THE NEW PINBOARD TO ALL LISTS
-										// d3.selectAll('.pinboard-group').selectAll('.add.filter')
-										// .each(function (c) {
-										// 	const data = res.pinboards_list.map(b => Object.assign(Object.assign({}, b), { object_id: c.id, checked: c.pinboards.map(a => a.id).includes(b.id) ? true : null }))
-										// 	d3.select(this).call(renderPinOptions, data)
-										// })
-										// // ADD THE NEW PINBOARD TO LIST IN MAIN NAV AT THE TOP
-										// renderPinNavigation(res.pinboards_list)
-
 										// RELOAD THE PAGE
 										location.reload()
 									}
@@ -1427,97 +724,11 @@
 						})
 				<% } %>
 			}.bind(this),
-			unpublish: function (_sel) {
-				const form = _sel.addElems('form', 'unpublish hide')
-					.attrs({
-						'method': 'GET',
-						'action': '/publish/<%- object %>'
-					})
-				form.addElems('input', 'pad-id')
-					.attrs({
-						'type': 'hidden',
-						'name': 'id',
-						'value': d => d.id
-					})
-				form.addElems('input', 'pad-status')
-					.attrs({
-						'type': 'hidden',
-						'name': 'status',
-						'value': 1
-					})
-
-				form.addElems('button', 'opt', d => {
-					const opts = []
-					opts.push({ type: 'button', class: '<%- vocabulary["confirm"]["en"] %>', label: '<%- vocabulary["confirm"][language] %>', fn: confirmRemoval })
-					opts.push({ type: 'button', class: '<%- vocabulary["cancel"]["en"] %>', label: '<%- vocabulary["cancel"][language] %>', fn: unpublishArticles })
-					return opts
-				}).attrs({
-					'class': d => d.class.toLowerCase(),
-					'type': d => d.type,
-					'value': d => d.value
-				}).html(d => d.label)
-					.on('click', function (d) { d.fn ? d.fn.call(this, 'unpublish') : null })
-			}.bind(this),
-			delete: function (_sel) {
-				const form = _sel.addElems('form', 'delete hide')
-					.attrs({
-						'method': 'GET',
-						'action': '/delete/<%- object %>'
-					})
-				form.addElems('input', 'pad-id')
-					.attrs({
-						'type': 'hidden',
-						'name': 'id',
-						'value': d => d.id
-					})
-
-				form.addElems('button', 'opt', d => {
-					const opts = []
-					opts.push({ type: 'button', class: '<%- vocabulary["confirm"]["en"] %>', label: '<%- vocabulary["confirm"][language] %>', fn: confirmRemoval })
-					opts.push({ type: 'button', class: '<%- vocabulary["cancel"]["en"] %>', label: '<%- vocabulary["cancel"][language] %>', fn: deleteArticles })
-					return opts
-				}).attrs({
-					'class': d => d.class.toLowerCase(),
-					'type': d => d.type,
-					'value': d => d.value
-				}).html(d => d.label)
-					.on('click', function (d) { d.fn ? d.fn.call(this, 'delete') : null })
-			}.bind(this),
-			contributor: function (_sel) { // THIS DOES NOT SEEM TO BE USED
-				const name = _sel.addElems('div', 'media media-name')
-					.addElems('a', 'pad-link')
-					.attrs({
-						'href': d => {
-							let query = `id=${d.uuid}`
-							if (d.editable) return `../../edit/<%- object.slice(0, -1) %>?${query}`
-							else return `../../view/<%- object.slice(0, -1) %>?${query}`
-						}//, 'target': '_blank'
-					}).addElems('h1')
-				name.addElems('img')
-					.attr('src', d => {
-						if (d.is_followup) return '/imgs/icons/i-followup-<%- object.slice(0, -1) %>.svg'
-						else if (d.is_forward) return '/imgs/icons/i-forward-<%- object.slice(0, -1) %>.svg'
-						else return '/imgs/icons/i-<%- object.slice(0, -1) %>.svg'
-					})
-				name.addElems('span')
-					.html(d => d.name || '[<%- vocabulary[`untitled ${object.slice(0, -1)}`]?.[language] %>]')
-
-
-				_sel.addElems('div', 'meta meta-email')
-				.html(d => d.email)
-
-				_sel.addElems('div', 'meta meta-position')
-				.html(d => d.position)
-
-				_sel.addElems('div', 'meta meta-country')
-				.html(d => d.countryname)
-			}.bind(this)
 		}
 	}
 
 	function renderVignette (_section, _kwargs) {
 		const { data, display } = _kwargs
-		console.log(data)
 
 		const entry = new Entry({
 			parent: _section,
@@ -1541,12 +752,8 @@
 				render.followup(entry.body)
 			<% } %>
 			render.tags(entry.body)
-			// if (mediaSize === 'xs') render.stats(entry.foot)
 			if (mediaSize !== 'xs') render.stats(entry.foot)
-			render.engagement(entry.foot)
 			render.pin(entry.foot)
-			render.delete(entry.outer)
-			render.unpublish(entry.outer)
 		} else if (display === 'slideshow') {
 			render.img(entry.head)
 			render.owner(entry.metagroup)
@@ -1564,12 +771,9 @@
 				render.followup(entry.body)
 			<% } %>
 			render.tags(entry.body)
-			render.engagement(entry.body)
 			render.img(entry.foot)
 			render.stats(entry.foot)
 			render.pin(entry.inner)
-			render.delete(entry.outer)
-			render.unpublish(entry.outer)
 		}
 	}
 
@@ -1701,58 +905,6 @@
 			queryparams.set('page', sel.attr('data-page'))
 			sel.attr('href', `?${queryparams.toString()}`)
 		})
-	}
-
-	function deleteArticles () {
-		const sel = d3.select(this)
-		const article = sel.findAncestor('article')
-		article.selectAll('button.delete')
-			.toggleClass('active')
-		const outer = article.select('div.outer').toggleClass('expand')
-		outer.select('form.unpublish').classed('hide', true)
-		outer.select('form.delete').toggleClass('hide')
-	}
-	function unpublishArticles () {
-		const sel = d3.select(this)
-		const article = sel.findAncestor('article')
-		article.selectAll('button.unpublish')
-			.toggleClass('active')
-		const outer = article.select('div.outer').toggleClass('expand')
-		outer.select('form.delete').classed('hide', true)
-		outer.select('form.unpublish').toggleClass('hide')
-	}
-	async function confirmRemoval (action) {
-		const sel = d3.select(this)
-		const datum = d3.select(this.parentNode).datum()
-		const form = this.form
-		const flagged = d3.selectAll('article .outer.expand')
-
-		if (flagged.size() === 1) form.submit()
-		else {
-			let message = ''
-			if (action === 'delete') message = '<%- vocabulary["what pads to delete"][language] %>'
-			else if (action === 'unpublish') message = '<%- vocabulary["what pads to unpublish"][language] %>'
-
-			const opts = [
-				{ node: 'button', type: 'button', label: '<%- vocabulary["all selected"][language] %>', resolve: _ => d3.selectAll('article .outer.expand').data().map(d => d.id) },
-				{
-					node: 'button',
-					type: 'button',
-					label: Function(`"use strict";return (<%- vocabulary["only pad"][language] %>)`)()(datum.title),
-					resolve: [ datum.id ]
-				}
-			]
-			const removal = await renderPromiseModal({ message, opts })
-
-			d3.select(form)
-			.addElems('input', 'pad-id', removal)
-				.attrs({
-					'type': 'hidden',
-					'name': 'id',
-					'value': d => d
-				})
-			form.submit()
-		}
 	}
 
 	<% if (pagedisplay === 'slideshow') { %>

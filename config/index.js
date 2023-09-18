@@ -33,30 +33,7 @@ exports.colors = colors
 
 // DESIRED MODULES
 if (!modules) modules = []
-// if (!modules.includes('pads')) modules.unshift('pads') // ALWAYS INCLUDE PADS
 if (!modules.some(d => d.type === 'pads')) modules.unshift({ type: 'pads', rights: { read: 0, write: 1 } }) // ALWAYS INCLUDE PADS
-// if (modules.includes('mobilizations')) {
-// 	if (!modules.includes('templates')) modules.push('templates')
-// }
-if (modules.some(d => d.type === 'mobilizations')) {
-	const rights = modules.find(d => d.type === 'mobilizations').rights
-	
-	if (!modules.some(d => d.type === 'templates')) {
-		modules.push({ type: 'templates', rights })
-	}
-	if (!modules.some(d => d.type === 'contributors')) {
-		modules.push({ type: 'contributors', rights })
-	}
-}
-// if (modules.some(d => d.type === 'contributors')) {
-// 	if (!modules.some(d => d.type === 'mobilizations')) {
-// 		const rights = modules.find(d => d.type === 'contributors').rights
-// 		modules.push({ type: 'mobilizations', rights })
-// 	}
-// }
-// TO DO: MAKE SURE THAT mobilizations DOES NOT HAVE LOWER RIGHTS THAN templates
-// TO DO: MAKE SURE THAT mobilizations AND contributors HAVE THE SAME rights
-// TO DO: MAKE SURE THAT teams AND contributors HAVE THE SAME rights
 
 modules.forEach(d => {
 	// THIS IS TO MAKE SURE USERS WHO CAN WRITE HAVE AT LEAST THE RIGHT TO VIEW
@@ -65,7 +42,6 @@ modules.forEach(d => {
 })
 exports.modules = modules
 // DESIRED METADATA
-// if (metafields.includes('locations')) map = true
 if (metafields.some(d => d.type === 'location')) map = true
 metafields.forEach(d => d.label = d.name.toLowerCase().trim().replace(/\s+/g, '_'))
 exports.metafields = metafields || []

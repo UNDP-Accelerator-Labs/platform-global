@@ -162,3 +162,34 @@ exports.main = async (req, res, kwargs = {}) => {
 		resolve([ `AND ${f_space}`, order, page, filters ])
 	})
 }
+
+
+
+exports.body = async (req, res, kwargs = {}) => {
+
+	let { space, object, instance } = req.params || {}
+	if (!space) space = req.body?.space 
+	
+	let { search, status, contributors, countries, teams, pads, templates, mobilizations, pinboard, methods, page } = Object.keys(req.query)?.length ? req.query : Object.keys(req.body)?.length ? req.body : {}
+	let source = kwargs.source || req.query.source || req.body.source
+	if (!source || !apps_in_suite.some(d => d.key === source)) source = apps_in_suite[0].key
+
+	if (!page) page = 1
+	else page = +page
+
+	return ({
+		space, 
+		object, 
+		instance,
+		search, 
+		status,  
+		countries, 
+		teams, 
+		pads, 
+		templates, 
+		mobilizations, 
+		pinboard, 
+		methods, 
+		page,
+	})
+}

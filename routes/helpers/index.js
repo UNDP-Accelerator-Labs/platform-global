@@ -7,6 +7,7 @@ exports.datastructures = require('./datastructures/')
 exports.checklanguage = require('./language/').main
 exports.email = require('./email/').main
 exports.geo = require('./geo/')
+exports.fetcher = require('./fetcher/').main
 
 exports.flatObj = function () {
 	// FLATTEN OBJECT: https://stackoverflow.com/questions/31136422/flatten-array-with-objects-into-1-object
@@ -88,3 +89,27 @@ exports.stripHTML = function () {
 // 	Math.min(...nums)    // 1
 // 	Math.max(...nums)    // 3
 // }
+
+exports.safeArr = function (arr, defaultValue) {
+	// ensures correct values for `... IN ($1:csv)` SQL expressions
+	// defaultValue must be an always non-matching value:
+	// e.g., -1 for ids or DEFAULT_UUID for uuids
+	// arr can be a single element or null
+
+	// see https://stackoverflow.com/a/13210590/20487202 for why this is needed
+
+	// arr is a null value --> return the defaultValue to not match anything
+	if (arr === null || arr === undefined) {
+		return [defaultValue];
+	}
+	// arr is not an array --> return the single value wrapped in an array
+	if (!Array.isArray(arr) || arr.length === null || arr.length === undefined) {
+		return [arr];
+	}
+	// arr is an empty array --> return the defaultValue to not match anything
+	if (!arr.length) {
+		return [defaultValue];
+	}
+	// arr is an array with elements --> return the array
+	return arr;
+}

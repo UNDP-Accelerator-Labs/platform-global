@@ -1,6 +1,6 @@
 //// EDIT THIS
 // GENERAL APP INFO
-exports.app_title = 'UNDP AccLabs Pads, Generic pads'
+exports.app_title = 'UNDP AccLabs Generic platform'
 exports.app_title_short = 'pads'
 exports.app_suite = 'acclab_platform'
 exports.app_suite_secret = process.env.APP_SUITE_SECRET || 'secret'
@@ -9,28 +9,18 @@ exports.app_description = require('./translations.js').translations['app descrip
 
 // apps_in_suite NEED TO BE THE NAMES OF THE DIFFERENT DBs
 exports.apps_in_suite = [
-	{ name: 'Action Plans', key: process.env.NODE_ENV === 'production' ? 'action_plans_platform' : (process.env.DB_AP || 'ap_test_02'), baseurl: 'https://acclabs-actionlearningplans.azurewebsites.net/' },
-	{ name: 'Solutions Mapping', key: process.env.NODE_ENV === 'production' ? 'solutions_mapping_platform' : (process.env.DB_SM || 'sm_test_02'), baseurl: 'https://acclabs-solutionsmapping.azurewebsites.net/' },
-	{ name: 'Experiments', key: process.env.NODE_ENV === 'production' ? 'experiments_platform' : (process.env.DB_EXP || 'exp_test_02'), baseurl: 'https://acclabs-experiments.azurewebsites.net/' }
-	// { name: 'Blogs', key: 'exp_test_02', baseurl: 'https://acclabs-blogs.azurewebsites.net/' },
-	// { name: 'Consent archive', key: 'exp_test_02', baseurl: 'https://acclabs-consent-archive.azurewebsites.net/' },
-	// { name: 'Buzz', key: 'exp_test_02', baseurl: 'https://acclabs-buzz.azurewebsites.net/' },
-	// { name: 'Bootcamps', key: 'exp_test_02', baseurl: 'https://sites.google.com/view/acclab-bootcamp/home' },
-	// { name: 'Main wesite', key: 'exp_test_02', baseurl: 'https://www.undp.org/acceleratorlabs' },
-
+	{ name: 'Action Plans', key: process.env.NODE_ENV === 'production' ? 'action_plans_platform' : (process.env.DB_AP || 'ap_test_02'), baseurl: 'https://acclabs-actionlearningplans..net' },
+	{ name: 'Solutions Mapping', key: process.env.NODE_ENV === 'production' ? 'solutions_mapping_platform' : (process.env.DB_SM || 'sm_test_02'), baseurl: 'https://acclabs-solutionsmapping.azurewebsites.net' },
+	{ name: 'Experiments', key: process.env.NODE_ENV === 'production' ? 'experiments_platform' : (process.env.DB_EXP || 'exp_test_02'), baseurl: 'https://acclabs-experiments.azurewebsites.net' }
 ]
 
 // DESIRED MODULES
 exports.modules = [
 	{ type: 'pads', rights: { read: 0, write: 1 } },
 	{ type: 'pinboards', rights: { read: 0, write: 1 } },
-	// { type: 'templates', rights: { read: 2, write: 2 } },
-	// { type: 'files', rights: { read: 0, write: 1 } },
 	{ type: 'contributors', rights: { read: 2, write: 2 } },
 	{ type: 'teams', rights: { read: 2, write: 2 } },
 	{ type: 'blog', rights: { read: 0, write: 0 } }
-
-	// { type: 'analyses', rights: { read: 1, write: 2 } }
 ]
 
 // NOTE: reviews IS DEPENDENT ON tags RIGHT NOW (FOR ASSIGNMENT OF REVIEWERS)
