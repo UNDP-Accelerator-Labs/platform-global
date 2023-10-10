@@ -1,7 +1,7 @@
 name: Issue Report
 description: File a bug report
-title: "[Issue]: "
-labels: ["bug", "issue"]
+title: '[Issue]: '
+labels: ['bug', 'issue']
 body:
   - type: markdown
     attributes:
@@ -75,4 +75,3 @@ body:
       label: Add any other relevant details
       description: Please add any other relevant details
       placeholder: Add any other relevant info
-

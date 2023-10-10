@@ -1,7 +1,7 @@
 name: Security Issue
 description: Report a security vulnerability in the project.
-title: "[SECURITY]: "
-labels: ["security"]
+title: '[SECURITY]: '
+labels: ['security']
 body:
   - type: markdown
     attributes:

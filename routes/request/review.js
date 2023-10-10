@@ -24,7 +24,7 @@ exports.main = (req, res) => {
 					to: d.email,
 					bcc: 'myjyby@gmail.com',
 					subject: `[${app_title}] Request for review`,
-					html: `You are invited to review the submission entitled ${title} on the ${app_title} platform. Please navigate <a href="https://acclabs-experimenters.azurewebsites.net/en/browse/reviews/pending">here</a> to accept of decline the review.`
+					html: `You are invited to review the submission entitled ${title} on the ${app_title} platform. Please navigate <a href="https://experiments.sdg-innovation-commons.org/en/browse/reviews/pending">here</a> to accept of decline the review.`
 				})
 			}
 		})
