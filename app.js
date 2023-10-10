@@ -2,7 +2,8 @@
 global.include = (path) => require(`${__dirname}/${path}`);
 global.rootpath = __dirname;
 
-const { app_suite, app_suite_secret, DB } = include('config/');
+const { app_id, app_suite, app_suite_secret, DB, csp_links } =
+  include('config/');
 const express = require('express');
 const path = require('path');
 const bodyparser = require('body-parser');

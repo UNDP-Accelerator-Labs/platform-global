@@ -1,5 +1,10 @@
 // // EDIT THIS
 // GENERAL APP INFO
+const app_id = process.env.APP_ID;
+if (!['local', 'global'].includes(app_id)) {
+  throw new Error(`APP_ID must be set to a valid value, got '${app_id}'`);
+}
+exports.app_id = app_id;
 exports.app_title = 'UNDP AccLabs Pads, Generic pads';
 exports.app_title_short = 'pads';
 exports.app_suite = 'acclab_platform';

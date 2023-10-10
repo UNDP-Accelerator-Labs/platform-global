@@ -1,4 +1,5 @@
 let {
+  app_id,
   app_title,
   app_title_short,
   app_suite,
@@ -22,6 +23,7 @@ let {
 const { translations } = require('./edit/translations.js');
 exports.translations = translations;
 
+exports.app_id = app_id;
 exports.app_title = app_title;
 exports.app_title_short = app_title_short;
 exports.app_suite = app_suite;
@@ -94,3 +96,23 @@ exports.followup_count = followup_count;
 exports.browse_display = browse_display;
 exports.view_display = view_display;
 exports.welcome_module = welcome_module;
+
+// ADD LIST OF DOMAIN NAMES OF ALL IMAGES, JS SCRIPT AND STYLESHEETS REQUIRED BY THE BROWSER TO RENDER CORRECTLY
+exports.csp_links = [
+  "'self'",
+  "'unsafe-inline'",
+  "'unsafe-eval'",
+  'https://translate.google.com',
+  'https://translate.googleapis.com',
+  'https://translate-pa.googleapis.com',
+  'https://unpkg.com',
+  'https://fonts.googleapis.com',
+  'https://fonts.gstatic.com',
+  'https://www.google.com',
+  'https://maxcdn.bootstrapcdn.com',
+  'https://www.gstatic.com',
+  'https://acclabplatforms.blob.core.windows.net',
+  'https://a.tile.openstreetmap.org',
+  'https://c.tile.openstreetmap.org',
+  'https://b.tile.openstreetmap.org',
+];
