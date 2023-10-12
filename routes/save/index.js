@@ -1,6 +1,6 @@
 const tag = require('./tag/')
 const pinboard = require('./pinboard/')
-const contributor = require('./contributor/')
+const contributor = require('./contributor')
 const pad = require('./pad/')
 const template = require('./template/')
 const review = require('./review/')
@@ -11,7 +11,7 @@ exports.main = (req, res) => {
 
 	if (object === 'tag') tag.main(req, res)
 	else if (object === 'pinboard') pinboard.main(req, res)
-	else if (object === 'contributor') contributor.main(req, res)
+	else if (object === 'contributor') contributor(req, res)
 	else if (object === 'pad') pad.main(req, res)
 	else if (object === 'template') template.main(req, res)
 	else if (object === 'review') review.main(req, res)
