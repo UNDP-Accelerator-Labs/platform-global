@@ -1,6 +1,6 @@
 const sendEmail = require('../helpers').email
 const { DB } = include('config/')
-const { datastructures } = include('routes/helpers/')
+const { datastructures, sessionupdate } = include('routes/helpers/')
 const jwt = require('jsonwebtoken');
 
  // Function to send password reset email
@@ -25,17 +25,15 @@ async function sendResetEmail(email, html) {
     res.redirect('/login');
     return;
   }
-  const { host } = req.headers || {}
+  const { host, protocol } = req
   // Generate a password reset token and save it in the database
   const token = await jwt.sign(
     { email, action: 'password-reset' },
     process.env.APP_SECRET,
     { expiresIn: '24h', issuer: host })
 
-  const baseUrl = host; // Extracting the base URL from the 'host' header
-
   // Generate the password reset link with the extracted token and base URL
-  const resetLink = `https://${baseUrl}/reset/${token}`;
+  const resetLink = `${protocol}://${host}/reset/${token}`;
   const html = `
   <div>
       <p>Dear User,</p>
@@ -139,6 +137,14 @@ exports.updatePassword = async (req, res, next) => {
           await DB.general.none(`
           UPDATE users SET password = CRYPT($1, password) WHERE email = $2;
         `, [password, decoded.email]);
+
+        //UPDATE ALL ACTIVE SESSION
+        sessionupdate({
+          conn: DB.general,
+          whereClause: `sess ->> 'email' = $1`,
+          queryValues: [decoded.email]
+        })
+
         // Redirect the user to the login page
         res.redirect('/login');
     } else {

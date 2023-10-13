@@ -1,0 +1,31 @@
+<% if (locals?.trusted_devices?.length > 0) { %>
+	<div class='alert session-alert mt-5'>
+		<p>You can manage your list of trusted devices.</p>
+        <small>Managing your trusted devices is important for enhancing the security of your account. It helps you keep track of the devices you have logged into and detect any unauthorized access.</small>       
+		<form action='/remove-trusted-device' method='POST'>
+			<table>
+				<thead>
+					<tr>
+						<th>Device name</th>
+						<th>Device OS</th>
+                        <th>Browser</th>
+                        <th>Added</th>
+                        <th>Last log in</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					<% locals?.trusted_devices?.forEach(d => { %>
+						<td><%- d.device_name %></td>
+						<td><%- d.device_os %></td>
+                        <td><%- d.device_browser %></td>
+                        <td><%- d.created_at %></td>
+                        <td><%- d.last_login %></td>
+						<td><button type='submit' name='id' value='<%- d.id %>'>Remove device</button></td>
+					</tr>
+					<% }) %>
+				</tbody>
+			</table>
+		</form>
+	</div>
+<% } %>

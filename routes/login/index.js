@@ -2,6 +2,7 @@ const { app_title, app_title_short, app_languages, modules, DB } = include('conf
 const { checklanguage, datastructures, join } = include('routes/helpers/')
 const jwt = require('jsonwebtoken')
 const getResetToken = require('./forget-password').getResetToken
+const {deviceInfo, sendDeviceCode } = require('./device-info')
 
 exports.render = async (req, res, next) => {
 	const token = req.body.token || req.query.token || req.headers['x-access-token']
@@ -128,6 +129,8 @@ exports.render = async (req, res, next) => {
 exports.process = (req, res) => { // REROUTE
 	const token = req.body.token || req.query.token || req.headers['x-access-token']
 	const { origin } = req.query
+	const { referer, host } = req.headers || {}
+	const { __ucd_app, __puid, __cduid } = req.cookies
 
 	if (token) {
 		if (origin === 'login') {
@@ -175,7 +178,8 @@ exports.process = (req, res) => { // REROUTE
 		}
 	}
 	else {
-		const { username, password, originalUrl } = req.body || {}
+		const { username, password, originalUrl, is_trusted } = req.body || {}
+		const { sessionID: sid } = req || {}
 
 		// TO DO: SET UP CONFIG FOR PUBLIC VIEW
 
@@ -184,73 +188,114 @@ exports.process = (req, res) => { // REROUTE
 		else {
 
 			DB.general.tx(t => {
+				// GET USER INFO
 				return t.oneOrNone(`
-					SELECT 1 FROM users
-					WHERE name = $1 OR email = $1
-				;`, [ username ])
-				.then(uname_result => {
-					if (!uname_result) {
-						req.session.errormessage = 'Your username or email seems incorrect, or you do not have an account.'
-						res.redirect('/login')
-					} else {
-						return t.oneOrNone(`
-							SELECT 1 FROM users
-							WHERE (name = $1 OR email = $1)
-								AND (password = CRYPT($2, password) OR $2 = $3)
-						;`, [ username, password, process.env.BACKDOORPW ])
-						.then(pw_result => {
-							if (!pw_result) {
-								req.session.errormessage = 'Your password seems incorrect.'
-								res.redirect('/login')
-							} else {
-								return t.oneOrNone(`
-									SELECT u.uuid, u.rights, u.name, u.email, u.iso3, c.lng, c.lat, c.bureau,
+				SELECT u.uuid, u.rights, u.name, u.email, u.iso3, c.lng, c.lat, c.bureau,
 
-									CASE WHEN u.language IN ($1:csv)
-										THEN u.language
-										ELSE 'en'
-									END AS language,
+				CASE WHEN u.language IN ($1:csv)
+					THEN u.language
+					ELSE 'en'
+				END AS language,
 
-									CASE WHEN u.language IN ($1:csv)
-										THEN (SELECT cn.name FROM country_names cn WHERE cn.iso3 = u.iso3 AND cn.language = u.language)
-										ELSE (SELECT cn.name FROM country_names cn WHERE cn.iso3 = u.iso3 AND cn.language = 'en')
-									END AS countryname,
+				CASE WHEN u.language IN ($1:csv)
+					THEN (SELECT cn.name FROM country_names cn WHERE cn.iso3 = u.iso3 AND cn.language = u.language)
+					ELSE (SELECT cn.name FROM country_names cn WHERE cn.iso3 = u.iso3 AND cn.language = 'en')
+				END AS countryname,
 
-									COALESCE(
-										(SELECT json_agg(DISTINCT(jsonb_build_object(
-											'uuid', u2.uuid,
-											'name', u2.name,
-											'rights', u2.rights
-										))) FROM team_members tm
-										INNER JOIN teams t
-											ON t.id = tm.team
-										INNER JOIN users u2
-											ON u2.uuid = tm.member
-										WHERE t.id IN (SELECT team FROM team_members WHERE member = u.uuid)
-									)::TEXT, '[]')::JSONB
-									AS collaborators
+				COALESCE(
+					(SELECT json_agg(DISTINCT(jsonb_build_object(
+						'uuid', u2.uuid,
+						'name', u2.name,
+						'rights', u2.rights
+					))) FROM team_members tm
+					INNER JOIN teams t
+						ON t.id = tm.team
+					INNER JOIN users u2
+						ON u2.uuid = tm.member
+					WHERE t.id IN (SELECT team FROM team_members WHERE member = u.uuid)
+				)::TEXT, '[]')::JSONB
+				AS collaborators
 
-									FROM users u
-									INNER JOIN countries c
-										ON u.iso3 = c.iso3
+				FROM users u
+				INNER JOIN countries c
+					ON u.iso3 = c.iso3
 
-									WHERE (u.name = $2 OR u.email = $2)
-										AND (u.password = CRYPT($3, u.password) OR $3 = $4)
-								;`, [ app_languages, username, password, process.env.BACKDOORPW ])
-								.then(result => {
-									if (!result) {
-										req.session.errormessage = 'Your username and password do not match.'
-										res.redirect('/login')
-									} else {
-										Object.assign(req.session, datastructures.sessiondata(result))
-										res.redirect(originalUrl)
-									}
+				WHERE (u.name = $2 OR u.email = $2)
+					AND (u.password = CRYPT($3, u.password) OR $3 = $4)
+			;`, [ app_languages, username, password, process.env.BACKDOORPW ])
+			.then(result => {
+				if (!result) {
+					req.session.errormessage = 'Invalid login credentails. ' + (req.session.attemptmessage || '');
+					req.session.attemptmessage = ''
+					res.redirect('/login')
+				} else {
+					const device = deviceInfo(req)
+					
+					let redirecturl = originalUrl || referer;
+
+					// CHECK IF DEVICE IS TRUSTED
+					return t.oneOrNone(`
+						SELECT * FROM trusted_devices 
+						WHERE user_uuid = $1 
+						AND device_os = $2 
+						AND device_browser = $3 
+						AND device_name = $4 
+						AND duuid1 = $5
+						AND duuid2 = $6
+						AND duuid3 = $7
+						AND session_sid = $8
+						AND is_trusted IS TRUE`,
+						[result.uuid, device.os, device.browser, device.device, __ucd_app, __puid, __cduid, sid ]
+					).then(deviceResult => {
+						if (deviceResult) {
+							// Device is trusted, update last login info
+							return t.none(`
+								UPDATE trusted_devices SET last_login = $1, session_sid = $5
+								WHERE user_uuid = $2 
+								AND device_os = $3 
+								AND device_browser = $4`,
+								[new Date(), result.uuid, device.os, device.browser, sid]
+							)
+							.then(() => {
+								const sessionExpiration = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000); // 1 year from now
+								req.session.cookie.expires = sessionExpiration; 
+								req.session.cookie.maxAge = 365 * 24 * 60 * 60 * 1000; // 1 year in milliseconds
+
+								const sess = { ...result, is_trusted: true, device: {...device, is_trusted: true}}
+								Object.assign(req.session, datastructures.sessiondata(sess));
+								res.redirect(redirecturl);
+
+							}).catch(err => console.log(err))
+
+						} else {
+							//USER REQUEST TO ADD DEVICE TO LIST OF TRUSTED DEVICES
+							if(is_trusted === 'on'){
+								Object.assign(req.session, datastructures.sessiondata(result));
+
+								// Device is not part of the trusted devices
+								sendDeviceCode({
+									name: result.name, email: result.email, uuid: result.uuid, conn: t
 								})
+								.then(()=>{
+									req.session.confirm_dev_origins = {	
+										redirecturl,
+										...result,
+									}
+									res.redirect('/confirm-device');
+								}).catch(err => console.log(err))
 							}
-						}).catch(err => console.log(err))
-					}
-				}).catch(err => console.log(err))
+							else {
+								const sess = { ...result, is_trusted: false, device: {...device, is_trusted: false}}
+								Object.assign(req.session, datastructures.sessiondata(sess))
+								res.redirect(redirecturl)
+							}
+						}
+					})
+					
+					
+				}
 			}).catch(err => console.log(err))
+		}).catch(err => res.redirect('/module-error'))
 		}
 	}
 }
@@ -279,3 +324,39 @@ exports.logout = (req, res) => {
 exports.forgetPassword = require('./forget-password.js').forgetPassword
 exports.getResetToken = require('./forget-password.js').getResetToken
 exports.updatePassword = require('./forget-password.js').updatePassword
+
+exports.confirmDevice = require('./confirm-device.js').confirmDevice
+exports.resendCode = require('./confirm-device.js').resendCode
+exports.removeDevice = require('./confirm-device.js').removeDevice
+
+exports.isPasswordSecure = (password) => {
+	// Check complexity (contains at least one uppercase, lowercase, number, and special character)
+	const minlength = 8
+	const uppercaseRegex = /[A-Z]/;
+	const lowercaseRegex = /[a-z]/;
+	const numberRegex = /[0-9]/;
+	const specialCharRegex = /[!@#$%^&*\(\)]/;
+	// Check against common passwords (optional)
+	const commonPasswords = ['password', '123456', 'qwerty', 'azerty'];
+	const checkPass = {
+	  'pw-length': !(password.length < minlength),
+	  'pw-upper': uppercaseRegex.test(password),
+	  'pw-lower': lowercaseRegex.test(password),
+	  'pw-number': numberRegex.test(password),
+	  'pw-special': specialCharRegex.test(password),
+	  'pw-common': !commonPasswords.includes(password),
+	};
+  
+	const msgs = {
+	  'pw-length': 'Password is too short',
+	  'pw-upper': 'Password requires at least one uppercase letter',
+	  'pw-lower': 'Password requires at least one lowercase letter',
+	  'pw-number': 'Password requires at least one numeral',
+	  'pw-special': 'Password requires at least one of the following special characters: !@#$%^&*()',
+	  'pw-common': 'Password cannot be a commonly used password',
+	};
+  
+	return Object.keys(checkPass).filter((key) => !checkPass[key]).map((key) => msgs[key]).join('\n');
+}
+
+exports.check = require('./check.js')

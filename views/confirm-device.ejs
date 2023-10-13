@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+
+<%
+	// CREATE ALIASES
+	const language = locals.metadata.page.language
+	const page_message = locals?.page_message || ''
+%>
+
+<head>
+<%- include ('partials/head.ejs') %>
+</head>
+
+<body>
+
+<%- include ('partials/translations.ejs') %>
+<%- include ('partials/menu-languages.ejs') %>
+
+<div class='screen <% if (locals.errormessage) { %>error<% } else { %>blue<% } %>'>
+	<div class='modal login-module'>
+		<form action='/confirm-device' method='POST'>
+			<ul>
+				<% if (locals.errormessage) { %>
+					<li>
+						<p class='errormessage'><%- locals.errormessage %></p>
+					</li>
+				<% } %>
+				<li>
+					<div class='required'>
+						<label class='active'>*</label>
+					</div>
+					<div class='input-group'>
+						<input type='text' id='otp' name='otp' required>
+						<label for='otp'>OTP Code</label>
+					</div>
+				</li>
+                <li>
+					<div class='input-group pt-3'>
+						<small><%- page_message %> By adding this device as trusted, it will be considered trusted for a duration of one year once confirmed. You have the flexibility to remove this device from the trusted list at any time if you wish to do so.</small>
+					</div>
+				</li>
+				<li>
+					<button type='submit'>Confirm device</button>
+				</li>
+			</ul>
+		</form>
+        <div class="pt-5" style="font-size: 12px;">
+			<hr/>
+			<p style="padding-top: 20px;"> Did not get the OTP? <a href="/resend-otp-code">Resend OTP</a></p>
+		</div>
+	</div>
+</div>
+
+<div class='main-content'>
+<header>
+	<div class='inner'>
+		<%- include ('partials/menu-logo.ejs') %>
+	</div>
+</header>
+<div class='browse'></div>
+<div class='sidebar lg xl xxl'></div>
+</div>
+
+<footer></footer>
+
+
+<script type='text/javascript'>
+	document.addEventListener('DOMContentLoaded', evt => {
+		// GENERIC BLUR FUNCTION
+		const inputs = d3.selectAll('input[type=text], input[type=password]')
+		inputs.on('blur.fixlabel', function () {
+			fixLabel(this)
+		})
+		inputs.each(function () { fixLabel(this) })
+	})
+</script>
+</main>
+
+</body>
+</html>

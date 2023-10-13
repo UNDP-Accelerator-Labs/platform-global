@@ -5,8 +5,10 @@ exports.join = require('./joins/')
 exports.parsers = require('./parsers/')
 exports.datastructures = require('./datastructures/')
 exports.checklanguage = require('./language/').main
-exports.email = require('./email/').main
+exports.email = require('./email/')
 exports.geo = require('./geo/')
+exports.loginRateLimiterMiddleware = require('./ratelimiter')
+exports.sessionupdate = require('./session-update')
 
 exports.flatObj = function () {
 	// FLATTEN OBJECT: https://stackoverflow.com/questions/31136422/flatten-array-with-objects-into-1-object
