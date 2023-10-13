@@ -330,7 +330,6 @@ exports.confirmdevice = async(req, res) => {
 
 	const metadata = await helpers.datastructures.pagemetadata({ req, res })
 	const data = Object.assign(metadata, { originalUrl, errormessage, successmessage, page_message })
-console.log('data ', data)
 	return res.render('confirm-device', data)
 }
 

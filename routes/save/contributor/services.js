@@ -5,8 +5,7 @@ const { DB } = include("config/");
 exports.confirmEmail = async (_kwarg) => {
   const { uuid, email, name, old_email, req } = _kwarg;
 
-  const { host } = req.headers || {};
-  const protocol = req.protocol;
+  const { host, protocol } = req
 
   const token = await jwt.sign(
     { email, uuid, name, old_email, action: "confirm-email" },
