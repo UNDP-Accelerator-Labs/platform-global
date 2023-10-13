@@ -30,7 +30,7 @@ app.use(
         'script-src-attr': ["'unsafe-inline'"],
         'style-src': csp_links,
         'connect-src': csp_links,
-		'frame-src': ['https://youtube.com']
+		'frame-src': ["https://www.youtube.com/","https://youtube.com/","https://web.microsoftstream.com"]
       },
     },
     referrerPolicy: {
