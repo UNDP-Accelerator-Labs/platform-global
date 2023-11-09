@@ -8,6 +8,7 @@ const express = require('express');
 const path = require('path');
 const bodyparser = require('body-parser');
 const session = require('express-session');
+const jwt = require('jsonwebtoken');
 const PgSession = require('connect-pg-simple')(session);
 
 const fs = require('fs');
