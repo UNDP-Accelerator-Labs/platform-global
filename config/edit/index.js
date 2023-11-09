@@ -39,9 +39,9 @@ exports.apps_in_suite = [
         : process.env.DB_EXP || 'exp_test_02',
     baseurl: 'https://experiments.sdg-innovation-commons.org/',
   },
-  // { name: 'Blogs', key: 'exp_test_02', baseurl: 'https://blogs.sdg-innovation-commons.org/' }, // doesn't exist yet
-  // { name: 'Consent archive', key: 'exp_test_02', baseurl: 'https://consent-archive.sdg-innovation-commons.org/' }, // doesn't exist yet
-  // { name: 'Buzz', key: 'exp_test_02', baseurl: 'https://buzz.sdg-innovation-commons.org/' }, // doesn't exist yet
+  // { name: 'Blogs', key: 'exp_test_02', baseurl: 'https://blogs.sdg-innovation-commons.org/' },
+  // { name: 'Consent archive', key: 'exp_test_02', baseurl: 'https://consent.sdg-innovation-commons.org/' },
+  // { name: 'Buzz', key: 'exp_test_02', baseurl: 'https://buzz.sdg-innovation-commons.org/' },
   // { name: 'Bootcamps', key: 'exp_test_02', baseurl: 'https://sites.google.com/view/acclab-bootcamp/home' },
   // { name: 'Main wesite', key: 'exp_test_02', baseurl: 'https://www.undp.org/acceleratorlabs' },
 ];

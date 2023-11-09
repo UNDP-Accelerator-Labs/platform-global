@@ -55,6 +55,10 @@ app.use(bodyparser.urlencoded({ limit: '50mb', extended: true }));
 app.use(xss());
 
 const cookie = {
+  domain:
+    process.env.NODE_ENV === 'production'
+      ? 'sdg-innovation-commons.org'
+      : undefined,
   httpOnly: true, // THIS IS ACTUALLY DEFAULT
   secure: process.env.NODE_ENV === 'production',
   maxAge: 1 * 1000 * 60 * 60 * 24 * 1, // DEFAULT TO 1 DAY. UPDATE TO 1 YEAR FOR TRUSTED DEVICES
@@ -73,6 +77,37 @@ const sessionMiddleware = session({
 
 app.use(sessionMiddleware);
 app.use(cookieParser(`${app_suite}-${app_suite_secret}-pass`));
+
+function redirectOldUrl(req, res, next) {
+  const base = 'sdg-innovation-commons.org';
+  const full = `www.${base}`;
+  const newHost = `https://${full}/`;
+  const hostname = req.get('host');
+  if (hostname === full) {
+    return next();
+  }
+  if (hostname === base) {
+    return res.redirect(307, `${newHost}${req.originalUrl}`);
+  }
+  const { session, ip } = req;
+  const { uuid, rights } = session;
+  const origUrl = encodeURIComponent(req.originalUrl);
+  if (uuid) {
+    const token = jwt.sign({ uuid, rights, ip }, process.env.APP_SECRET, {
+      audience: 'user:known',
+      issuer: newHost,
+      expiresIn: '1h',
+    });
+    console.log(`WRAPPING USER uuid:${uuid} rights:${rights} ip:${ip}`);
+    return res.redirect(
+      307,
+      `${newHost}transfer?path=${origUrl}&token=${token}`,
+    );
+  }
+  return res.redirect(307, `https://${full}/${req.originalUrl}`);
+}
+
+app.use(redirectOldUrl);
 
 function setAccessControlAllowOrigin(req, res, next) {
   res.setHeader('Access-Control-Allow-Origin', '*');
