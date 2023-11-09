@@ -8,7 +8,7 @@ const express = require('express');
 const path = require('path');
 const bodyparser = require('body-parser');
 const session = require('express-session');
-const jwt = require('jsonwebtoken');
+// const jwt = require('jsonwebtoken');
 const PgSession = require('connect-pg-simple')(session);
 
 const fs = require('fs');
@@ -90,6 +90,8 @@ function redirectOldUrl(req, res, next) {
   if (hostname === base) {
     return res.redirect(301, `${newHost}${req.originalUrl}`);
   }
+  // NOTE: we don't carry over the session here since there is no transfer
+  // functionality on the global platform.
   // const { session, ip } = req;
   // const { uuid, rights } = session;
   // const origUrl = encodeURIComponent(req.originalUrl);
