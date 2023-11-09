@@ -90,21 +90,21 @@ function redirectOldUrl(req, res, next) {
   if (hostname === base) {
     return res.redirect(301, `${newHost}${req.originalUrl}`);
   }
-  const { session, ip } = req;
-  const { uuid, rights } = session;
-  const origUrl = encodeURIComponent(req.originalUrl);
-  if (uuid) {
-    const token = jwt.sign({ uuid, rights, ip }, process.env.APP_SECRET, {
-      audience: 'user:known',
-      issuer: newHost,
-      expiresIn: '1h',
-    });
-    console.log(`WRAPPING USER uuid:${uuid} rights:${rights} ip:${ip}`);
-    return res.redirect(
-      307,
-      `${newHost}transfer?path=${origUrl}&token=${token}`,
-    );
-  }
+  // const { session, ip } = req;
+  // const { uuid, rights } = session;
+  // const origUrl = encodeURIComponent(req.originalUrl);
+  // if (uuid) {
+  //   const token = jwt.sign({ uuid, rights, ip }, process.env.APP_SECRET, {
+  //     audience: 'user:known',
+  //     issuer: newHost,
+  //     expiresIn: '1h',
+  //   });
+  //   console.log(`WRAPPING USER uuid:${uuid} rights:${rights} ip:${ip}`);
+  //   return res.redirect(
+  //     307,
+  //     `${newHost}transfer?path=${origUrl}&token=${token}`,
+  //   );
+  // }
   return res.redirect(301, `https://${full}/${req.originalUrl}`);
 }
 
@@ -175,7 +175,6 @@ app
   .get(routes.redirect.home, routes.render.login)
   .post(routes.process.login);
 app.get('/logout', routes.process.logout);
-app.get('/transfer', routes.process.login);
 
 app.route('/reset/:token').get(routes.redirect.browse, routes.render.login);
 
