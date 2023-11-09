@@ -88,7 +88,7 @@ function redirectOldUrl(req, res, next) {
   const base = 'sdg-innovation-commons.org';
   const full = `www.${base}`;
   const hostname = req.get('host');
-  if (hostname === full || !hostname.endsWith('azurewebsites.net')) {
+  if (hostname !== base && !hostname.endsWith('azurewebsites.net')) {
     return next();
   }
   const newHost = `https://${full}`;
