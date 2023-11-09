@@ -21,7 +21,7 @@ exports.apps_in_suite = [
       process.env.NODE_ENV === 'production'
         ? 'action_plans_platform'
         : process.env.DB_AP || 'ap_test_02',
-    baseurl: 'https://actionplans.sdg-innovation-commons.org/',
+    baseurl: 'https://learningplans.sdg-innovation-commons.org/',
   },
   {
     name: 'Solutions Mapping',
