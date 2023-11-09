@@ -9,7 +9,6 @@ const express = require('express');
 const path = require('path');
 const bodyparser = require('body-parser');
 const session = require('express-session');
-// const jwt = require('jsonwebtoken');
 const PgSession = require('connect-pg-simple')(session);
 
 const fs = require('fs');
@@ -90,38 +89,16 @@ function redirectOldUrl(req, res, next) {
   const full = `www.${base}`;
   const newHost = `https://${full}/`;
   const hostname = req.get('host');
-  if (hostname === full) {
+  if (hostname === full || !hostname.endsWith('azurewebsites.net')) {
     return next();
   }
   if (hostname === base) {
     return res.redirect(301, `${newHost}${req.originalUrl}`);
   }
-  // NOTE: we don't carry over the session here since there is no transfer
-  // functionality on the global platform.
-  // const { session, ip } = req;
-  // const { uuid, rights } = session;
-  // const origUrl = encodeURIComponent(req.originalUrl);
-  // if (uuid) {
-  //   const token = jwt.sign({ uuid, rights, ip }, process.env.APP_SECRET, {
-  //     audience: 'user:known',
-  //     issuer: newHost,
-  //     expiresIn: '1h',
-  //   });
-  //   console.log(`WRAPPING USER uuid:${uuid} rights:${rights} ip:${ip}`);
-  //   return res.redirect(
-  //     307,
-  //     `${newHost}transfer?path=${origUrl}&token=${token}`,
-  //   );
-  // }
   return res.redirect(301, `https://${full}/${req.originalUrl}`);
 }
 
 app.use(redirectOldUrl);
-
-function setAccessControlAllowOrigin(req, res, next) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  next();
-}
 
 const routes = require('./routes/');
 
