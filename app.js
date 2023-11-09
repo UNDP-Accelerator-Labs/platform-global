@@ -175,6 +175,7 @@ app
   .get(routes.redirect.home, routes.render.login)
   .post(routes.process.login);
 app.get('/logout', routes.process.logout);
+app.get('/transfer', routes.process.login);
 
 app.route('/reset/:token').get(routes.redirect.browse, routes.render.login);
 

@@ -127,9 +127,38 @@ exports.render = async (req, res, next) => {
 }
 exports.process = (req, res) => { // REROUTE
 	const token = req.body.token || req.query.token || req.headers['x-access-token']
-	const { origin } = req.query
+	const { origin, path: redirectPath } = req.query
+
+	const { host } = req.headers || {}
+	const { ip: ownIp } = req || {}
 
 	if (token) {
+		// VERIFY TOKEN
+		let tobj;
+		try {
+			tobj = jwt.verify(token, process.env.APP_SECRET, { audience: 'user:known', issuer: host })
+		} catch(_) {
+			tobj = {};
+			if (redirectPath) {
+				res.redirect(redirectPath)
+				return;
+			}
+		}
+		const { uuid, ip, acceptedorigins } = tobj;
+		if (ip && `${ip}`.replace(/:.*$/, '') !== `${ownIp}`.replace(/:.*$/, '')) {
+			res.redirect(redirectPath)
+			if (uuid) {
+				req.session.uuid = uuid;
+			}
+			return;
+		} else if (acceptedorigins && !acceptedorigins.includes(host)) {
+			res.redirect(redirectPath)
+			if (uuid) {
+				req.session.uuid = uuid;
+			}
+			return;
+		}
+
 		if (origin === 'login') {
 			const auth = jwt.verify(token, process.env.GLOBAL_LOGIN_KEY)
 
