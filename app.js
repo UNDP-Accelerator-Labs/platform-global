@@ -87,15 +87,12 @@ app.use(cookieParser(`${app_suite}-${app_suite_secret}-pass`));
 function redirectOldUrl(req, res, next) {
   const base = 'sdg-innovation-commons.org';
   const full = `www.${base}`;
-  const newHost = `https://${full}/`;
   const hostname = req.get('host');
   if (hostname === full || !hostname.endsWith('azurewebsites.net')) {
     return next();
   }
-  if (hostname === base) {
-    return res.redirect(301, `${newHost}${req.originalUrl}`);
-  }
-  return res.redirect(301, `https://${full}/${req.originalUrl}`);
+  const newHost = `https://${full}`;
+  return res.redirect(301, `${newHost}${req.originalUrl}`);
 }
 
 app.use(redirectOldUrl);
