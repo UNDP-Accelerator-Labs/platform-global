@@ -88,7 +88,7 @@ function redirectOldUrl(req, res, next) {
     return next();
   }
   if (hostname === base) {
-    return res.redirect(307, `${newHost}${req.originalUrl}`);
+    return res.redirect(301, `${newHost}${req.originalUrl}`);
   }
   const { session, ip } = req;
   const { uuid, rights } = session;
@@ -105,7 +105,7 @@ function redirectOldUrl(req, res, next) {
       `${newHost}transfer?path=${origUrl}&token=${token}`,
     );
   }
-  return res.redirect(307, `https://${full}/${req.originalUrl}`);
+  return res.redirect(301, `https://${full}/${req.originalUrl}`);
 }
 
 app.use(redirectOldUrl);
