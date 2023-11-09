@@ -24,7 +24,7 @@
 		<li class='<% if (space === "past") { %>active<% } %>'>
 			<a href='./past'>
 				<button><%- vocabulary['space'][language](object, 'past') %><div class='count'><%- locals.stats?.past %></div></button>
-			</a>	
+			</a>
 		</li>
 	<% } else if (object === 'mobilizations') { %>
 		<li class='<% if (space === "scheduled") { %>active<% } %>'>
@@ -40,7 +40,7 @@
 		<li class='<% if (space === "past") { %>active<% } %>'>
 			<a href='./past'>
 				<button><%- vocabulary['space'][language](object, 'past') %><div class='count'><%- locals.stats?.past %></div></button>
-			</a>	
+			</a>
 		</li>
 	<% } else if (object === 'contributors') { %>
 		<li class='<% if (space === "invited") { %>active<% } %>'>
@@ -50,8 +50,8 @@
 				</button>
 			</a>
 		</li>
-		<% if (modules.some(d => d.type === 'teams' && rights >= d.rights.read) 
-			&& locals.pinboards_list?.length) 
+		<% if (modules.some(d => d.type === 'teams' && rights >= d.rights.read)
+			&& locals.pinboards_list?.length)
 		{ %>
 			<li class='filter <% if (space === "pinned") { %>active<% } %>'>
 				<div class='inner'>
@@ -87,7 +87,7 @@
 			</a>
 		</li> -->
 		<!-- <% if (['pads', 'templates'].includes(object)
-			&& modules.some(d => d.type === 'mobilizations' && rights >= d.rights.write) 
+			&& modules.some(d => d.type === 'mobilizations' && rights >= d.rights.write)
 			&& locals.stats?.curated > 0
 		) { %>
 			<li class='<% if (space === "curated") { %>active<% } %>'>
@@ -98,8 +98,8 @@
 				</a>
 			</li>
 		<% } %>	 -->
-		<% if (modules.some(d => d.type === 'pinboards' && rights >= d.rights.read) 
-			&& locals.pinboards_list?.length) 
+		<% if (modules.some(d => d.type === 'pinboards' && rights >= d.rights.read)
+			&& locals.pinboards_list?.length)
 		{ %>
 			<li class='filter <% if (space === "pinned") { %>active<% } %>'>
 				<div class='inner'>
@@ -126,8 +126,8 @@
 				</button>
 			</a>
 		</li>
-		<% if (object === 'pads' && modules.some(d => d.type === 'reviews' && rights >= d.rights.read) 
-			&& locals.stats?.reviewing > 0) 
+		<% if (object === 'pads' && modules.some(d => d.type === 'reviews' && rights >= d.rights.read)
+			&& locals.stats?.reviewing > 0)
 		{ %>
 			<li class='<% if (space === "reviewing") { %>active<% } %>'>
 				<a href='./reviewing'>
@@ -146,8 +146,8 @@
 				</a>
 			</li>
 		<% } %>
-		<% if (object === 'templates' && modules.some(d => d.type === 'reviews' && rights >= d.rights.read) 
-			&& locals.metadata.menu.review_templates?.length > 0) 
+		<% if (object === 'templates' && modules.some(d => d.type === 'reviews' && rights >= d.rights.read)
+			&& locals.metadata.menu.review_templates?.length > 0)
 		{ %>
 			<li class='<% if (space === "reviews") { %>active<% } %>'>
 				<a href='./reviews'>
@@ -181,17 +181,17 @@
 		const queryparams = new URLSearchParams(url.search)
 		const filter_keys = <%- JSON.stringify(Object.keys(query)?.filter(key => !['status', 'mapscale', 'display'].includes(key))) %>
 
-		// <% if (locals.global_info.filters_menu?.length) { %>
-		// 	const filter_keys = Object.keys((<%- JSON.stringify(locals.global_info.filters_menu) %>).flatObj())
+		// <% if (locals.global_info?.filters_menu?.length) { %>
+		// 	const filter_keys = Object.keys((<%- JSON.stringify(locals.global_info?.filters_menu) %>).flatObj())
 		// <% } else { %>
 		// 	const filter_keys = []
 		// <% } %>
-		
+
 		filter_keys.push('search')
 		filter_keys.push('source') // THIS IS SPECIFIC TO THE GLOBAL PLATFORM (OR TO A MULTI-SOURCE PLATFORM)
 		for (const key of queryparams.keys()) {
 			if (!filter_keys.includes(key)) queryparams.delete(key)
-		}		
+		}
 		return window.location = `${location}?${queryparams.toString()}`
 	}
 </script>
