@@ -96,7 +96,6 @@ exports.followup_count = followup_count;
 exports.browse_display = browse_display;
 exports.view_display = view_display;
 exports.welcome_module = welcome_module;
-
 // ADD LIST OF DOMAIN NAMES OF ALL IMAGES, JS SCRIPT AND STYLESHEETS REQUIRED BY THE BROWSER TO RENDER CORRECTLY
 exports.csp_links = [
   "'self'",

@@ -19,8 +19,8 @@ if (!exports.process) { exports.process = {} }
 if (!exports.public) { exports.public = {} }
 if (!exports.private) { exports.private = {} }
 if (!exports.dispatch) { exports.dispatch = {} }
-
-
+if (!exports.update) { exports.update = {} }
+if (!exports.check) { exports.check = {} }
 
 exports.forwardGeocoding = require('./helpers/geo/').forwardcode.render
 // (req, res) => {
@@ -161,9 +161,10 @@ exports.process.callapi = (req, res) => {
 /* =============================================================== */
 /* =========================== LOGIN ============================= */
 /* =============================================================== */
+exports.check.login = require('./login/').check
 exports.render.login = require('./login/').render
 exports.process.login = require('./login/').process
-exports.process.logout = require('./login/').logout
+exports.process.logout = require('./logout/')
 // exports.redirect.home = require('./redirect/').home
 exports.redirect.home = require('./login/').redirect
 exports.redirect.browse = require('./redirect/').browse
@@ -174,6 +175,10 @@ exports.dispatch.public = require('./login/').public
 exports.process.forgetPassword = require('./login/').forgetPassword
 exports.process.getResetToken = require('./login/').getResetToken
 exports.process.updatePassword = require('./login/').updatePassword
+
+exports.process.confirmDevice = require('./login').confirmDevice
+exports.process.resendCode = require('./login').resendCode
+exports.process.removeDevice = require('./login').removeDevice
 
 /* =============================================================== */
 /* =========================== BROWSE ============================ */
@@ -237,10 +242,10 @@ exports.dispatch.edit = require('./edit/').main
 exports.dispatch.view = require('./view/').main
 
 
-
 /* =============================================================== */
 /* ====================== SAVING MECHANISMS ====================== */
 /* =============================================================== */
+exports.update.email = require('./save/contributor/services').updateNewEmail
 exports.process.check = require('./check/').main
 exports.process.save = require('./save/').main
 exports.process.generate = require('./generate/').main
@@ -309,11 +314,24 @@ exports.api.datasources = (req, res) => {
 
 
 
-exports.notfound = (req, res) => {
-	res.send('This is not the route that you are looking for')
+exports.notfound = async(req, res) => {
+	const metadata = await helpers.datastructures.pagemetadata({ req, res })
+	res.render('error-404', metadata)
 }
 
+exports.error = async(req, res) => {
+	const metadata = await helpers.datastructures.pagemetadata({ req, res })
+	res.render('error-500', metadata)
+}
 
+exports.confirmdevice = async(req, res) => {
+	const { originalUrl } = req || {}
+	const { errormessage, successmessage, page_message } = req.session || {}
+
+	const metadata = await helpers.datastructures.pagemetadata({ req, res })
+	const data = Object.assign(metadata, { originalUrl, errormessage, successmessage, page_message })
+	return res.render('confirm-device', data)
+}
 
 String.prototype.simplify = function () {
 	return this.valueOf().replace(/[^\w\s]/gi, '').replace(/\s/g, '').toLowerCase()

@@ -5,7 +5,6 @@
 	const language = locals.metadata.page.language
 	const username = locals.metadata.user.name
 	const uuid = locals.metadata.user.uuid
-
 %>
 
 <nav id='languages'>
@@ -25,7 +24,7 @@
 		</li>
 		<li class='user-id'>
 			<% if (!publicpage) { %>
-				<span><%- vocabulary['logged in'][language](username, uuid) %>. | </span><a href='/logout' class='logout'><%- vocabulary['log out'][language] %></a>
+				<span><%- vocabulary['logged in'][language](username, uuid) %>. | </span><a href='/logout/current' class='logout'><%- vocabulary['log out'][language] %></a>
 			<% } else { %>
 				<a href='/login' class='login'><%- vocabulary['log in'][language] %></a>
 			<% } %>

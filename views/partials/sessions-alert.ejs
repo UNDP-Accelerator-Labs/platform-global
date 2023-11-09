@@ -1,0 +1,32 @@
+<% if (locals.metadata.user.sessions?.length > 1) { %>
+	<!-- lenght HAS TO BE 2 TO ACCOUNT FOR 'All' SESSIONS -->
+	<div class='alert session-alert'>
+		<p>This account is logged in multiple applications, browsers, or devices.</p>
+		<small>This is a potential security threat. It may be that you are logged into multiple applications with the same account, or on different devices (e.g. your desktop computer and your mobile phone). If you did not start these sessions, please consider logging out of them.</small>
+		<!-- TO DO: TRANSLATE -->
+		<form action='/logout/multiple' method='POST'>
+			<table>
+				<thead>
+					<tr>
+						<th>Application</th>
+						<th>Session count</th>
+						<!-- TO DO: TRANSLATE -->
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					<% locals.metadata.user.sessions.forEach(d => { %>
+					<% if (d.key !== 'All') { %><tr>
+					<% } else { %><tr class='all'><% } %>
+						<td><%- d.key ? d.key : 'Undefined' %></td>
+						<!-- TO DO: TRANSLATE undefined -->
+						<td <% if (d.count > 1 || !d.key) { %>class='highlight'<% } %>><%- d.count %></td>
+						<td><button type='submit' name='app' value='<%- d.key %>'>Log out of <% if (d.key === 'All') { %>all <% } %>sessions</button></td>
+						<!-- TO DO: TRANSLATE -->
+					</tr>
+					<% }) %>
+				</tbody>
+			</table>
+		</form>
+	</div>
+<% } %>

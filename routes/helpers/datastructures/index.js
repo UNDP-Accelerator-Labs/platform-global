@@ -7,7 +7,7 @@ const jwt = require('jsonwebtoken')
 if (!exports.legacy) exports.legacy = {}
 
 exports.sessiondata = _data => {
-	let { uuid, name, email, team, collaborators, rights, public, language, iso3, countryname, bureau, lng, lat } = _data || {}
+	let { uuid, name, email, team, collaborators, rights, public, language, iso3, countryname, bureau, lng, lat, device, is_trusted } = _data || {}
 
 	// GENERIC session INFO
 	const obj = {}
@@ -25,9 +25,41 @@ exports.sessiondata = _data => {
 		bureau: bureau,
 		lnglat: { lng: lng ?? 0, lat: lat ?? 0 }
 	}
-
+	obj.app = title
+	obj.device = device || {}
+	obj.is_trusted= is_trusted || false
 	return obj
 }
+
+exports.sessionsummary = async _kwargs => {
+	const conn = _kwargs.connection || DB.general
+	const { uuid } = _kwargs
+
+	return new Promise(resolve => {
+		if (uuid) {
+			conn.manyOrNone(`SELECT sess FROM session WHERE sess ->> 'uuid' = $1;`, [ uuid ])
+			.then(sessions => {
+				if (sessions) {
+					// EXTRACT SESSION DATA
+					const sessionsArr = sessions.map(d => d.sess)
+					sessionsArr.forEach(d => {
+						d.primarykey = `${d.app} (${d.device?.is_trusted ? 'on trusted device' : 'on untrusted device'})`
+					})
+
+					sessions = array.nest.call(sessions.map(d => d.sess), { key: 'primarykey', keep: ['app'] })
+					.map(d => {
+						const { values, ...data } = d
+						return data
+					})
+					const total = array.sum.call(sessions, 'count')
+					sessions.push({ key: 'All', count: total, app: 'All' })
+					resolve(sessions)
+				}
+			}).catch(err => console.log(err))
+		} else resolve(null)
+	})
+}
+
 exports.pagemetadata = (_kwargs) => {
 	const conn = _kwargs.connection || DB.conn
 	let { page, pagecount, map, display, mscale, source, req, res } = _kwargs || {}
@@ -127,10 +159,16 @@ exports.pagemetadata = (_kwargs) => {
 			;`).then())
 		} else batch.push(null)
 
+		if(session.uuid){
+			batch.push(this.sessionsummary({ uuid }));
+		} else {
+			batch.push(null);
+		}
+
 		return t.batch(batch)
 		.catch(err => console.log(err))
 	}).then(results => {
-		let [ templates, mobilizations, participations, languagedata, review_templates ] = results
+		let [ templates, mobilizations, participations, languagedata, review_templates, sessions ] = results
 		let [ languages, speakers ] = languagedata
 
 		// THIS PART IS A BIT COMPLEX: IT AIMS TO COMBINE PRIMARY AND SECONDARY LANGUAGES OF USERS
@@ -176,7 +214,8 @@ exports.pagemetadata = (_kwargs) => {
 				uuid,
 				name,
 				country,
-				rights
+				rights,
+				sessions
 			},
 			page: {
 				title,

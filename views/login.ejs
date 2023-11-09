@@ -17,9 +17,6 @@
 
 <div class='screen <% if (locals.errormessage) { %>error<% } else { %>blue<% } %>'>
 	<div class='modal login-module'>
-		<button id='global-login'>
-			<a>Use global login</a>
-		</button>
 		<form action='/login' method='POST'>
 			<input type='hidden' name='originalUrl' value='<%- locals.originalUrl %>'>
 			<ul>
@@ -47,6 +44,14 @@
 						<label for='password'><%- vocabulary['password'][language] %></label>
 					</div>
 				</li>
+
+				<li>
+					<div class='alert session-alert pt-5'>
+						<input type='checkbox' id='is_trusted' name='is_trusted' >
+						<small  for='is_trusted'>Trust this device.</small>
+					</div>
+				</li>
+
 				<li>
 					<button type='submit'><%- vocabulary['log in'][language] %></button>
 				</li>
