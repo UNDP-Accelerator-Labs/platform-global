@@ -14,6 +14,7 @@ help:
 	@echo "git-check	ensures no git visible files have been altered"
 	@echo "run-web	runs the webserver"
 	@echo "run-sass	runs the sass compiler"
+	@echo "pretty	runs eslint-fix and prettier"
 
 export LC_ALL=C
 export LANG=C
@@ -47,6 +48,10 @@ run-web:
 
 run-sass:
 	CMD=sass ./sh/run.sh
+
+pretty:
+	CMD=lint-fix ./sh/run.sh
+	CMD=pretty ./sh/run.sh
 
 build:
 	./sh/build.sh

@@ -1,18 +1,17 @@
 // INSPIRED BY https://coderwall.com/p/th6ssq/absolute-paths-require
-global.include = path => require(`${__dirname}/${path}`)
-global.rootpath = __dirname
+global.include = (path) => require(`${__dirname}/${path}`);
+global.rootpath = __dirname;
 
-const { csp_links, app_suite, app_suite_secret, DB } = include('config/')
+const { app_id, app_suite, app_suite_secret, DB, csp_links, app_base_host } =
+  include('config/');
 const { loginRateLimiterMiddleware } = include('routes/helpers/');
-const express = require('express')
-const path = require('path')
-const bodyparser = require('body-parser')
-const session = require('express-session')
-const pgSession = require('connect-pg-simple')(session)
+const express = require('express');
+const path = require('path');
+const bodyparser = require('body-parser');
+const session = require('express-session');
+const PgSession = require('connect-pg-simple')(session);
 
-const fs = require('fs')
-
-const { spawn } = require('child_process')
+const fs = require('fs');
 
 const helmet = require('helmet');
 const { xss } = require('express-xss-sanitizer');
@@ -30,7 +29,11 @@ app.use(
         'script-src-attr': ["'unsafe-inline'"],
         'style-src': csp_links,
         'connect-src': csp_links,
-		'frame-src': ["https://www.youtube.com/","https://youtube.com/","https://web.microsoftstream.com"]
+        'frame-src': [
+          'https://www.youtube.com/',
+          'https://youtube.com/',
+          'https://web.microsoftstream.com',
+        ],
       },
     },
     referrerPolicy: {
@@ -48,104 +51,124 @@ app.use(function (req, res, next) {
   next();
 });
 
-app.set('view engine', 'ejs')
-app.use(express.static(path.join(__dirname, './public')))
-app.use('/scripts', express.static(path.join(__dirname, './node_modules')))
-app.use('/config', express.static(path.join(__dirname, './config')))
-app.use(bodyparser.json({ limit: '50mb' }))
-app.use(bodyparser.urlencoded({ limit: '50mb', extended: true }))
+app.set('view engine', 'ejs');
+app.set('trust proxy', true); // trust leftmost proxy
+app.use(express.static(path.join(__dirname, './public')));
+app.use('/scripts', express.static(path.join(__dirname, './node_modules')));
+app.use('/config', express.static(path.join(__dirname, './config')));
+app.use(bodyparser.json({ limit: '50mb' }));
+app.use(bodyparser.urlencoded({ limit: '50mb', extended: true }));
 app.use(xss());
 
-if (process.env.NODE_ENV === 'production') {
-	app.set('trust proxy', 1) // trust first proxy
-}
+const cookie = {
+  domain: process.env.NODE_ENV === 'production' ? app_base_host : undefined,
+  httpOnly: true, // THIS IS ACTUALLY DEFAULT
+  secure: process.env.NODE_ENV === 'production',
+  maxAge: 1 * 1000 * 60 * 60 * 24 * 1, // DEFAULT TO 1 DAY. UPDATE TO 1 YEAR FOR TRUSTED DEVICES
+  sameSite: 'lax',
+};
 
 const sessionMiddleware = session({
-	name: `${app_suite}-session`,
-	// secret: 'acclabspadspass',
-	secret: `${app_suite}-${app_suite_secret}-pass`,
-	store: new pgSession({ pgPromise: DB.general }),
-	resave: false,
-	saveUninitialized: false,
-	cookie: {
-		httpOnly: true, // THIS IS ACTUALLY DEFAULT
-		secure: process.env.NODE_ENV === 'production',
-		maxAge: 1000 * 60 * 60 * 24 * 1, // 1 DAY
-		sameSite: 'lax',
-		// domain: process.env.NODE_ENV === 'production' ? '.azurewebsites.net' : 'localhost'
-	}
-})
+  name: `${app_suite}-session`,
+  // secret: 'acclabspadspass',
+  secret: `${app_suite}-${app_suite_secret}-pass`,
+  store: new PgSession({ pgPromise: DB.general }),
+  resave: false,
+  saveUninitialized: false,
+  cookie,
+});
 
-app.use(sessionMiddleware)
+app.use(sessionMiddleware);
 app.use(cookieParser(`${app_suite}-${app_suite_secret}-pass`));
 
-const routes = require('./routes/')
+function redirectOldUrl(req, res, next) {
+  const base = 'sdg-innovation-commons.org';
+  const full = `www.${base}`;
+  const hostname = req.get('host');
+  if (hostname !== base && !hostname.endsWith('azurewebsites.net')) {
+    return next();
+  }
+  const newHost = `https://${full}`;
+  return res.redirect(301, `${newHost}${req.originalUrl}`);
+}
+
+app.use(redirectOldUrl);
+
+const routes = require('./routes/');
 
 // HEALTH-CHECK + INFO
 let versionObj = null;
 
 function getVersionString() {
-	return new Promise((resolve) => {
-		if (versionObj !== null) {
-			resolve(versionObj);
-			return;
-		}
-		fs.readFile('version.txt', (err, data) => {
-			if (err) {
-				versionObj = {
-					'name': 'no version available',
-					'commit': 'unknown',
-					'app': `global`,
-				};
-			} else {
-				const lines = data.toString().split(/[\r\n]+/);
-				versionObj = {
-					'name': lines[0] || 'no version available',
-					'commit': lines[1] || 'unknown',
-					'app': `global`,
-				};
-			}
-			resolve(versionObj);
-		});
-	});
+  return new Promise((resolve) => {
+    if (versionObj !== null) {
+      resolve(versionObj);
+      return;
+    }
+    fs.readFile('version.txt', (err, data) => {
+      if (err) {
+        versionObj = {
+          name: 'no version available',
+          commit: 'unknown',
+          date: 'unknown',
+          app: `global`,
+        };
+      } else {
+        const lines = data.toString().split(/[\r\n]+/);
+        versionObj = {
+          name: lines[0] || 'no version available',
+          commit: lines[1] || 'unknown',
+          date: lines[2] || 'unknown',
+          app: `global`,
+        };
+      }
+      resolve(versionObj);
+    });
+  });
 }
 
 app.get('/version/', (req, res) => {
-	getVersionString().then(vo => res.send(vo)).catch(err => {
-		console.log(err);
-		res.status(500).send({
-			'name': 'error while reading version',
-			'commit': 'unknown',
-			'app': `global`,
-		})
-	});
+  getVersionString()
+    .then((vo) => res.send(vo))
+    .catch((err) => {
+      console.log(err);
+      res.status(500).send({
+        name: 'error while reading version',
+        commit: 'unknown',
+        date: 'unknown',
+        app: `global`,
+      });
+    });
 });
 
 // app.get('/', routes.redirect.home, routes.render.login)
 
-app.get('/', routes.redirect.home, routes.check.login, routes.redirect.public)
+app.get('/', routes.redirect.home, routes.check.login, routes.redirect.public);
 
 // PUBLIC VIEWS
-app.get('/public/', routes.dispatch.public) // THIS COULD BE DEPRECATED
-app.get('/:language/public/', routes.dispatch.public) // THIS COULD BE DEPRECATED
+app.get('/public/', routes.dispatch.public); // THIS COULD BE DEPRECATED
+app.get('/:language/public/', routes.dispatch.public); // THIS COULD BE DEPRECATED
 
-app.route('/login')
-	.get(routes.redirect.home, routes.render.login)
-	.post(loginRateLimiterMiddleware, routes.process.login)
-app.route('/logout/:session')
-	.get(routes.process.logout)
-	.post(routes.process.logout);
+app
+  .route('/login')
+  .get(routes.redirect.home, routes.render.login)
+  .post(loginRateLimiterMiddleware, routes.process.login);
+app
+  .route('/logout/:session')
+  .get(routes.process.logout)
+  .post(routes.process.logout);
 
-app.route('/reset/:token')
-	.get(routes.redirect.browse, routes.render.login)
+app.route('/reset/:token').get(routes.redirect.browse, routes.render.login);
 
-app.route('/forget-password')
-	.get(routes.redirect.browse, routes.render.login)
-	.post(routes.process.forgetPassword)
+app
+  .route('/forget-password')
+  .get(routes.redirect.browse, routes.render.login)
+  .post(routes.process.forgetPassword);
 
-app.route('/reset-password')
-	.get(routes.redirect.browse, routes.render.login)
-	.post(routes.process.updatePassword)
+app
+  .route('/reset-password')
+  .get(routes.redirect.browse, routes.render.login)
+  .post(routes.process.updatePassword);
 
 app.route('/confirm-email/:token').get(routes.update.email);
 
@@ -156,62 +179,81 @@ app
 
 app.route('/resend-otp-code').get(routes.process.resendCode);
 
-app.route('/remove-trusted-device').post(routes.check.login, routes.process.removeDevice);
+app
+  .route('/remove-trusted-device')
+  .post(routes.check.login, routes.process.removeDevice);
 
-app.route('/:language/contribute/:object')
-	.get(routes.render.login, routes.check.login, routes.dispatch.contribute)
-app.route('/:language/edit/:object')
-	.get(routes.render.login, routes.check.login, routes.dispatch.edit)
-app.route('/:language/view/:object')
-	.get(routes.render.login, routes.check.login, routes.dispatch.view)
+app
+  .route('/:language/contribute/:object')
+  .get(routes.render.login, routes.check.login, routes.dispatch.contribute);
+app
+  .route('/:language/edit/:object')
+  .get(routes.render.login, routes.check.login, routes.dispatch.edit);
+app
+  .route('/:language/view/:object')
+  .get(routes.render.login, routes.check.login, routes.dispatch.view);
 // app.route('/:language/import/:object')
 // 	.get(routes.render.login, routes.dispatch.import)
 // app.route('/:language/mobilize/:object')
 // 	.get(routes.render.login, routes.dispatch.mobilize)
 
-app.route('/:language/browse/:object/:space')
-	.get(routes.render.login, routes.dispatch.browse)
-	.post(routes.render.login, routes.check.login, routes.dispatch.browse)
+app
+  .route('/:language/browse/:object/:space')
+  .get(routes.render.login, routes.dispatch.browse)
+  .post(routes.render.login, routes.check.login, routes.dispatch.browse);
 
-app.route('/:language/preview/:object/:space')
-	.get(routes.render.login, routes.check.login, routes.dispatch.browse)
+app
+  .route('/:language/preview/:object/:space')
+  .get(routes.render.login, routes.check.login, routes.dispatch.browse);
 
-app.route('/:language/print/:object/:space')
-	.get(routes.render.login, routes.check.login, routes.dispatch.print)
+app
+  .route('/:language/print/:object/:space')
+  .get(routes.render.login, routes.check.login, routes.dispatch.print);
 
-app.get('/:language/analyse/:object', routes.check.login, routes.dispatch.analyse) // TO DO
+app.get(
+  '/:language/analyse/:object',
+  routes.check.login,
+  routes.dispatch.analyse,
+); // TO DO
 
-app.post('/check/:object', routes.check.login, routes.process.check)
+app.post('/check/:object', routes.check.login, routes.process.check);
 
-app.post('/save/:object', routes.check.login, routes.process.save)
-app.post('/generate/:format', routes.check.login, routes.process.generate)
-app.post('/pin', routes.check.login, routes.process.pin)
-app.post('/engage', routes.check.login, routes.process.engage)
-app.post('/comment', routes.check.login, routes.process.comment)
+app.post('/save/:object', routes.check.login, routes.process.save);
+app.post('/generate/:format', routes.check.login, routes.process.generate);
+app.post('/pin', routes.check.login, routes.process.pin);
+app.post('/engage', routes.check.login, routes.process.engage);
+app.post('/comment', routes.check.login, routes.process.comment);
 
-app.route('/publish/:object')
-	.get(routes.check.login, routes.process.publish)
-	.post(routes.check.login, routes.check.login, routes.process.publish)
-app.get('/unpublish/:object', routes.check.login, routes.process.unpublish)
-app.post('/share/:object', routes.check.login, routes.process.share)
-app.get('/forward/:object', routes.check.login, routes.process.forward)
-app.get('/delete/:object',routes.check.login,  routes.process.delete)
+app
+  .route('/publish/:object')
+  .get(routes.check.login, routes.process.publish)
+  .post(routes.check.login, routes.check.login, routes.process.publish);
+app.get('/unpublish/:object', routes.check.login, routes.process.unpublish);
+app.post('/share/:object', routes.check.login, routes.process.share);
+app.get('/forward/:object', routes.check.login, routes.process.forward);
+app.get('/delete/:object', routes.check.login, routes.process.delete);
 
-app.route('/request/:object')
-	.get(routes.check.login, routes.process.request)
-	.post(routes.check.login, routes.process.request)
-app.get('/accept/:object', routes.check.login, routes.process.accept)
-app.get('/decline/:object', routes.check.login, routes.process.decline)
+app
+  .route('/request/:object')
+  .get(routes.check.login, routes.process.request)
+  .post(routes.check.login, routes.process.request);
+app.get('/accept/:object', routes.check.login, routes.process.accept);
+app.get('/decline/:object', routes.check.login, routes.process.decline);
 
+app
+  .route('/request/:object')
+  .get(routes.process.request)
+  .post(routes.process.request);
+app.get('/accept/:object', routes.process.accept);
+app.get('/decline/:object', routes.process.decline);
 
 // app.post('/deploy', routes.process.deploy)
 // app.get('/demobilize', routes.process.demobilize)
 
 // app.post('/intercept/:method', routes.process.intercept)
-app.post('/call/api', routes.process.callapi)
+app.post('/call/api', routes.process.callapi);
 
 // app.post('/:language/:activity/:object/save', routes.process.save) // THIS PATH SHOULD NOT BE SO COMPLEX
-
 
 // app.post('/upload/img', upload.array('img'), routes.process.upload)
 // app.post('/upload/video', upload.array('video'), routes.process.upload)
@@ -219,33 +261,44 @@ app.post('/call/api', routes.process.callapi)
 
 // app.post('/screenshot', routes.process.screenshot)
 
-
 // TO DO: UPDATE SCHEMA BELOW
 // app.post('/storeImport', routes.render.login, routes.storeImport) // UPDATE DO save/import
-app.post('/forwardGeocoding', routes.forwardGeocoding) // UPDATE TO geocode/forward
-app.post('/reverseGeocoding', routes.reverseGeocoding) // UPDATE TO geocode/forward
-
+app.post('/forwardGeocoding', routes.forwardGeocoding); // UPDATE TO geocode/forward
+app.post('/reverseGeocoding', routes.reverseGeocoding); // UPDATE TO geocode/forward
 
 // API
-app.route('/apis/:action/:object')
-	.get(routes.check.login, routes.dispatch.apis)
-	.post(routes.check.login, routes.dispatch.apis)
+app
+  .route('/apis/:action/:object')
+  .get(routes.check.login, routes.dispatch.apis)
+  .post(routes.check.login, routes.dispatch.apis);
 
-app.get('/api/skills', routes.check.login, routes.api.skills) // TO DO: THIS SHOULD BE DEPRECATED
-app.get('/api/methods', routes.check.login, routes.api.methods) // TO DO: THIS SHOULD BE DEPRECATED
-app.route('/api/datasources')
-	.get(routes.check.login, routes.api.datasources)
-	.post(routes.check.login, routes.api.datasources)
+app.get('/api/skills', routes.check.login, routes.api.skills); // TO DO: THIS SHOULD BE DEPRECATED
+app.get('/api/methods', routes.check.login, routes.api.methods); // TO DO: THIS SHOULD BE DEPRECATED
+app
+  .route('/api/datasources')
+  .get(routes.check.login, routes.api.datasources)
+  .post(routes.check.login, routes.api.datasources);
 
 // INSTANCES
-app.route('/:language/:instance')
-	.get(routes.render.login, routes.check.login, routes.dispatch.browse)
+app
+  .route('/:language/:instance')
+  .get(routes.render.login, routes.check.login, routes.dispatch.browse);
 
 app.get('/module-error', routes.error);
-app.get('*', routes.notfound)
+app.get('*', routes.notfound);
 
 app.use((err, req, res, next) => {
-	res.status(500).redirect('/module-error');
+  res.status(500).redirect('/module-error');
 });
 // RUN THE SERVER
-const server = app.listen(process.env.PORT || 2000, _ => console.log(`the app is running on port ${process.env.PORT || 2000}`))
+app.listen(process.env.PORT || 2000, (_) => {
+  console.log(`the app is running on port ${process.env.PORT || 2000}`);
+  getVersionString()
+    .then((vo) => {
+      console.log('name', vo.name);
+      console.log('commit', vo.commit);
+      console.log('deployed', vo.date);
+      console.log('app_id', app_id);
+    })
+    .catch((err) => console.log(err));
+});

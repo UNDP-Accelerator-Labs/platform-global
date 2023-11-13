@@ -7,9 +7,9 @@
 
 <div id='statistics'>
 	<div class='statistic'>
-		<h1><%- locals.stats?.filtered %><small> / <%- locals.global_info.filtered %></small></h1>
+		<h1><%- locals.stats?.filtered %><small> / <%- locals.global_info?.filtered %></small></h1>
 		<p><%- vocabulary[object.slice(0, -1)]?.[language](locals.stats?.filtered !== 1)?.capitalize() || object.capitalize() %></p>
-		
+
 		<% if (locals.metadata.page.count > 1) { %>
 			<small><%- vocabulary['showing range'][language](locals.stats?.displayed * (page - 1) + 1, Math.min(locals.stats?.displayed * page, locals.stats?.filtered)) %></small>
 		<% } else if (typeof page === 'string') { %>

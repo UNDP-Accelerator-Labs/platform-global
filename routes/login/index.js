@@ -1,4 +1,4 @@
-const { app_title, app_title_short, app_languages, modules, DB } = include('config/')
+const { app_title, app_title_short, app_languages, modules, DB, app_base_host } = include('config/')
 const { checklanguage, datastructures, join } = include('routes/helpers/')
 const jwt = require('jsonwebtoken')
 const getResetToken = require('./forget-password').getResetToken
@@ -230,16 +230,16 @@ exports.process = (req, res) => { // REROUTE
 					res.redirect('/login')
 				} else {
 					const device = deviceInfo(req)
-					
+
 					let redirecturl = originalUrl || referer;
 
 					// CHECK IF DEVICE IS TRUSTED
 					return t.oneOrNone(`
-						SELECT * FROM trusted_devices 
-						WHERE user_uuid = $1 
-						AND device_os = $2 
-						AND device_browser = $3 
-						AND device_name = $4 
+						SELECT * FROM trusted_devices
+						WHERE user_uuid = $1
+						AND device_os = $2
+						AND device_browser = $3
+						AND device_name = $4
 						AND duuid1 = $5
 						AND duuid2 = $6
 						AND duuid3 = $7
@@ -251,14 +251,15 @@ exports.process = (req, res) => { // REROUTE
 							// Device is trusted, update last login info
 							return t.none(`
 								UPDATE trusted_devices SET last_login = $1, session_sid = $5
-								WHERE user_uuid = $2 
-								AND device_os = $3 
+								WHERE user_uuid = $2
+								AND device_os = $3
 								AND device_browser = $4`,
 								[new Date(), result.uuid, device.os, device.browser, sid]
 							)
 							.then(() => {
 								const sessionExpiration = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000); // 1 year from now
-								req.session.cookie.expires = sessionExpiration; 
+								req.session.cookie.domain = app_base_host;
+								req.session.cookie.expires = sessionExpiration;
 								req.session.cookie.maxAge = 365 * 24 * 60 * 60 * 1000; // 1 year in milliseconds
 
 								const sess = { ...result, is_trusted: true, device: {...device, is_trusted: true}}
@@ -277,7 +278,7 @@ exports.process = (req, res) => { // REROUTE
 									name: result.name, email: result.email, uuid: result.uuid, conn: t
 								})
 								.then(()=>{
-									req.session.confirm_dev_origins = {	
+									req.session.confirm_dev_origins = {
 										redirecturl,
 										...result,
 									}
@@ -291,8 +292,8 @@ exports.process = (req, res) => { // REROUTE
 							}
 						}
 					})
-					
-					
+
+
 				}
 			}).catch(err => console.log(err))
 		}).catch(err => res.redirect('/module-error'))
@@ -346,7 +347,7 @@ exports.isPasswordSecure = (password) => {
 	  'pw-special': specialCharRegex.test(password),
 	  'pw-common': !commonPasswords.includes(password),
 	};
-  
+
 	const msgs = {
 	  'pw-length': 'Password is too short',
 	  'pw-upper': 'Password requires at least one uppercase letter',
@@ -355,7 +356,7 @@ exports.isPasswordSecure = (password) => {
 	  'pw-special': 'Password requires at least one of the following special characters: !@#$%^&*()',
 	  'pw-common': 'Password cannot be a commonly used password',
 	};
-  
+
 	return Object.keys(checkPass).filter((key) => !checkPass[key]).map((key) => msgs[key]).join('\n');
 }
 

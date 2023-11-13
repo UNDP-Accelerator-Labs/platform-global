@@ -345,7 +345,7 @@
 			) { %>
 				<%- include ('./modules/map') %>
 			<% } else { %>
-				<% if (object === 'pads' && pagedisplay !== 'slideshow' && locals.global_info.pads?.length === 0) { %>
+				<% if (object === 'pads' && pagedisplay !== 'slideshow' && !locals.global_info?.pads?.length) { %>
 					<small class='no-results lg'>
 						<%- vocabulary['pads to display'][language](0) %>
 					</small>
@@ -831,7 +831,7 @@
 
 
 					// BELOW IS IN CASE WE MAKE A CALL FOR THE IMAGES VIA API
-					// POST('/call/api', { uri: encodeURI(`https://undphqexoacclabsapp01.azurewebsites.net/api/file?filepath=${d}`), method: 'GET', key: 'SM_PLATFORM_TOKEN', expect: 'image' }, false)
+					// POST('/call/api', { uri: encodeURI(`https://www.sdg-innovation-commons.org/api/file?filepath=${d}`), method: 'GET', key: 'SM_PLATFORM_TOKEN', expect: 'image' }, false)
 					// .then(res => res.blob())
 					// .then(data => {
 					// 	// const node = this

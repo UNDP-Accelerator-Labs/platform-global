@@ -26,11 +26,12 @@ async function sendResetEmail(email, html) {
     return;
   }
   const { host, protocol } = req
+  const mainHost = host.split(".").slice(-2).join(".");
   // Generate a password reset token and save it in the database
   const token = await jwt.sign(
     { email, action: 'password-reset' },
     process.env.APP_SECRET,
-    { expiresIn: '24h', issuer: host })
+    { expiresIn: '24h', issuer: mainHost })
 
   // Generate the password reset link with the extracted token and base URL
   const resetLink = `${protocol}://${host}/reset/${token}`;

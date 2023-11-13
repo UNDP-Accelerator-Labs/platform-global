@@ -7,16 +7,16 @@ const fetch = require('node-fetch')
 const load = require('./load/')
 const filter = require('./filter.js').main
 
-exports.main = async (req, res) => { 
+exports.main = async (req, res) => {
 	const { object, space } = req.params || {}
 	// GET FILTERS
 	const [ f_space, order, page, full_filters ] = await filter(req)
 
 	DB.conn.tx(async t => {
 		const { pagetitle, path, uuid, username, country, rights, language, query, templates, participations } = await header_data({ connection: t, req: req })
-		
+
 		const batch = []
-		
+
 		// FILES DATA
 		batch.push(load.data({ connection: t, req }))
 		// GET THE FILTERS FOR THE filters_MENU
@@ -29,34 +29,34 @@ exports.main = async (req, res) => {
 
 		return t.batch(batch)
 		.then(async results => {
-			let [ data, 
+			let [ data,
 				filters_menu,
-				statistics, 
+				statistics,
 				// locations
 			] = results
 
 			// IF SDG TAGS ARE USED, GO FETCH THE NAME AND DETAILS FROM THE SOlUTIONS MAPPING PLATFORM
 			// await new Promise(resolve => {
 			// 	if (filters_menu.sdgs.length) {
-			// 		fetch(`https://undphqexoacclabsapp01.azurewebsites.net/api/sdgs?lang=${language}`)
+			// 		fetch(`https://www.sdg-innovation-commons.org/api/sdgs?lang=${language}`)
 			// 			.then(response => response.json())
 			// 			.then(sdgs => {
 			// 				filters_menu.sdgs.forEach(d => {
 			// 					d.tag_name = sdgs.find(s => +s.key === +d.tag_id)?.name
 			// 				})
 			// 				resolve()
-			// 			}).catch(err => console.log(err))					
+			// 			}).catch(err => console.log(err))
 			// 	} else resolve()
 			// })
-			
-			return { 
+
+			return {
 				metadata : {
 					site: {
 						modules,
 						metafields
 					},
 					page: {
-						title: pagetitle, 
+						title: pagetitle,
 						path,
 						id: page,
 						count: Math.ceil((helpers.array.sum.call(statistics.filtered, 'count') || 0) / page_content_limit),
@@ -80,14 +80,14 @@ exports.main = async (req, res) => {
 						rights
 					}
 				},
-				stats: { 
-					total: helpers.array.sum.call(statistics.total, 'count'), 
-					filtered: helpers.array.sum.call(statistics.filtered, 'count'), 
-					
+				stats: {
+					total: helpers.array.sum.call(statistics.total, 'count'),
+					filtered: helpers.array.sum.call(statistics.filtered, 'count'),
+
 					private: statistics.private,
 					shared: statistics.shared,
 					public: statistics.public,
-					
+
 					displayed: data.count,
 					breakdown: statistics.filtered,
 					persistent_breakdown: statistics.total,
@@ -99,8 +99,8 @@ exports.main = async (req, res) => {
 
 				data: data.data, // STILL NEED THIS FOR THE MAP AND PIE CHARTS. ULTIMATELY REMOVE WHEN NEW EXPLORE VIEW IS CREATED
 				sections: data.sections
-				
-				// locations: JSON.stringify(locations), 
+
+				// locations: JSON.stringify(locations),
 				// clusters: JSON.stringify(clusters)
 			}
 		})

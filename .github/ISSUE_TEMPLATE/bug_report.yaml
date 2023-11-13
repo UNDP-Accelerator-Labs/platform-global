@@ -1,7 +1,7 @@
 name: Bug Report
 description: File a bug report
-title: "[Bug]: "
-labels: ["bug", "triage"]
+title: '[Bug]: '
+labels: ['bug', 'triage']
 body:
   - type: markdown
     attributes:
@@ -21,7 +21,7 @@ body:
       label: Issue description
       description: Provide a brief description of the issue.
       placeholder: Provide steps to reproduce
-      value: "Issue description"
+      value: 'Issue description'
     validations:
       required: true
   - type: textarea
@@ -30,7 +30,7 @@ body:
       label: Where did this happen?
       description: Provide describe which pad, template, collection, url and screenshot.
       placeholder: Describe which pad, collection, url and screenshot.
-      value: "url"
+      value: 'url'
     validations:
       required: true
   - type: textarea
@@ -39,7 +39,7 @@ body:
       label: What do you expect?
       description: Describe what you expected to happen.
       placeholder: Tell us what you expect!
-      value: "What do you expect?"
+      value: 'What do you expect?'
     validations:
       required: true
   - type: dropdown
@@ -70,4 +70,4 @@ body:
       label: Add any other relevant details
       description: Please add any other relevant details
       placeholder: Add any other relevant info
-      value: "Relevant info"
+      value: 'Relevant info'
