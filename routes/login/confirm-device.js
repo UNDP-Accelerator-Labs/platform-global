@@ -1,4 +1,4 @@
-const { DB } = include("config/");
+const { DB, app_base_host } = include("config/");
 const { sessionupdate } = include('routes/helpers')
 const { deviceInfo, sendDeviceCode } = require("./device-info");
 const { v4: uuidv4 } = require("uuid");
@@ -60,6 +60,7 @@ exports.confirmDevice = async (req, res, next) => {
           const sessionExpiration = new Date(
             Date.now() + 365 * 24 * 60 * 60 * 1000
           ); // 1 year from now
+          req.session.cookie.domain = app_base_host;
           req.session.cookie.expires = sessionExpiration;
           req.session.cookie.maxAge = 365 * 24 * 60 * 60 * 1000; // 1 year in milliseconds
 
@@ -73,9 +74,9 @@ exports.confirmDevice = async (req, res, next) => {
             confirm_dev_origins: null,
           });
 
-          res.cookie("__ucd_app", deviceGUID1, { sessionExpiration });
-          res.cookie("__puid", deviceGUID2, { sessionExpiration });
-          res.cookie("__cduid", deviceGUID3, { sessionExpiration });
+          res.cookie("__ucd_app", deviceGUID1, { expires: sessionExpiration, domain: app_base_host });
+          res.cookie("__puid", deviceGUID2, { expires: sessionExpiration, domain: app_base_host });
+          res.cookie("__cduid", deviceGUID3, { expires: sessionExpiration, domain: app_base_host });
 
           res.redirect(redirecturl);
           req.session.confirm_dev_origins = null;

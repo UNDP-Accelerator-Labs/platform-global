@@ -2,7 +2,7 @@
 global.include = (path) => require(`${__dirname}/${path}`);
 global.rootpath = __dirname;
 
-const { app_id, app_suite, app_suite_secret, DB, csp_links } =
+const { app_id, app_suite, app_suite_secret, DB, csp_links, app_base_host } =
   include('config/');
 const { loginRateLimiterMiddleware } = include('routes/helpers/');
 const express = require('express');
@@ -61,10 +61,7 @@ app.use(bodyparser.urlencoded({ limit: '50mb', extended: true }));
 app.use(xss());
 
 const cookie = {
-  domain:
-    process.env.NODE_ENV === 'production'
-      ? 'sdg-innovation-commons.org'
-      : undefined,
+  domain: process.env.NODE_ENV === 'production' ? app_base_host : undefined,
   httpOnly: true, // THIS IS ACTUALLY DEFAULT
   secure: process.env.NODE_ENV === 'production',
   maxAge: 1 * 1000 * 60 * 60 * 24 * 1, // DEFAULT TO 1 DAY. UPDATE TO 1 YEAR FOR TRUSTED DEVICES
