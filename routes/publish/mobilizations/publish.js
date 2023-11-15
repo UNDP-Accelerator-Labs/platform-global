@@ -9,11 +9,11 @@ exports.main = (req, res) => {
 	if (!Array.isArray(cohort)) cohort = [cohort]
 	if (start_date) start_date = new Date(start_date)
 	if (end_date) end_date = new Date(end_date)
-	
+
 	const { uuid, email } = req.session || {}
 	const language = checklanguage(req.params?.language || req.session.language)
 
-	DB.conn.tx(t => { // INSERT THE NEW MOBILIZATION		
+	DB.conn.tx(t => { // INSERT THE NEW MOBILIZATION
 		// INSPIRED BY https://stackoverflow.com/questions/38750705/filter-object-properties-by-key-in-es6
 		const insert = Object.keys(req.body)
 			.filter(key => !['cohort'].includes(key))
@@ -21,13 +21,13 @@ exports.main = (req, res) => {
 				obj[key] = req.body[key]
 				return obj
 			}, {})
-		
+
 		saveSQL = DB.pgp.as.format(`
-			INSERT INTO $1:name ($2:name, owner) 
+			INSERT INTO $1:name ($2:name, owner)
 			SELECT $2:csv, $3
 			RETURNING $1:name.id
 		;`, [ 'mobilizations', insert, uuid ])
-		
+
 		return t.one(saveSQL)
 		.then(result => { // INSERT THE COHORT FOR THE MOBILIZATION
 			const { id } = result
@@ -51,7 +51,7 @@ exports.main = (req, res) => {
 					;`, [ id ])
 					.catch(err => console.log(err))
 				})
-			} 
+			}
 			// IF THE MOBILIZATION HAS AN END DATE, SET UP A CRON JOB
 			if (end_date && end_date >= now) {
 				const min = end_date.getMinutes()
@@ -108,19 +108,18 @@ exports.main = (req, res) => {
 				if (!public) {
 					// SEND EMAILS TO THOSE WHO ACCEPT NOTIFICATIONS (IN bcc FOR ONLY ONE EMAIL)
 					batch.push(DB.general.any(`
-						SELECT DISTINCT email FROM users 
+						SELECT DISTINCT email FROM users
 						WHERE uuid IN ($1:csv)
 							AND uuid <> $2
 							AND notifications = TRUE
 					;`, [ cohort, uuid ]).then(async results => {
 						const bcc = results.map(d => d.email)
-						bcc.push('myjyby@gmail.com') // TO DO: THIS IS TEMP
-						
+
 						await sendemail({
-							to: email, 
+							to: email,
 							bcc,
 							subject: `[${app_title}] New campaign`,
-							html: `Dear contributor, you are invited to participate in a new documentation campaign on the ${app_title} platform. 
+							html: `Dear contributor, you are invited to participate in a new documentation campaign on the ${app_title} platform.
 								Here is some information about the campaign:
 								<br><br>${title}<br>${description}` // TO DO: TRANSLATE AND STYLIZE
 						})
@@ -129,7 +128,7 @@ exports.main = (req, res) => {
 				}
 				// PUBLISH THE TEMPLATE USED
 				batch.push(t.none(`
-					UPDATE templates 
+					UPDATE templates
 					SET status = 2
 					WHERE id = $1::INT
 				;`, [ template ]))

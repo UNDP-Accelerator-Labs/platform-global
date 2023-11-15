@@ -1,15 +1,13 @@
 const path = require('path')
 
 process.on('message', message => {
-	const { rootpath, id, language, reviewers, tagfocus, uuid, sendemail } = message || {} // sendemail IS PROBABLY NOT NEEDED HERE
-	
+	const { rootpath, id, language, reviewers, tagfocus, uuid } = message || {}
+
 	console.log(tagfocus)
 	// const tagfocus = 'thematic_areas'
-		
-	// console.log(sendemail)
 
 	const { modules, DB } = require(path.join(rootpath, '/config'))
-	
+
 	if (reviewers) { // SIMPLY ASSIGN TO REVIEWERS
 		DB.conn.task(t => {
 			return t.one(`
@@ -60,7 +58,7 @@ process.on('message', message => {
 				tags = tags.map(d => d.id)
 				console.log(tags)
 				console.log(owner)
-				
+
 				return DB.general.task(gt => {
 					const gbatch = []
 					// GET PAD TAG WEIGHTS
@@ -70,14 +68,14 @@ process.on('message', message => {
 									THEN 1
 									ELSE 0
 								END AS weight
-							FROM tags 
+							FROM tags
 							WHERE type = $2
 							ORDER BY id
 						;`, [ tags, tagfocus ]))
 					} else { // NO TAGS TO RANDOM ASSIGNMENT (NOTE IN THIS CASE, ALL THE FOLLOWING OPERATIONS ARE MAJOR OVERKILL)
 						gbatch.push(gt.any(`
 							SELECT 0 AS weight
-							FROM tags 
+							FROM tags
 							WHERE type = $1
 							ORDER BY id
 						;`, [ tagfocus ]))
@@ -106,7 +104,7 @@ process.on('message', message => {
 								-- )
 							)
 					;`, [ language, modules.find(d => d.type === 'reviews')?.rights.write || 2, owner ]))
-					
+
 					return gt.batch(gbatch)
 					.catch(err => console.log(err))
 				}).then(results => {
