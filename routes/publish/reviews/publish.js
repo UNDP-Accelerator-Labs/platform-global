@@ -29,7 +29,7 @@ exports.main = (req, res) => {
 						AND (reviewer = $3
 							OR $4 > 2)
 				;`, [ status, id, uuid, rights ]))
-				
+
 			}
 		}
 
@@ -50,9 +50,9 @@ exports.main = (req, res) => {
 							// 2/ THERE ARE ENOUGH REVIEWS, GET SCORES
 							console.log('there are enough reviews')
 							return t1.any(`
-								SELECT sections FROM pads 
+								SELECT sections FROM pads
 								WHERE id IN (
-									SELECT review FROM reviews 
+									SELECT review FROM reviews
 									WHERE pad = $1
 								)
 							;`, [ source ])
@@ -61,7 +61,7 @@ exports.main = (req, res) => {
 								batch.push(results.every(d => +parsers.getReviewScore(d) === 1))
 								batch.push(t.one(`SELECT title FROM pads WHERE id = $1::INT;`, [ source ], d => d.title))
 								batch.push(t.oneOrNone(`SELECT language FROM review_requests WHERE pad = $1::INT;`, [ source ], d => d?.language))
-								
+
 								batch.push(t1.any(`
 									SELECT owner FROM pads
 									WHERE id IN (SELECT review FROM reviews WHERE pad = $1::INT)
@@ -77,11 +77,11 @@ exports.main = (req, res) => {
 								if (results.every(d => +parsers.getReviewScore(d) === 1)) {
 									// 3/ ALL SCORES ARE ACCEPT, AUTO-PUBLISH PAD
 									batch.push(t1.none(`
-										UPDATE pads 
+										UPDATE pads
 										SET status = 3
 										WHERE id = $1
 									;`, [ source ]))
-								} 
+								}
 								return t1.batch(batch)
 								.then(results => {
 									// 4/ SEND EMAIL NOTIFICATION TO AUTHOR AND REVIEWERS
@@ -90,7 +90,7 @@ exports.main = (req, res) => {
 									console.log('check accepted')
 									console.log(accepted)
 									console.log(language)
-									
+
 									return DB.general.task(gt => {
 										const gbatch = []
 										gbatch.push(gt.any(`
@@ -100,13 +100,12 @@ exports.main = (req, res) => {
 										;`, [ reviewers.map(d => d.owner) ])
 										.then(user_info => {
 											// TO DO: TRANSLATE
-											const html = `Thank you for taking the time to review the submission entitled "${title}". 
+											const html = `Thank you for taking the time to review the submission entitled "${title}".
 											All reviews are now completed. You can read them <a href='http${process.env.NODE_ENV === 'production' ? 's' : ''}://${host}/${language}/view/pad?id=${source}&display=adjacent-reviews'>here</a>.`
 
 											return Promise.all(user_info.map(d => {
 												return sendemail({
-													to: d.email, 
-													bcc: 'myjyby@gmail.com', // TO DO: THIS IS TEMP
+													to: d.email,
 													subject: `[${app_title}] Reviews for "${title}" are in`,
 													html
 												})
@@ -126,15 +125,14 @@ exports.main = (req, res) => {
 												Click <a href='http://${host}/${language}/view/pad?id=${source}&display=adjacent-reviews'>here</a> to see the reviews.`
 											} else {
 												// TO DO: TRANSLATE
-												html = `Reviews are in for your submission "${title}". 
+												html = `Reviews are in for your submission "${title}".
 												Unfortunately some revisions are required. You will find the reviews <a href='http${process.env.NODE_ENV === 'production' ? 's' : ''}://${host}/${language}/view/pad?id=${source}&display=adjacent-reviews'>here</a>.
 												Please consider and address them carefully, then resubmit your pad for another round of reviews.`
 											}
 
 											return Promise.all(user_info.map(d => {
 												return sendemail({
-													to: d.email, 
-													bcc: 'myjyby@gmail.com', // TO DO: THIS IS TEMP
+													to: d.email,
 													subject: `[${app_title}] Your submission "${title}" has been reviewed`,
 													html
 												})
@@ -146,7 +144,7 @@ exports.main = (req, res) => {
 									}).then(_ => {
 										// 5/ AND REMOVE REVIEW REQUEST AND REVIEWERS FROM POOL (CLEAN UP)
 										return t1.none(`
-											DELETE FROM reviewer_pool 
+											DELETE FROM reviewer_pool
 											WHERE request IN (
 												SELECT id FROM review_requests
 												WHERE pad = $1
@@ -158,7 +156,7 @@ exports.main = (req, res) => {
 									}).catch(err => console.log(err))
 								}).catch(err => console.log(err))
 							}).catch(err => console.log(err))
-						} else { 
+						} else {
 							// 2/ THERE ARE NOT ENOUGH REVIEWS
 							console.log('there are not enough reviews')
 							return null

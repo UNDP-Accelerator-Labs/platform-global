@@ -16,7 +16,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@sendgrid/mail": "^7.7.0",
     "@turf/turf": "^5.1.6",
     "archiver": "^5.1.0",
     "connect-pg-simple": "^6.1.0",
@@ -41,7 +40,7 @@
     "node-fetch": "^2.6.1",
     "node-sys": "^1.2.4",
     "node-xlsx": "^0.15.0",
-    "nodemailer": "^6.8.0",
+    "nodemailer": "^6.9.7",
     "nodemon": "^2.0.22",
     "pageres": "^5.2.0",
     "path": "^0.12.7",

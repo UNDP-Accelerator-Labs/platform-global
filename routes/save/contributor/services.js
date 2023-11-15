@@ -18,7 +18,7 @@ exports.confirmEmail = async (_kwarg) => {
 
   // Send the email to the user
   // TO DO: translate
-  return sendEmail({
+  return await sendEmail({
     to: email,
     subject: `Email Address Confirmation`,
     html: `
@@ -93,8 +93,8 @@ exports.updateNewEmail = async (req, res, next) => {
             whereClause: `sess ->> 'uuid' = $1`,
           });
         })
-        .then(() => {
-          sendEmail({
+        .then(async () => {
+          await sendEmail({
             to: old_email,
             subject: `Email Address Update Notification`,
             html: `

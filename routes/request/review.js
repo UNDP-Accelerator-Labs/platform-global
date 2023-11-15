@@ -17,12 +17,11 @@ exports.main = (req, res) => {
 
 	// THE FOLLOWING IS TECHNICALLY NOT NEEDED
 	c_process.on('message', message => {
-		message.forEach(d => {
+		message.forEach(async d => {
 			// SEND EMAIL NOTIFICATION TO USERS WHO ACCEPT EMAIL NOTIFICATIONS
 			if (d.notifications) {
-				return sendemail({
+				return await sendemail({
 					to: d.email,
-					bcc: 'myjyby@gmail.com',
 					subject: `[${app_title}] Request for review`,
 					html: `You are invited to review the submission entitled ${title} on the ${app_title} platform. Please navigate <a href="https://experiments.sdg-innovation-commons.org/en/browse/reviews/pending">here</a> to accept of decline the review.`
 				})

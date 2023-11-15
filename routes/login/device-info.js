@@ -27,10 +27,10 @@ exports.sendDeviceCode = (_kwarg) => {
       VALUES ($1, $2, NOW() + INTERVAL '10 MINUTES')`,
       [uuid, code]
     )
-    .then(() => {
+    .then(async () => {
       // Send the email to the user
       // TO DO: translate
-      sendEmail({
+      await sendEmail({
         to: email,
         subject: `Device Confirmation`,
         html: `

@@ -1,5 +1,5 @@
 const { app_title, DB } = include('config/')
-const { checklanguage, email: sendemail } = include('routes/helpers/')
+const { email: sendemail } = include('routes/helpers/')
 
 exports.main = (req, res) => {
 	const { referer } = req.headers || {}
@@ -36,13 +36,12 @@ exports.main = (req, res) => {
 						AND notifications = TRUE
 				;`, [ contributor, uuid ])
 				.then(results => {
-					// SEND EMAIL NOTIFICATION	
+					// SEND EMAIL NOTIFICATION
 					// NEED TO CHECK IF EMAIL NOTIFICATIONS IS ACTIVATED
 					return Promise.all(results.map(d => {
 						sendemail({
 							to: d.email,
 							cc: from,
-							bcc: 'myjyby@gmail.com',
 							subject: `[${app_title}] Collections`,
 							html: `Dear contributor, ${username} has shared with you the follow collection on the ${app_title} platform:
 								<br><br><strong>${title}</strong>
