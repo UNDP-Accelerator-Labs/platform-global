@@ -1,5 +1,6 @@
 // Retrieve aggregate data from the database
 const { page_content_limit } = include('config/')
+const { parsers } = include('routes/helpers/')
 
 const theWhereClause = (country, type )=> {
   let whereClause = '';
@@ -22,19 +23,6 @@ const theWhereClause = (country, type )=> {
     
 
     return whereClause;
-}
-
-const searchTextConditionFn = (searchText) => {
-  let searchTextCondition = '';
-   if (searchText !== null && searchText !== undefined && searchText.length > 0) {
-    searchTextCondition = `
-      AND (title ~* '\\m${searchText}\\M'
-        OR content ~* '\\m${searchText}\\M'
-        OR all_html_content ~* '\\m${searchText}\\M')
-    `;
-  }
-
-  return searchTextCondition;
 }
 
 exports.blogAggQuery =`
@@ -66,20 +54,53 @@ exports.searchBlogQuery = (searchText, page, country, type) => {
     (page - 1) * page_content_limit,
     page,
   ];
+  const search = searchText ? parsers.regexQuery(searchText) : '';
   let searchTextCondition = '';
-   if (searchText !== null && searchText !== undefined && searchText.length > 0) {
+
+  if (searchText !== null && searchText !== undefined && searchText.length > 0) {
     searchTextCondition = `
-      AND (title ~* ('\\m' || $3::TEXT || '\\M')
-        OR content ~* ('\\m' || $3::TEXT || '\\M')
-        OR all_html_content ~* ('\\m' || $3::TEXT || '\\M')
-        OR country ~* ('\\m' || $3::TEXT || '\\M'))
+      AND (title ~* ('\\m' || $3 || '\\M')
+        OR content ~* ('\\m' || $3 || '\\M')
+        OR all_html_content ~* ('\\m' || $3 || '\\M')
+        OR country ~* ('\\m' || $3 || '\\M'))
     `;
-     values.splice(2, 0, searchText);
+    values.splice(2, 0, search);
+  } else {
+    searchTextCondition = `
+      AND (article_type = 'blog' 
+        AND content IS NOT NULL
+        AND title IS NOT NULL)
+    `;
+    values.splice(2, 0, '');
   }
-   return {
+
+  return {
     text: `
       WITH search_results AS (
-        SELECT id, url, content, country, article_type, title, posted_date, posted_date_str, language, created_at, all_html_content
+        SELECT id, url, country, article_type, title, posted_date, posted_date_str, language, created_at,
+        CASE
+          WHEN $3 = '' THEN (
+            SELECT string_agg(substring(sentence, '(.*' || $3 || '.*)'), ' ')
+            FROM (
+              SELECT unnest(string_to_array(content, '.')) AS sentence
+              OFFSET 1 LIMIT 2
+            ) sub
+          )
+          WHEN content ~* $3  THEN (
+            SELECT string_agg(substring(sentence, '(.*' || '.' || '.*)'), ' ')
+            FROM (
+              SELECT unnest(string_to_array(content, '.')) AS sentence
+            ) sub
+            WHERE sentence ~* $3 
+          )
+          WHEN all_html_content ~* $3 THEN (
+            SELECT string_agg(substring(sentence, '(.*' || '.' || '.*)'), ' ')
+            FROM (
+              SELECT unnest(string_to_array(all_html_content, '.')) AS sentence
+            ) sub
+            WHERE sentence ~* $3 
+          )
+        END AS matched_texts
         FROM articles
         WHERE has_lab IS TRUE
         ${searchTextCondition}
@@ -104,7 +125,18 @@ exports.searchBlogQuery = (searchText, page, country, type) => {
 
 exports.articleGroup = (searchText, country, type) => {
   let whereClause = theWhereClause(country, type);
-  let searchTextCondition = searchTextConditionFn(searchText);
+  const search = searchText ? parsers.regexQuery(searchText) : '';
+  let searchTextCondition = '';
+  const values = [];
+  if (searchText !== null && searchText !== undefined && searchText.length > 0) {
+    searchTextCondition = `
+      AND (title ~* ('\\m' || $1 || '\\M')
+        OR content ~* ('\\m' || $1 || '\\M')
+        OR country ~* ('\\m' || $1 || '\\M'))
+    `;
+    
+    values.push(search);
+  }
 
   return {
     text: `
@@ -115,13 +147,24 @@ exports.articleGroup = (searchText, country, type) => {
         ${whereClause}
       GROUP BY article_type;
     `,
-    values: [],
+    values,
   };
 };
-
 exports.countryGroup = (searchText, country, type) => {
   let whereClause = theWhereClause(country, type);
-  let searchTextCondition = searchTextConditionFn(searchText);
+  const search = searchText ? parsers.regexQuery(searchText) : '';
+  let searchTextCondition = '';
+  const values = [];
+  if (searchText !== null && searchText !== undefined && searchText.length > 0) {
+    searchTextCondition = `
+      AND (title ~* ('\\m' || $1 || '\\M')
+        OR content ~* ('\\m' || $1 || '\\M')
+        OR all_html_content ~* ('\\m' || $1 || '\\M')
+        OR country ~* ('\\m' || $1 || '\\M'))
+    `;
+    
+    values.push(search);
+  }
 
   return {
     text: `
@@ -132,13 +175,25 @@ exports.countryGroup = (searchText, country, type) => {
         ${whereClause}
       GROUP BY country, iso3;
     `,
-    values: [],
+    values,
   };
 };
 
   exports.statsQuery = (searchText, country, type) => {
     let whereClause = theWhereClause(country, type);
-    let searchTextCondition = searchTextConditionFn(searchText);
+    const search = searchText ? parsers.regexQuery(searchText) : '';
+    let searchTextCondition = '';
+    const values = [];
+    if (searchText !== null && searchText !== undefined && searchText.length > 0) {
+      searchTextCondition = `
+        AND (title ~* ('\\m' || $1 || '\\M')
+          OR content ~* ('\\m' || $1 || '\\M')
+          OR all_html_content ~* ('\\m' || $1 || '\\M')
+          OR country ~* ('\\m' || $1 || '\\M'))
+      `;
+      
+      values.push(search);
+    }
 
     return {
       text: `
@@ -176,13 +231,25 @@ exports.countryGroup = (searchText, country, type) => {
           (SELECT COUNT(DISTINCT article_type) FROM total_article_type_count) AS distinct_article_type_count,
           (SELECT total_records FROM total_count) AS total_records;
       `,
-      values: [],
+      values,
     };
   };
   
   exports.extractGeoQuery = (searchText, country, type) => {
     let whereClause = theWhereClause(country, type);
-    let searchTextCondition = searchTextConditionFn(searchText);
+    const search = searchText ? parsers.regexQuery(searchText) : '';
+    let searchTextCondition = '';
+    const values = [];
+    if (searchText !== null && searchText !== undefined && searchText.length > 0) {
+      searchTextCondition = `
+        AND (title ~* ('\\m' || $1 || '\\M')
+          OR content ~* ('\\m' || $1 || '\\M')
+          OR all_html_content ~* ('\\m' || $1 || '\\M')
+          OR country ~* ('\\m' || $1 || '\\M'))
+      `;
+      
+      values.push(search);
+    }
 
     return {
       text: `
@@ -210,8 +277,6 @@ exports.countryGroup = (searchText, country, type) => {
         GROUP BY clusters.cid
         ORDER BY clusters.cid;
       `,
-      values: [],
+      values,
     };
   };
-  
-

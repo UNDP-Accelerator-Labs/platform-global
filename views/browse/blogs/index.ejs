@@ -152,31 +152,7 @@
 								  </div>
 								  <div class="media media-txt" style="margin-top: 20px; white-space: inherit !important;">
 									<a class="pad-link" target="_blank" style="width: 100% !important; ">
-										<%
-										  function findMatchingText(largeText) {
-
-											largeText.trim().replace(/^\n+|\n+$/g, '');
-
-											var searchText = locals?.metadata?.page?.query?.['search'] || ""
-
-											var escapedSearchText = searchText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-											var pattern = new RegExp(`[^.!?]*${escapedSearchText}[^.!?]*[.!?]`, 'g');
-											var matches = largeText.match(pattern);
-
-											if (matches && matches.length > 0) {
-											  var firstSentence = matches[0];
-											  var secondSentence = matches[1];
-											  var lastSentence = matches[matches.length - 1];
-											  return firstSentence + " " + `${secondSentence || ''}`;
-											} else {
-											  return largeText?.split(' ')?.slice(0, 100)?.join(' ') || null;
-											}
-										  }
-
-										  var extractedText = findMatchingText(result?.content || result?.all_html_content || '');
-										%>
-
-										<%= extractedText || 'We are unable to extract content from the original website. Please click to read content on the original website.' %> ... <a target="_blank" href="<%= result.url %>" style="cursor: pointer; color: cornflowerblue;">read more</a>
+										<%= result?.matched_texts || 'We are unable to extract content from the original website. Please click to read content on the original website.' %> ... <a target="_blank" href="<%= result.url %>" style="cursor: pointer; color: cornflowerblue;">read more</a>
 									  </a>
 								  </div>
 								  <div class="meta tag-group">
