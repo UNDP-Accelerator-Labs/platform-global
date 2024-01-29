@@ -46,82 +46,53 @@ exports.totalUnknownCountries = `
     FROM articles
     WHERE country IS NULL;
 `
-
 exports.searchBlogQuery = (searchText, page, country, type) => {
   let whereClause = theWhereClause(country, type);
   let values = [
     page_content_limit,
     (page - 1) * page_content_limit,
-    page,
   ];
   const search = searchText ? parsers.regexQuery(searchText) : '';
   let searchTextCondition = '';
 
+  let textColumn = "COALESCE(content, all_html_content)";
+
   if (searchText !== null && searchText !== undefined && searchText.length > 0) {
     searchTextCondition = `
       AND (title ~* ('\\m' || $3 || '\\M')
-        OR content ~* ('\\m' || $3 || '\\M')
-        OR all_html_content ~* ('\\m' || $3 || '\\M')
+        OR ${textColumn} ~* ('\\m' || $3 || '\\M')
         OR country ~* ('\\m' || $3 || '\\M'))
     `;
+
     values.splice(2, 0, search);
   } else {
     searchTextCondition = `
       AND (article_type = 'blog' 
-        AND content IS NOT NULL
+        AND (${textColumn} IS NOT NULL)
         AND title IS NOT NULL)
     `;
-    values.splice(2, 0, '');
+    values.splice(2, 0);
   }
 
   return {
     text: `
-      WITH search_results AS (
-        SELECT id, url, country, article_type, title, posted_date, posted_date_str, language, created_at,
-        CASE
-          WHEN $3 = '' THEN (
-            SELECT string_agg(substring(sentence, '(.*' || $3 || '.*)'), ' ')
-            FROM (
-              SELECT unnest(string_to_array(content, '.')) AS sentence
-              OFFSET 1 LIMIT 2
-            ) sub
-          )
-          WHEN content ~* $3  THEN (
-            SELECT string_agg(substring(sentence, '(.*' || '.' || '.*)'), ' ')
-            FROM (
-              SELECT unnest(string_to_array(content, '.')) AS sentence
-            ) sub
-            WHERE sentence ~* $3 
-          )
-          WHEN all_html_content ~* $3 THEN (
-            SELECT string_agg(substring(sentence, '(.*' || '.' || '.*)'), ' ')
-            FROM (
-              SELECT unnest(string_to_array(all_html_content, '.')) AS sentence
-            ) sub
-            WHERE sentence ~* $3 
-          )
-        END AS matched_texts
-        FROM articles
-        WHERE has_lab IS TRUE
+      SELECT id, url, country, article_type, title, posted_date, 
+             posted_date_str, language, created_at, 
+               regexp_replace(
+                 regexp_replace(${textColumn}, E'\\n', ' ', 'g'),
+                 E'\\s+', ' ', 'g'
+               ) AS content
+      FROM articles
+      WHERE has_lab IS TRUE
         ${searchTextCondition}
         ${whereClause}
-        ORDER BY posted_date DESC
-        LIMIT $1 OFFSET $2
-      ),
-      total_count AS (
-        SELECT COUNT(*) AS total_records
-        FROM articles
-        WHERE has_lab IS TRUE
-        ${searchTextCondition}
-        ${whereClause}
-      )
-      SELECT sr.*, tc.total_records, (CEIL(tc.total_records::numeric / $1)) AS total_pages, ${searchTextCondition ? '$4' : '$3'}  AS current_page
-      FROM search_results sr
-      CROSS JOIN total_count tc;
+      LIMIT $1
+      OFFSET $2;
     `,
     values,
   };
-};
+}  
+
 
 exports.articleGroup = (searchText, country, type) => {
   let whereClause = theWhereClause(country, type);
